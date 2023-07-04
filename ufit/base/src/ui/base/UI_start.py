@@ -13,6 +13,9 @@ class UIStartModeling(UFitPanel, bpy.types.Panel):
         box0_row0.operator(ot_start)
         box0_row1.operator(ot_start_from_existing)
 
+        nav_box = layout.box().row()
+        nav_box.operator("ufit_operators.prev_step", text="Back")
+
 
 class UIImportScan(UFitPanel, bpy.types.Panel):
     def draw_base(self, context, ot_import_scan):

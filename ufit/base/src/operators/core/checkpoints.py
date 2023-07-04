@@ -88,10 +88,17 @@ def close_modal_step(context, path_consts, ui_consts):
 
 
 def previous_step(context, path_consts, ui_consts):
-    cp_rollback = context.scene.ufit_checkpoint_collection[-1]
-    context.scene.ufit_checkpoints = cp_rollback.name
+    if context.scene.ufit_active_step == 'start':
+        set_active_step(context,
+                        step='device_type',
+                        path_consts=None,
+                        ui_consts=None,
+                        exec_save=False)
+    else:
+        cp_rollback = context.scene.ufit_checkpoint_collection[-1]
+        context.scene.ufit_checkpoints = cp_rollback.name
 
-    rollback_to_checkpoint(context, path_consts, ui_consts)
+        rollback_to_checkpoint(context, path_consts, ui_consts)
 
 
 #################################

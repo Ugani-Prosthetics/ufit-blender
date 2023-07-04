@@ -1,5 +1,5 @@
 import bpy
-from ....base.src.operators.core.checkpoints import rollback_to_checkpoint, previous_step
+from ....base.src.operators.core.checkpoints import rollback_to_checkpoint, previous_step, set_active_step
 from ....transtibial.src.transtibial_constants import tt_path_consts, tt_ui_consts
 from ....transfemoral.src.transfemoral_constants import tf_path_consts, tf_ui_consts
 

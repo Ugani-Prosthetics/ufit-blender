@@ -8,6 +8,7 @@ from .base.src.operators.utils.authenticate import platform_authenticate, is_aut
 
 bl_info = {
     "name": "uFit",
+    "author": "Ugani Prosthetics",
     "blender": (3, 5, 0),
     "category": "O&P",
     "version": (1, 0, 0)

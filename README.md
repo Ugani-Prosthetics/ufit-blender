@@ -12,19 +12,18 @@ To ensure the exclusive use of uFit by O&P specialists, a uFit username and pass
 
 ## Key Features
 
-- **Import 3D Scan:** Easily import 3D scans of patients' limbs for seamless integration into the prosthetic design process.
-- **Clean Up 3D Scan:** Optimize mesh quality and remove imperfections in 3D scans to achieve precise anatomical representation.
-- **Measure Circumferences:** Conveniently measure circumferences during modeling to ensure a perfect fit for each individual.
-- **Scale the Model:** Effortlessly scale the model to achieve the desired proportions and dimensions.
-- **Sculpt with Pressure Points:** Sculpt and shape the device using pressure points for customized contours based on patient needs.
-- **Flexible Trim Line:** Perform the cut out process with ease using flexible trim lines for precise and comfortable fittings.
-- **Variable Print Thickness:** Choose variable print thickness to enhance durability and achieve lightweight designs.
-- **Connector Integration:** Import connectors and align them with the device model for a secure and stable connection.
-- **Export to STL:** Export your meticulously crafted device designs to STL files, ready for 3D printing.
+- **Import 3D Scan:** Effortlessly import a 3D scan of a patients' limb.
+- **Advanced Scan Clean Up:** Clean an imported scan to remove imperfections and noise.
+- **Circumference Measurement:** Use an automated circumference measurement tool directly within the modeling environment.
+- **Sculpt with Scaling and Pressure Points:** Sculpt and shape the socket with ease using scaling and pressure points. Achieve optimal comfort and functionality by customizing the socket's contours based on individual patient needs.
+- **Efficient Cut Out and Trim Line Creation:** Perform the cut out process smoothly with uFit's flexible trim line. Easily define the trim line of the socket for precise and comfortable prosthetic fittings.
+- **Variable Print Thickness:** Customize the thickness of your 3D printable sockets.
+- **Connector Alignment and Integration:** Import a connector and seamlessly align it to your socket.
+- **STL Export for 3D Printing** Export your meticulously designed sockets in the widely supported STL file format.
 
 ## Contributing
 
-We welcome contributions to uFit Blender! To contribute, [please contact us](https://ufit.ugani.org/contactus).
+We welcome contributions to uFit! To contribute, [please contact us](https://ufit.ugani.org/contactus).
 
 ## Support
 

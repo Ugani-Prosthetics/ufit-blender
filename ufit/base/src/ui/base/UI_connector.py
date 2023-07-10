@@ -8,9 +8,10 @@ class UITransitionConnector(UFitPanel, bpy.types.Panel):
         scene = context.scene
         layout = self.layout
 
-        box0 = layout.box()
-        box0_row0 = box0.row()
-        box0_row0.prop(scene, 'ufit_try_perfect_print')
+        # todo: activate try perfect print again.
+        # box0 = layout.box()
+        # box0_row0 = box0.row()
+        # box0_row0.prop(scene, 'ufit_try_perfect_print')
 
         get_standard_navbox(self.layout, "ufit_operators.prev_step", ot_transition_connector)
 

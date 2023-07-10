@@ -17,7 +17,7 @@ def register():
                                                                   items=[
                                                                       ("connector_cylinder.blend", "cylinder", "", 1),
                                                                       ("connector_cylinder_kid.blend", "cylinder (kid)", "", 2),
-                                                                      # ("connector_sl700p.blend", "SL 700-P", "", 3)
+                                                                      ("connector_sl700p.blend", "SL 700-P", "", 3),
                                                                       # ("connector_cylinder_kid_small.blend", "cylinder (kid small)", "", 3),
                                                                       # # ("connector_pyramid.blend", "pyramid", "", 2),
                                                                       # ("connector_sl700p_circle.blend", "SL 700-P (circle)", "", 4),

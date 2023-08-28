@@ -877,11 +877,12 @@ def add_image_texture(texture_name, file_dir, file_name, extension='EXTEND'):
     # load image
     bpy.data.images.load(f'{file_dir}/{file_name}', check_existing=True)  # load img from disk
 
-    # create new texture
-    if texture_name not in bpy.data.textures:
-        bpy.data.textures.new(name=texture_name, type="IMAGE")
+    # (re)create new texture
+    if texture_name in bpy.data.textures:
+        bpy.data.textures.remove(bpy.data.textures[texture_name], do_unlink=True)
 
-    # add image to textrue
+    # add image to texture
+    bpy.data.textures.new(name=texture_name, type="IMAGE")
     texture = bpy.data.textures[texture_name]
     texture.image = bpy.data.images[file_name]
     texture.extension = extension  # EXTEND # CLIP # CLIP_CUBE # REPEAT # CHECKER
@@ -893,10 +894,9 @@ def set_ufit_logo():
     #     bpy.app.timers.register(set_ufit_logo, first_interval=0.1)
 
     # check if the background of the viewport is close to white
-
-    active_theme = bpy.context.preferences.themes[0] # Get the active theme
-    high_gradient = active_theme.view_3d.space.gradients.high_gradient # Get the RGB values
-    threshold = 0.1 # Define a threshold for closeness to white
+    active_theme = bpy.context.preferences.themes[0]  # Get the active theme
+    high_gradient = active_theme.view_3d.space.gradients.high_gradient  # Get the RGB values
+    threshold = 0.1  # Define a threshold for closeness to white
     is_close_to_white = all(math.isclose(channel, 1.0, rel_tol=threshold) for channel in high_gradient)
 
     # set paths to assistance image

@@ -90,6 +90,14 @@ def alignment_object_update(self, context):
     general.activate_object(context, obj, 'OBJECT')
 
 
+def show_inner_part_update(self, context):
+    # only hide the uFit object so that the inner part becomes visible
+    ufit_obj = bpy.data.objects['uFit']
+    ufit_obj.hide_set(context.scene.ufit_show_inner_part)
+
+    # ufit_inner_obj = bpy.data.objects['uFit_Inner']
+    # ufit_inner_obj.hide_set(not context.scene.ufit_show_inner_part)
+
 
 # # function is directly called from operator as callback
 # def rotation_update(self, context):

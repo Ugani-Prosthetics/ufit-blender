@@ -5,6 +5,7 @@ from ...base.src.operators.core.sculpt import (
     prep_verify_scaling, minimal_prep_pull_bottom, minimal_prep_push_pull_smooth)
 from ...base.src.operators.core.alignment import (
     prep_import_connector, prep_alignment, prep_transition_connector)
+from ...base.src.operators.core.finish import prep_export
 
 
 tt_path_consts = {
@@ -434,7 +435,7 @@ tt_operator_consts = {
             'light': 'STUDIO',
             'color_type': 'RANDOM'
         },
-        'prep_func': None,
+        'prep_func': prep_export,
         'next_step': {
             'name': 'export',
             'exec_save': True

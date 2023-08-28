@@ -49,7 +49,6 @@ def prep_clean_up(context):
     user_interface.set_active_tool('builtin.select_circle')
 
 
-
 def clean_up(context):
     selected_verts = general.get_selected_vertices_ix(context)
     if not len(selected_verts) > 100:  # there shoul

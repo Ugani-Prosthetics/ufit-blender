@@ -278,21 +278,94 @@ def correct_thickness_connector(context, conn_obj):
     general.delete_obj_by_name_contains('Inner_Shell')
 
 
+def create_inner_ufit(context, ufit_obj, conn_obj):
+    # duplicate the inner shell group
+    general.select_vertices_from_vertex_group(context, conn_obj, 'inner_shell_group')
+    ufit_inner = general.create_obj_from_selection(context, 'uFit_Inner', copy_vg=True)
+
+    # select all vertices and create faces
+    general.select_vertices_from_vertex_group(context, ufit_inner, 'inner_shell_group')
+    bpy.ops.mesh.edge_face_add()
+
+    # toggle edit mode
+    bpy.ops.object.editmode_toggle()
+    bpy.ops.object.editmode_toggle()
+
+    # duplicate uFit_Inner so we have it twice
+    ufit_inner_2 = general.duplicate_obj(ufit_inner, 'uFit_Inner_2', context.collection, data=True, actions=False)
+
+    # boolean modifier - intersect to capture everything inside uFit_Inner_2
+    boolean_mod = ufit_inner_2.modifiers.new(name="Boolean", type="BOOLEAN")
+    boolean_mod.operation = 'INTERSECT'
+    boolean_mod.solver = 'EXACT'
+    boolean_mod.object = ufit_obj
+
+    # apply boolean modifier
+    general.activate_object(context, ufit_inner_2, mode='OBJECT')
+    override = {"object": ufit_inner_2, "active_object": ufit_inner_2}
+    bpy.ops.object.modifier_apply(override, modifier="Boolean")
+
+    # on uFit_Inner delete the top face
+    general.select_vertices_from_vertex_group(context, ufit_inner, 'scale_group_inner')
+    bpy.ops.mesh.delete(type='FACE')
+
+    # add a solididfy modifier on uFit_Inner
+    boolean_mod = ufit_inner.modifiers.new(name="Solidify", type="SOLIDIFY")
+    boolean_mod.thickness = -0.001  # one mm of thickness
+
+    # apply the solidify modifier
+    general.activate_object(context, ufit_inner, mode='OBJECT')
+    override = {"object": ufit_inner, "active_object": ufit_inner}
+    bpy.ops.object.modifier_apply(override, modifier="Solidify")
+
+    # join the uFit_Inner and uFit_Inner_2
+    selected_objects = [ufit_inner, ufit_inner_2]
+    join_dict = {
+        'object': ufit_inner,
+        'active_object': ufit_inner,
+        'selected_objects': selected_objects,
+        'selected_editable_objects': selected_objects
+    }
+    bpy.ops.object.join(join_dict)
+
+    # Remesh the uFit_Inner object
+    voxel_remesh = ufit_inner.modifiers.new("Voxel Remesh", type='REMESH')
+    voxel_remesh.mode = 'VOXEL'
+    voxel_remesh.voxel_size = 0.0005  # Set the voxel size
+
+    # set the origin to the center of the object and scale
+    bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='MEDIAN')
+    ufit_inner.scale = (0.98, 0.98, 0.98)
+
+    # apply the remesh modifier
+    general.activate_object(context, ufit_inner, mode='OBJECT')
+    override = {"object": ufit_inner, "active_object": ufit_inner}
+    bpy.ops.object.modifier_apply(override, modifier="Voxel Remesh")
+
+    # decimate geometry to reduce vertices
+    general.activate_object(context, ufit_inner, mode='EDIT')
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.mesh.decimate(ratio=0.05)
+
+    # make ufit_inner part of the collection
+    bpy.data.collections['Collection'].objects.link(ufit_inner)
+    bpy.context.scene.collection.objects.unlink(ufit_inner)  # ['Collection'].objects.link(ufit_inner)
+
+
 def transition_connector(context):
     ufit_obj = bpy.data.objects['uFit']
     conn_obj = bpy.data.objects['Connector']
-
-    # bug in blender - you have to use an override to apply the modifier
-    general.activate_object(context, ufit_obj, mode='OBJECT')
-    override = {"object": ufit_obj, "active_object": ufit_obj}
-    bpy.ops.object.modifier_apply(override, modifier="Boolean")
 
     general.activate_object(context, conn_obj, mode='OBJECT')
     override = {"object": conn_obj, "active_object": conn_obj}
     bpy.ops.object.modifier_apply(override, modifier="Shrinkwrap")
 
-    # delete the cutter object
-    general.delete_obj_by_name_contains(name='Cutter')
+    # temporary disable the Boolean modifier on uFit
+    general.activate_object(context, ufit_obj, mode='OBJECT')
+    bpy.context.object.modifiers["Boolean"].show_viewport = False
+
+    if context.scene.ufit_total_contact_socket:
+        create_inner_ufit(context, ufit_obj, conn_obj)
 
     # make sure the thickness is horizontally consistent
     if context.scene.ufit_try_perfect_print:
@@ -308,40 +381,23 @@ def transition_connector(context):
     # }
     # bpy.ops.object.join(join_dict)
 
-    # boolean modifier to merge the two objects
+    # apply the Boolean modifier of the uFIt and Cutter object
+    general.activate_object(context, ufit_obj, mode='OBJECT')
+    bpy.context.object.modifiers["Boolean"].show_viewport = True  # reactivate
+    override = {"object": ufit_obj, "active_object": ufit_obj}
+    bpy.ops.object.modifier_apply(override, modifier="Boolean")
+
+    # boolean modifier to merge the uFit and Connector object
     boolean_mod = ufit_obj.modifiers.new(name="Boolean", type="BOOLEAN")
     boolean_mod.operation = 'UNION'
     boolean_mod.solver = 'EXACT'
     boolean_mod.object = conn_obj
     # boolean_mod.use_self = True  # costs a crazy amount of performance
 
-    # apply the boolean modifier
-    general.activate_object(context, ufit_obj, mode='OBJECT')
+    # apply the merge
     override = {"object": ufit_obj, "active_object": ufit_obj}
     bpy.ops.object.modifier_apply(override, modifier="Boolean")
 
-    # delete connector object
-    bpy.data.objects.remove(conn_obj, do_unlink=True)
-
-    # voxel remesh object to remove material between inner and outer shell
-    voxel_remesh = ufit_obj.modifiers.new("Voxel Remesh", type='REMESH')
-    voxel_remesh.mode = 'VOXEL'
-    voxel_remesh.voxel_size = 0.0005  # Set the voxel size
-
-    # Add a corrective smooth modifier to round corners
-    corrective_smooth = ufit_obj.modifiers.new("Corrective Smooth", type='CORRECTIVE_SMOOTH')
-    corrective_smooth.factor = 1
-    corrective_smooth.iterations = 5  # Set the number of iterations (repeat parameter)
-    corrective_smooth.smooth_type = 'LENGTH_WEIGHTED'
-    corrective_smooth.use_only_smooth = True
-
-    # apply modifiers
-    # bug in blender - you have to use an override to apply the modifier
-    override = {"object": ufit_obj, "active_object": ufit_obj}
-    bpy.ops.object.modifier_apply(override, modifier="Voxel Remesh")
-    bpy.ops.object.modifier_apply(override, modifier="Corrective Smooth")
-
-    # decimate geometry to reduce vertices
-    general.activate_object(context, ufit_obj, mode='EDIT')
-    bpy.ops.mesh.select_all(action='SELECT')
-    bpy.ops.mesh.decimate(ratio=0.05)
+    # delete connector and cutter object
+    general.delete_obj_by_name_contains(name='Connector')
+    general.delete_obj_by_name_contains(name='Cutter')

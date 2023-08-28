@@ -892,9 +892,20 @@ def set_ufit_logo():
     # if bpy.data.images is None:
     #     bpy.app.timers.register(set_ufit_logo, first_interval=0.1)
 
+    # check if the background of the viewport is close to white
+
+    active_theme = bpy.context.preferences.themes[0] # Get the active theme
+    high_gradient = active_theme.view_3d.space.gradients.high_gradient # Get the RGB values
+    threshold = 0.1 # Define a threshold for closeness to white
+    is_close_to_white = all(math.isclose(channel, 1.0, rel_tol=threshold) for channel in high_gradient)
+
     # set paths to assistance image
     images_dir = os.path.join(os.path.dirname(__file__), f"../../../..{base_path_consts['paths']['images_path']}")
-    file_name = f'ufit_logo.png'
+
+    if not is_close_to_white:
+        file_name = f'ufit_logo.png'
+    else:
+        file_name = f'ufit_logo_no_bg.png'
 
     add_image_texture('ufit_logo', images_dir, file_name)
 

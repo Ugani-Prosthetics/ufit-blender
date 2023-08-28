@@ -5,6 +5,7 @@ from ..utils import general, user_interface
 from ....src.properties.properties import ufit_scene_properties
 from ....src import base_globals
 
+
 #################################
 # Export Socket
 #################################
@@ -16,8 +17,32 @@ def prep_export(context):
     context.space_data.overlay.show_axis_z = False
 
 
+def apply_remesh_modifiers(context, ufit_obj):
+    # voxel remesh object to remove material between inner and outer shell
+    voxel_remesh = ufit_obj.modifiers.new("Voxel Remesh", type='REMESH')
+    voxel_remesh.mode = 'VOXEL'
+    voxel_remesh.voxel_size = 0.0005  # Set the voxel size
+
+    # Add a corrective smooth modifier to round corners
+    corrective_smooth = ufit_obj.modifiers.new("Corrective Smooth", type='CORRECTIVE_SMOOTH')
+    corrective_smooth.factor = 1
+    corrective_smooth.iterations = 5  # Set the number of iterations (repeat parameter)
+    corrective_smooth.smooth_type = 'LENGTH_WEIGHTED'
+    corrective_smooth.use_only_smooth = True
+
+    # apply modifiers
+    # bug in blender - you have to use an override to apply the modifier
+    override = {"object": ufit_obj, "active_object": ufit_obj}
+    bpy.ops.object.modifier_apply(override, modifier="Voxel Remesh")
+    bpy.ops.object.modifier_apply(override, modifier="Corrective Smooth")
+
+    # decimate geometry to reduce vertices
+    general.activate_object(context, ufit_obj, mode='EDIT')
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.mesh.decimate(ratio=0.05)
+
+
 def upload_ufit_statistic(context):
-    print('in upload statistic')
     # update the offline count
     ufit_prefs = context.preferences.addons['ufit'].preferences
     if context.scene.ufit_device_type == 'transtibial':
@@ -52,25 +77,35 @@ def upload_ufit_statistic(context):
 def export_device(context):
     # only select uFit object
     ufit_obj = bpy.data.objects['uFit']
-    general.activate_object(context, ufit_obj, mode='OBJECT')
+    ufit_inner_obj = bpy.data.objects['uFit_Inner']
+
+
+    # apply remesh modifiers
+    apply_remesh_modifiers(context, ufit_obj)
 
     # get the data name
     data_name = ufit_obj.data.name
 
-    # export stl to checkpoints folder
+    # get the timestamp
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    # export stl of device to checkpoints folder
+    general.activate_object(context, ufit_obj, mode='OBJECT')
     socket_name = f'{data_name}_finished_socket_{ts}.stl'
-
-    if context.scene.ufit_folder_modeling:
-        filepath = f'{context.scene.ufit_folder_modeling}/{socket_name}'
-    else:
-        filepath = f'{context.scene.ufit_folder_checkpoints}/{socket_name}'
-
-    bpy.ops.export_mesh.stl(filepath=filepath, check_existing=True, filter_glob='*.stl',
+    filepath_socket = f'{context.scene.ufit_folder_modeling}/{socket_name}'
+    bpy.ops.export_mesh.stl(filepath=filepath_socket, check_existing=True, filter_glob='*.stl',
                             use_selection=True, global_scale=1.0, use_scene_unit=False, ascii=False,
                             use_mesh_modifiers=True, batch_mode='OFF', axis_forward='Y', axis_up='Z')
 
-    print('calling upload statistic')
+    # export stl of the inner part to checkpoints folder
+    if context.scene.ufit_total_contact_socket:
+        general.activate_object(context, ufit_inner_obj, mode='OBJECT')
+        inner_part_name = f'{data_name}_finished_inner_part_{ts}.stl'
+        filepath_inner_part = f'{context.scene.ufit_folder_modeling}/{inner_part_name}'
+        bpy.ops.export_mesh.stl(filepath=filepath_inner_part, check_existing=True, filter_glob='*.stl',
+                                use_selection=True, global_scale=1.0, use_scene_unit=False, ascii=False,
+                                use_mesh_modifiers=True, batch_mode='OFF', axis_forward='Y', axis_up='Z')
+
     upload_ufit_statistic(context)
 
 

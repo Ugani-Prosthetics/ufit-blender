@@ -166,7 +166,6 @@ def push_pull_region_circular(context, extrusion):
 
     # perform proportional editing (extrusion)
     bpy.ops.transform.translate(value=(0, 0, extrusion),
-                                orient_axis_ortho='X',
                                 orient_type='NORMAL',
                                 # orient_matrix=((-0.869072, 0.298615, -0.39439),
                                 #                (0.346459, -0.201653, -0.916135),
@@ -244,7 +243,6 @@ def pull_bottom(context, extrusion):
 
     # perform proportional editing (extrusion)
     bpy.ops.transform.translate(value=(0, 0, extrusion),
-                                orient_axis_ortho='X',
                                 orient_type='NORMAL',
                                 orient_matrix_type='NORMAL',
                                 constraint_axis=(False, False, True),

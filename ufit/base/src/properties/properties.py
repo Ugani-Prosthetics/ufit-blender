@@ -189,6 +189,11 @@ def register():
 
     # transition
     bpy.types.Scene.ufit_try_perfect_print = BoolProperty(name="Try Perfect Print", default=False)
+    bpy.types.Scene.ufit_total_contact_socket = BoolProperty(name="Total Contact Socket", default=False)
+
+    # export
+    bpy.types.Scene.ufit_show_inner_part = BoolProperty(name="Show Inner Part", default=False,
+                                                        update=callbacks.show_inner_part_update)
 
 
 def unregister():

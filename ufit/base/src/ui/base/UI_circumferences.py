@@ -34,7 +34,7 @@ class UICircumferences(UFitPanel, bpy.types.Panel):
                     sculpt_circum = context.scene.ufit_sculpt_circumferences[i]
                     box_row0.label(text=f"{round(sculpt_circum*100, 1)}")  # sculpt circum
                     box_row0.label(text=f"{round(circum * 100, 1)}")  # liner circum
-                elif workflow_step_nr > liner_step_nr:
+                elif workflow_step_nr > sculpt_step_nr:
                     box_row0.label(text=f"{round(circum*100, 1)}")  # sculpt circum
 
         # circumferences highlighting

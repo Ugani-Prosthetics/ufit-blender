@@ -352,15 +352,64 @@ def create_inner_ufit(context, ufit_obj, conn_obj):
     bpy.context.scene.collection.objects.unlink(ufit_inner)  # ['Collection'].objects.link(ufit_inner)
 
 
+def fix_transition_inaccuracy(context, ufit_obj, conn_obj, cut_obj):
+    # add boolean intersection modifier to the cutter object (DO NOT APPLY!)
+    boolean_mod = cut_obj.modifiers.new(name="Boolean", type="BOOLEAN")
+    boolean_mod.operation = 'INTERSECT'
+    boolean_mod.solver = 'EXACT'
+    boolean_mod.object = ufit_obj
+
+    for i in range(3):
+        # select the shrinkwrap vertex group on conn_obj and subdivide
+        general.select_vertices_from_vertex_group(context, conn_obj, 'shrinkwrap_group')
+        bpy.ops.mesh.subdivide(number_cuts=2)
+
+        # add shrinkwrap modifier again to connector
+        shrinkwrap_mod = conn_obj.modifiers.new(name="Shrinkwrap", type="SHRINKWRAP")
+        shrinkwrap_mod.wrap_method = 'NEAREST_SURFACEPOINT'  # 'NEAREST_VERTEX'
+        shrinkwrap_mod.wrap_mode = 'ON_SURFACE'
+        shrinkwrap_mod.target = cut_obj
+        shrinkwrap_mod.vertex_group = 'shrinkwrap_group'
+
+        # apply the shrinkwrap modifier
+        general.activate_object(context, conn_obj, mode='OBJECT')
+        override = {"object": conn_obj, "active_object": conn_obj}
+        bpy.ops.object.modifier_apply(override, modifier="Shrinkwrap")
+
+    # triangulate to avoid bended faces
+    triangulate_mod = conn_obj.modifiers.new(name="Triangulate", type="TRIANGULATE")
+    triangulate_mod.quad_method = 'SHORTEST_DIAGONAL'
+    triangulate_mod.ngon_method = 'BEAUTY'
+    triangulate_mod.min_vertices = 4
+
+    # apply the triangulate modifier
+    general.activate_object(context, conn_obj, mode='OBJECT')
+    override = {"object": conn_obj, "active_object": conn_obj}
+    bpy.ops.object.modifier_apply(override, modifier="Triangulate")
+
+    # decimate connector to reduce vertices and avoid long calculation time for union
+    general.activate_object(context, conn_obj, mode='EDIT')
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.mesh.decimate(ratio=0.01)
+
+    # remove the intersect modifier
+    cut_obj.modifiers.remove(boolean_mod)
+
+
 def transition_connector(context):
     ufit_obj = bpy.data.objects['uFit']
     conn_obj = bpy.data.objects['Connector']
+    cut_obj = bpy.data.objects['Cutter']
 
+    # apply shrinkwrap modifier on connector
     general.activate_object(context, conn_obj, mode='OBJECT')
     override = {"object": conn_obj, "active_object": conn_obj}
     bpy.ops.object.modifier_apply(override, modifier="Shrinkwrap")
 
-    # temporary disable the Boolean modifier on uFit
+    # fix potential transition inaccuracy of connector
+    fix_transition_inaccuracy(context, ufit_obj, conn_obj, cut_obj)
+
+    # temporary disable the Boolean modifier on uFit to create the inner part for full contact socket
     general.activate_object(context, ufit_obj, mode='OBJECT')
     bpy.context.object.modifiers["Boolean"].show_viewport = False
 
@@ -371,17 +420,7 @@ def transition_connector(context):
     if context.scene.ufit_try_perfect_print:
         correct_thickness_connector(context, conn_obj)
 
-    # join the connector and ufit object
-    # selected_objects = [ufit_obj, conn_obj]
-    # join_dict = {
-    #     'object': ufit_obj,
-    #     'active_object': ufit_obj,
-    #     'selected_objects': selected_objects,
-    #     'selected_editable_objects': selected_objects
-    # }
-    # bpy.ops.object.join(join_dict)
-
-    # apply the Boolean modifier of the uFIt and Cutter object
+    # apply the Boolean modifier of the uFit and Cutter object
     general.activate_object(context, ufit_obj, mode='OBJECT')
     bpy.context.object.modifiers["Boolean"].show_viewport = True  # reactivate
     override = {"object": ufit_obj, "active_object": ufit_obj}

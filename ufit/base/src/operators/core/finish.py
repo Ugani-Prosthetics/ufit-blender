@@ -77,8 +77,7 @@ def upload_ufit_statistic(context):
 def export_device(context):
     # only select uFit object
     ufit_obj = bpy.data.objects['uFit']
-    ufit_inner_obj = bpy.data.objects['uFit_Inner']
-
+    general.activate_object(context, ufit_obj, mode='OBJECT')
 
     # apply remesh modifiers
     apply_remesh_modifiers(context, ufit_obj)
@@ -90,7 +89,6 @@ def export_device(context):
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
 
     # export stl of device to checkpoints folder
-    general.activate_object(context, ufit_obj, mode='OBJECT')
     socket_name = f'{data_name}_finished_socket_{ts}.stl'
     filepath_socket = f'{context.scene.ufit_folder_modeling}/{socket_name}'
     bpy.ops.export_mesh.stl(filepath=filepath_socket, check_existing=True, filter_glob='*.stl',
@@ -99,6 +97,7 @@ def export_device(context):
 
     # export stl of the inner part to checkpoints folder
     if context.scene.ufit_total_contact_socket:
+        ufit_inner_obj = bpy.data.objects['uFit_Inner']
         general.activate_object(context, ufit_inner_obj, mode='OBJECT')
         inner_part_name = f'{data_name}_finished_inner_part_{ts}.stl'
         filepath_inner_part = f'{context.scene.ufit_folder_modeling}/{inner_part_name}'

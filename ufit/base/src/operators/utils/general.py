@@ -374,8 +374,9 @@ def scale_selected_verts_distance_xy(obj, distance):
 def activate_object(context, active_obj, mode='OBJECT', hide_select_all=True):
     # to switch to object mode, you need an active object
     context.view_layer.objects.active = active_obj
+    active_obj.hide_set(False)  # make sure it is not hidden
     active_obj.hide_select = False  # make sure it is selectable
-    active_obj.select_set(True)
+    active_obj.select_set(True)  # select the object
 
     bpy.ops.object.mode_set(mode='OBJECT')
     for obj in bpy.data.objects:

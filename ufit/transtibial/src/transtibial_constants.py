@@ -2,7 +2,7 @@ from ...base.src.operators.core.prepare import (
     prep_move_scan, prep_clean_up, prep_verify_clean_up, prep_rotate, prep_circumferences)
 from ...base.src.operators.core.sculpt import (
     prep_push_pull_smooth, prep_cutout, prep_cutout_prep, prep_scaling, prep_pull_bottom,
-    prep_verify_scaling, minimal_prep_pull_bottom, minimal_prep_push_pull_smooth)
+    prep_verify_scaling, minimal_prep_pull_bottom, minimal_prep_push_pull_smooth, prep_flare)
 from ...base.src.operators.core.alignment import (
     prep_import_connector, prep_alignment, prep_transition_connector)
 from ...base.src.operators.core.finish import prep_export
@@ -93,6 +93,10 @@ tt_ui_consts = {
         'thickness': {
             'ui_name': 'Thickness',
             'help_text': 'Choose the print thickness in mm.'},
+        'flare': {
+            'ui_name': 'Flare',
+            'help_text': 'Provide the flare height and flare percentage in the menu, or use the interactive tool, to '
+                         'add flare to your socket.'},
         'verify_socket': {
             'ui_name': 'Verify Socket',
             'help_text': 'Verify the socket is what you expected.'},
@@ -364,6 +368,28 @@ tt_operator_consts = {
     'thickness': {
         'checkpoint': {
             'name': 'thickness',
+            'sub_steps': False
+        },
+        'default_state': {
+            'object_name': 'uFit',
+            'light': 'STUDIO',
+            'color_type': 'MATERIAL'
+        },
+        'prep_func': prep_flare,
+        'next_step': {
+            'name': 'flare',
+            'exec_save': True
+        },
+    },
+    'flare': {
+        'checkpoint': None,
+        'default_state': None,
+        'prep_func': None,
+        'next_step': None,
+    },
+    'flare_done': {
+        'checkpoint': {
+            'name': 'flare',
             'sub_steps': False
         },
         'default_state': {

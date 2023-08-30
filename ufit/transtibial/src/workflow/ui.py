@@ -13,6 +13,7 @@ from .ST_100_cutout.UI_cutout import UICutoutTT
 from .ST_110_scale.UI_liner_scaling import UIScaleScanTT
 from .ST_120_verify_scaling.UI_verify_scaling import UIVerifyScalingTT
 from .ST_130_thickness.UI_thickness import UIThicknessTT
+from .ST_135_flare.UI_flare import UIFlareTT
 from .ST_140_verify_socket.UI_verify_socket import UIVerifySocketTT
 from .ST_150_import_connector.UI_import_connector import UIImportConnectorTT
 from .ST_160_align.UI_alignment import UIMoveConnectorTT
@@ -38,6 +39,7 @@ def register():
     bpy.utils.register_class(UICutoutPrepTT)
     bpy.utils.register_class(UICutoutTT)
     bpy.utils.register_class(UIThicknessTT)
+    bpy.utils.register_class(UIFlareTT)
     bpy.utils.register_class(UIVerifySocketTT)
     bpy.utils.register_class(UIImportConnectorTT)
     bpy.utils.register_class(UIMoveConnectorTT)
@@ -63,6 +65,7 @@ def unregister():
     bpy.utils.unregister_class(UICutoutPrepTT)
     bpy.utils.unregister_class(UICutoutTT)
     bpy.utils.unregister_class(UIThicknessTT)
+    bpy.utils.unregister_class(UIFlareTT)
     bpy.utils.unregister_class(UIVerifySocketTT)
     bpy.utils.unregister_class(UIImportConnectorTT)
     bpy.utils.unregister_class(UIMoveConnectorTT)

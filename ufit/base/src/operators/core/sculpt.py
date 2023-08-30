@@ -441,18 +441,6 @@ def perform_cutout(context):
     # split the object by the looped edge
     bpy.ops.mesh.edge_split(type='VERT')
 
-    # small bend out around the cutout to avoid sharp edges touching the leg
-    # bpy.ops.transform.resize(value=(1.01, 1.01, 1),
-    #                          orient_type='GLOBAL',
-    #                          # orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)),
-    #                          orient_matrix_type='GLOBAL',
-    #                          constraint_axis=(True, True, False), mirror=True,
-    #                          use_proportional_edit=True,
-    #                          proportional_edit_falloff='LINEAR',
-    #                          proportional_size=0.003,
-    #                          use_proportional_connected=False,
-    #                          use_proportional_projected=False)
-
     # create vertex group (for next step)
     general.create_new_vertex_group_for_selected(context, ufit_obj, 'cutout_edge', mode='EDIT')
 
@@ -611,3 +599,58 @@ def create_thickness(context):
     # make manifold
     bpy.ops.object.mode_set(mode='OBJECT')
     bpy.ops.mesh.print3d_clean_non_manifold()
+
+
+#########################################
+# Flare
+#########################################
+def prep_flare(context):
+    ufit_obj = bpy.data.objects['uFit']
+
+    # activate quad view
+    context.scene.ufit_quad_view = True
+
+    # activate proportional editing
+    bpy.context.scene.tool_settings.use_proportional_edit = True
+
+    # switch to edit mode and select vertices from cutout edge
+    general.select_vertices_from_vertex_group(context, ufit_obj, 'cutout_edge')
+
+    # set the default flare tool
+    user_interface.set_active_tool(bpy.context.scene.bl_rna.properties['ufit_flare_tool'].default)
+
+    # set proportional size to default size of ufit_flare_percentage
+    bpy.context.tool_settings.proportional_size = 0.01
+
+    # turn off the overlay
+    bpy.context.space_data.overlay.show_overlays = False
+
+
+def flare(context):
+    # set ufit obj
+    ufit_obj = bpy.data.objects['uFit']
+
+    # make sure the vertices from the cutout edge are selected
+    general.select_vertices_from_vertex_group(context, ufit_obj, 'cutout_edge')
+
+    # calculate the flare percentage
+    flare_perc = 1 + context.scene.ufit_flare_percentage/100
+
+    # flare
+    bpy.ops.transform.resize(value=(flare_perc, flare_perc, 1),
+                             orient_type='GLOBAL',
+                             # orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)),
+                             orient_matrix_type='GLOBAL',
+                             constraint_axis=(True, True, False),
+                             mirror=True,
+                             use_proportional_edit=True,
+                             proportional_edit_falloff='SMOOTH',
+                             proportional_size=context.tool_settings.proportional_size,
+                             use_proportional_connected=False,
+                             use_proportional_projected=False)
+
+
+def flare_done(context):
+    bpy.context.scene.tool_settings.use_proportional_edit = False
+
+

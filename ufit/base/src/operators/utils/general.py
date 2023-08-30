@@ -864,6 +864,9 @@ def return_to_default_state(context, object_name, light, color_type):
     context.scene.ufit_quad_view = False
     context.scene.ufit_orthographic_view = False
 
+    # turn on overlay
+    bpy.context.space_data.overlay.show_overlays = True
+
 
 def filter_close_vertex_array(arr, rtol, atol):
     filtered_arr = [arr[0]]

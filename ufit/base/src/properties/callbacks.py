@@ -66,6 +66,24 @@ def update_preview(self, context):
         bpy.ops.object.mode_set(mode='VERTEX_PAINT')
 
 
+def flare_tool_update(self, context):
+    # (re)select vertices from cutout edge
+    # when the user switches tool, it can be used as a reset to reselect the edge
+    ufit_obj = bpy.data.objects['uFit']
+    general.select_vertices_from_vertex_group(context, ufit_obj, 'cutout_edge')
+
+    user_interface.set_active_tool(self.ufit_flare_tool)
+
+
+def get_flare_height(self):
+    return bpy.context.tool_settings.proportional_size*100
+
+
+def set_flare_height(self, value):
+    bpy.context.tool_settings.proportional_size = value/100
+    self["flare_height"] = value
+
+
 def xray_update(self, context):
     user_interface.set_xray(context.scene.ufit_x_ray)
 

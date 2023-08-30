@@ -42,6 +42,9 @@ ufit_scene_properties = [
     'ufit_extrude_amount',
     'ufit_twist_method',
     'ufit_print_thickness',
+    'ufit_flare_tool',
+    'ufit_flare_height',
+    'ufit_flare_percentage',
     'ufit_show_connector',
     'ufit_x_ray',
     'ufit_anchor_point',
@@ -133,18 +136,6 @@ def register():
                                                              ("0.040", "4 cm", "", 3),
                                                          ])
 
-    # Scaling
-    bpy.types.Scene.ufit_scaling_unit = EnumProperty(name="Scaling Unit", default=1,
-                                                     items=[
-                                                         ("millimeter", "mm", "", 1),
-                                                         ("percentage", "%", "", 2)
-                                                     ])
-    bpy.types.Scene.ufit_liner_scaling = FloatProperty(name="Liner Scaling", min=-50.0, max=50.0, step=50, default=0)
-    bpy.types.Scene.ufit_show_prescale = BoolProperty(name="Show Pre-scaling", default=True,
-                                                      update=callbacks.show_prescale_update)
-    bpy.types.Scene.ufit_show_original = BoolProperty(name="Show Original", default=True,
-                                                      update=callbacks.show_original_update)
-
     # extrude/smooth regions
     bpy.types.Scene.ufit_preview_extrusions = BoolProperty(name="Disable Colors", default=False,
                                                            update=callbacks.update_preview)
@@ -163,6 +154,31 @@ def register():
 
     bpy.types.Scene.ufit_print_thickness = FloatProperty(name="Thickness", min=0.0, max=10.0, step=10,
                                                          default=4.2)
+
+    # Scaling
+    bpy.types.Scene.ufit_scaling_unit = EnumProperty(name="Scaling Unit", default=1,
+                                                     items=[
+                                                         ("millimeter", "mm", "", 1),
+                                                         ("percentage", "%", "", 2)
+                                                     ])
+    bpy.types.Scene.ufit_liner_scaling = FloatProperty(name="Liner Scaling", min=-50.0, max=50.0, step=50, default=0)
+    bpy.types.Scene.ufit_show_prescale = BoolProperty(name="Show Pre-scaling", default=True,
+                                                      update=callbacks.show_prescale_update)
+    bpy.types.Scene.ufit_show_original = BoolProperty(name="Show Original", default=True,
+                                                      update=callbacks.show_original_update)
+
+    # Flare
+    bpy.types.Scene.ufit_flare_tool = EnumProperty(name="Mode", default=2,
+                                                   items=[
+                                                       ("builtin.scale", "interactive", "", 1),
+                                                       ("builtin.select_box", "input", "", 2),
+                                                   ],
+                                                   update=callbacks.flare_tool_update)
+    bpy.types.Scene.ufit_flare_height = bpy.props.FloatProperty(name="Flare Height", step=10,
+                                                                get=callbacks.get_flare_height,
+                                                                set=callbacks.set_flare_height)
+    bpy.types.Scene.ufit_flare_percentage = FloatProperty(name='Flare Perc.', subtype="PERCENTAGE",
+                                                          min=0, max=50.0, default=3, precision=1)
 
     # alignment
     bpy.types.Scene.ufit_x_ray = BoolProperty(name="X-Ray", default=False,
@@ -241,12 +257,6 @@ def unregister():
     del bpy.types.Scene.ufit_circums_highlighted
     del bpy.types.Scene.ufit_circums_distance
 
-    # Scaling
-    del bpy.types.Scene.ufit_scaling_unit
-    del bpy.types.Scene.ufit_liner_scaling
-    del bpy.types.Scene.ufit_show_prescale
-    del bpy.types.Scene.ufit_show_original
-
     # extrude/smooth regions
     del bpy.types.Scene.ufit_smooth_factor
     del bpy.types.Scene.ufit_preview_extrusions
@@ -256,6 +266,17 @@ def unregister():
     # cutout
     del bpy.types.Scene.ufit_twist_method
     del bpy.types.Scene.ufit_print_thickness
+
+    # Scaling
+    del bpy.types.Scene.ufit_scaling_unit
+    del bpy.types.Scene.ufit_liner_scaling
+    del bpy.types.Scene.ufit_show_prescale
+    del bpy.types.Scene.ufit_show_original
+
+    # Flare
+    del bpy.types.Scene.ufit_flare_tool
+    del bpy.types.Scene.ufit_flare_height
+    del bpy.types.Scene.ufit_flare_percentage
 
     # alignment
     del bpy.types.Scene.ufit_x_ray

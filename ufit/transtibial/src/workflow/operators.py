@@ -22,6 +22,7 @@ from .ST_80_pull_bottom.OT_pull_bottom import OTPullBottomTT, OTPullBottomDoneTT
 from .ST_90_cutout_prep.OT_cutout_prep import OTCutoutPlaneTT
 from .ST_100_cutout.OT_cutout import OTCutoutTT
 from .ST_130_thickness.OT_thickness import OTThicknessTT
+from .ST_135_flare.OT_flare import OTFlareTT, OTFlareDoneTT
 from .ST_140_verify_socket.OT_verify_socket import OTApproveSocketTT
 from .ST_150_import_connector.OT_import_connector import OTImportConnectorTT
 from .ST_160_align.OT_alignment import OTSaveAlignmentTT
@@ -52,6 +53,8 @@ def register():
     bpy.utils.register_class(OTCutoutPlaneTT)
     bpy.utils.register_class(OTCutoutTT)
     bpy.utils.register_class(OTThicknessTT)
+    bpy.utils.register_class(OTFlareTT)
+    bpy.utils.register_class(OTFlareDoneTT)
     bpy.utils.register_class(OTApproveSocketTT)
     bpy.utils.register_class(OTImportConnectorTT)
     bpy.utils.register_class(OTSaveAlignmentTT)
@@ -82,6 +85,8 @@ def unregister():
     bpy.utils.unregister_class(OTCutoutPlaneTT)
     bpy.utils.unregister_class(OTCutoutTT)
     bpy.utils.unregister_class(OTThicknessTT)
+    bpy.utils.unregister_class(OTFlareTT)
+    bpy.utils.unregister_class(OTFlareDoneTT)
     bpy.utils.unregister_class(OTApproveSocketTT)
     bpy.utils.unregister_class(OTImportConnectorTT)
     bpy.utils.unregister_class(OTSaveAlignmentTT)

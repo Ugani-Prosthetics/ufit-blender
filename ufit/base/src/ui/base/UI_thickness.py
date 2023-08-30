@@ -12,7 +12,7 @@ class UIThickness(UFitPanel, bpy.types.Panel):
         box0_row0 = box0.row()
         box0_row0.prop(scene, 'ufit_print_thickness')
 
-        get_standard_navbox(self.layout, "ufit_operators.prev_step", "tf_operators.thickness")
+        get_standard_navbox(self.layout, "ufit_operators.prev_step", ot_thickness)
 
 
 class UIVerifyThickness(UFitPanel, bpy.types.Panel):

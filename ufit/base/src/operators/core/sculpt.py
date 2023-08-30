@@ -165,7 +165,9 @@ def push_pull_region_circular(context, extrusion):
     bpy.context.scene.transform_orientation_slots[0].type = 'NORMAL'
 
     # perform proportional editing (extrusion)
-    bpy.ops.transform.translate(value=(0, 0, extrusion),
+    print(extrusion)
+    print(radius)
+    bpy.ops.transform.translate(value=(0, 0, extrusion*1.5),
                                 orient_type='NORMAL',
                                 # orient_matrix=((-0.869072, 0.298615, -0.39439),
                                 #                (0.346459, -0.201653, -0.916135),

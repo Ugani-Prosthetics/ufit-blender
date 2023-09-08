@@ -16,6 +16,7 @@ from .ST_120_verify_scaling.OT_verify_scaling import OTApproveScalingTT
 from .ST_70_push_pull_smooth.OT_push_pull_smooth import (
     OTPushPullRegionTT,
     OTSmoothRegionTT,
+    OTFreeSculptCheckpointTT,
     OTPushPullSmoothDoneTT
 )
 from .ST_80_pull_bottom.OT_pull_bottom import OTPullBottomTT, OTPullBottomDoneTT
@@ -47,6 +48,7 @@ def register():
     bpy.utils.register_class(OTApproveScalingTT)
     bpy.utils.register_class(OTSmoothRegionTT)
     bpy.utils.register_class(OTPushPullRegionTT)
+    bpy.utils.register_class(OTFreeSculptCheckpointTT)
     bpy.utils.register_class(OTPushPullSmoothDoneTT)
     bpy.utils.register_class(OTPullBottomTT)
     bpy.utils.register_class(OTPullBottomDoneTT)
@@ -79,6 +81,7 @@ def unregister():
     bpy.utils.unregister_class(OTApproveScalingTT)
     bpy.utils.unregister_class(OTSmoothRegionTT)
     bpy.utils.unregister_class(OTPushPullRegionTT)
+    bpy.utils.unregister_class(OTFreeSculptCheckpointTT)
     bpy.utils.unregister_class(OTPushPullSmoothDoneTT)
     bpy.utils.unregister_class(OTPullBottomTT)
     bpy.utils.unregister_class(OTPullBottomDoneTT)

@@ -36,7 +36,7 @@ ufit_scene_properties = [
     'ufit_liner_scaling',
     'ufit_show_prescale',
     'ufit_show_original',
-    'ufit_preview_extrusions',
+    'ufit_enable_colors',
     'ufit_smooth_factor',
     'ufit_push_pull_circular',
     'ufit_extrude_amount',
@@ -137,11 +137,31 @@ def register():
                                                          ])
 
     # extrude/smooth regions
-    bpy.types.Scene.ufit_preview_extrusions = BoolProperty(name="Disable Colors", default=False,
-                                                           update=callbacks.update_preview)
+    bpy.types.Scene.ufit_sculpt_mode = EnumProperty(name="Mode", default=1,
+                                                    items=[
+                                                        ("guided", "Guided", "", 1),
+                                                        ("free", "Free", "", 3),
+                                                    ],
+                                                    update=callbacks.sculpt_mode_update)
+    bpy.types.Scene.ufit_sculpt_tool = EnumProperty(name="Sculpting Tool", default=1,
+                                                    items=[
+                                                        ("push_pull", "Push/Pull", "", 1),
+                                                        ("smooth", "Smooth", "", 2),
+                                                    ])
+
+    bpy.types.Scene.ufit_enable_colors = BoolProperty(name="Enable Colors", default=True,
+                                                      update=callbacks.update_colors_enable)
     bpy.types.Scene.ufit_smooth_factor = IntProperty(name="Factor", min=0, max=50, step=1, default=15)
-    bpy.types.Scene.ufit_push_pull_circular = BoolProperty(name="Circular", default=True)
+    bpy.types.Scene.ufit_push_pull_circular = BoolProperty(name="Circular Push/Pull", default=True)
     bpy.types.Scene.ufit_extrude_amount = FloatProperty(name="Amount", min=0, max=100.0, step=50, default=3.5)
+    bpy.types.Scene.ufit_sculpt_brush = EnumProperty(name="Sculpting Tool", default=1,
+                                                     items=[
+                                                         ("push_brush", "Push", "", 1),
+                                                         ("pull_brush", "Pull", "", 2),
+                                                         ("smooth_brush", "Smooth", "", 3),
+                                                         ("flatten_brush", "Flatten", "", 4),
+                                                     ],
+                                                     update=callbacks.sculpt_brush_update)
 
     # Cutout
     bpy.types.Scene.ufit_twist_method = EnumProperty(name="Twist Method", default=2,
@@ -259,7 +279,7 @@ def unregister():
 
     # extrude/smooth regions
     del bpy.types.Scene.ufit_smooth_factor
-    del bpy.types.Scene.ufit_preview_extrusions
+    del bpy.types.Scene.ufit_enable_colors
     del bpy.types.Scene.ufit_push_pull_circular
     del bpy.types.Scene.ufit_extrude_amount
 

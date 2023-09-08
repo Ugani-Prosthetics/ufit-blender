@@ -42,7 +42,7 @@ def start_from_existing(context, file_path_obj, path_consts, ui_consts):
             for file in checkpoints_files:
                 if file.startswith('ST_'):
                     wf_step = get_workflow_step(step, path_consts)
-                    if wf_step in file and not 'blend1' in file:
+                    if wf_step and wf_step in file and not 'blend1' in file:
                         latest_checkpoint = os.path.join(checkpoints_dir, file)
                         active_step = step
                         break

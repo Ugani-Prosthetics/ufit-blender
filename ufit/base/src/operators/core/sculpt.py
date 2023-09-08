@@ -32,6 +32,7 @@ def set_push_pull_smooth_shader_nodes(ufit_obj, color_attr_name):
                 # Add new nodes
                 node_rgb = material.node_tree.nodes.new('ShaderNodeRGB')
                 node_color_attr = material.node_tree.nodes.new('ShaderNodeVertexColor')
+                node_color_invert = material.node_tree.nodes.new('ShaderNodeInvert')
                 node_separate_color = material.node_tree.nodes.new('ShaderNodeSeparateColor')
                 node_mix = material.node_tree.nodes.new('ShaderNodeMix')
 
@@ -47,10 +48,14 @@ def set_push_pull_smooth_shader_nodes(ufit_obj, color_attr_name):
                 # make node links
                 material.node_tree.links.new(
                     node_color_attr.outputs['Color'],
+                    node_color_invert.inputs['Color']
+                )
+                material.node_tree.links.new(
+                    node_color_invert.outputs['Color'],
                     node_separate_color.inputs['Color']
                 )
                 material.node_tree.links.new(
-                    node_separate_color.outputs['Green'],
+                    node_separate_color.outputs['Red'],
                     node_mix.inputs['Factor']
                 )
                 material.node_tree.links.new(
@@ -74,13 +79,15 @@ def prep_push_pull_smooth(context):
     context.scene.ufit_substep = 0
 
     # add area selection color attribute and add shader nodes
-    color_attributes.add_new_color_attr(ufit_obj, name=color_attr_select, color=(0, 0, 0, 1))
+    color_attributes.add_new_color_attr(ufit_obj, name=color_attr_select, color=(1, 1, 1, 1))
     set_push_pull_smooth_shader_nodes(ufit_obj, color_attr_name=color_attr_select)
 
     # activate vertex paint mode
     user_interface.set_shading_material_preview_mode()
     general.activate_object(context, ufit_obj, mode='VERTEX_PAINT')
     context.scene.tool_settings.unified_paint_settings.size = 30  # change the brush size to 30px
+    bpy.data.brushes["Draw"].color = (0, 1, 0)  # green
+    bpy.data.brushes["Draw"].secondary_color = (1, 1, 1)  # white
 
 
 # called after remeasuring
@@ -90,8 +97,19 @@ def minimal_prep_push_pull_smooth(context):
     # activate the uFit Object
     general.activate_object(context, ufit_obj, mode='VERTEX_PAINT')
 
-    # reset color attribute to all black vertices
-    color_attributes.reset_color_attribute(ufit_obj, color_attr_select, color=(0, 0, 0, 1))
+    # reset color attribute to all white vertices
+    color_attributes.reset_color_attribute(ufit_obj, color_attr_select, color=(1, 1, 1, 1))
+
+    # increase the substep number
+    context.scene.ufit_substep = context.scene.ufit_substep + 1
+
+
+# called after remeasuring
+def minimal_prep_free_sculpt(context):
+    ufit_obj = bpy.data.objects['uFit']
+
+    # activate the uFit Object
+    general.activate_object(context, ufit_obj, mode='SCULPT')
 
     # increase the substep number
     context.scene.ufit_substep = context.scene.ufit_substep + 1
@@ -101,7 +119,7 @@ def smooth_region(context):
     ufit_obj = bpy.data.objects['uFit']
 
     # select vertices by color attribute layer - exclude default color black
-    color_attributes.select_vertices_by_color_exclude(context, ufit_obj, color_attr_select, Vector((0, 0, 0, 1)))
+    color_attributes.select_vertices_by_color_exclude(context, ufit_obj, color_attr_select, Vector((1, 1, 1, 1)))
 
     # smooth selected vertices
     bpy.ops.mesh.vertices_smooth(factor=0.5, repeat=context.scene.ufit_smooth_factor)
@@ -116,7 +134,7 @@ def push_pull_region(context, extrusion):
     ufit_obj = bpy.data.objects['uFit']
 
     # select vertices by color attribute layer - exclude default color black
-    color_attributes.select_vertices_by_color_exclude(context, ufit_obj, color_attr_select, Vector((0, 0, 0, 1)))
+    color_attributes.select_vertices_by_color_exclude(context, ufit_obj, color_attr_select, Vector((1, 1, 1, 1)))
 
     # decrease selected region
     # general.decrease_selected_vertices_region(ufit_obj, 2)
@@ -135,7 +153,7 @@ def push_pull_region_circular(context, extrusion):
     ufit_obj = bpy.data.objects['uFit']
 
     # select vertices by color attribute layer - exclude default color black
-    color_attributes.select_vertices_by_color_exclude(context, ufit_obj, color_attr_select, Vector((0, 0, 0, 1)))
+    color_attributes.select_vertices_by_color_exclude(context, ufit_obj, color_attr_select, Vector((1, 1, 1, 1)))
 
     # get the selected vertices again (indexes are ruined)
     selected_verts = general.get_selected_vertices(context)
@@ -165,8 +183,6 @@ def push_pull_region_circular(context, extrusion):
     bpy.context.scene.transform_orientation_slots[0].type = 'NORMAL'
 
     # perform proportional editing (extrusion)
-    print(extrusion)
-    print(radius)
     bpy.ops.transform.translate(value=(0, 0, extrusion*1.5),
                                 orient_type='NORMAL',
                                 # orient_matrix=((-0.869072, 0.298615, -0.39439),

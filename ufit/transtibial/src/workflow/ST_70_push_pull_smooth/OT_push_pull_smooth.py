@@ -1,5 +1,6 @@
 from ..OT_Base_TT import OTBaseTT
-from .....base.src.operators.base.OT_push_pull_smooth import OTPushPullRegion, OTSmoothRegion, OTPushPullSmoothDone
+from .....base.src.operators.base.OT_push_pull_smooth import \
+    OTPushPullRegion, OTSmoothRegion, OTPushPullSmoothDone, OTFreeSculptCheckpoint
 
 
 class OTPushPullRegionTT(OTBaseTT, OTPushPullRegion):
@@ -22,6 +23,17 @@ class OTSmoothRegionTT(OTBaseTT, OTSmoothRegion):
     def execute(self, context):
         return self.execute_base(context,
                                  operator_name='smooth_region')
+
+
+class OTFreeSculptCheckpointTT(OTBaseTT, OTFreeSculptCheckpoint):
+    """Tooltip"""
+    bl_idname = "tt_operators.free_sculpt_checkpoint"
+    bl_label = "Add Checkpoint"
+    bl_options = {"REGISTER", "UNDO"}
+
+    def execute(self, context):
+        return self.execute_base(context,
+                                 operator_name='free_sculpt_checkpoint')
 
 
 class OTPushPullSmoothDoneTT(OTBaseTT, OTPushPullSmoothDone):

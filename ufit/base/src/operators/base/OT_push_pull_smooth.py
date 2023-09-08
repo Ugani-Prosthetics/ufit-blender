@@ -64,6 +64,20 @@ class OTSmoothRegion(OTBase):
         remeasure_circumferences(context)
 
 
+class OTFreeSculptCheckpoint(OTBase):
+    @classmethod
+    def poll(cls, context):
+        # check if there is an ufit object and a vertex is selected
+        active_object = context.active_object
+        if active_object is not None \
+                and active_object.name == 'uFit':
+            return True
+
+    def main_func(self, context):
+        # remeasure circumferences
+        remeasure_circumferences(context)
+
+
 class OTPushPullSmoothDone(OTBase):
     @classmethod
     def poll(cls, context):
@@ -76,3 +90,6 @@ class OTPushPullSmoothDone(OTBase):
     def main_func(self, context):
         # execute func
         push_pull_smooth_done(context)
+
+        # remeasure circumferences
+        remeasure_circumferences(context)

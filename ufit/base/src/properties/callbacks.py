@@ -2,6 +2,7 @@ import bpy
 import math
 import bpy.utils.previews
 from ..operators.utils import general, user_interface
+from ..operators.core import checkpoints
 
 
 # We can store multiple preview collections here,
@@ -56,14 +57,36 @@ def twist_method_update(self, context):
     ufit_cutout.twist_mode = self.ufit_twist_method
 
 
-def update_preview(self, context):
-    if self.ufit_preview_extrusions:
-        user_interface.set_shading_solid_mode(light='STUDIO', color_type='MATERIAL')
-        bpy.ops.object.mode_set(mode='OBJECT')
-        user_interface.set_active_tool('builtin.select_box')  # for some reason it always jumps to move object
-    else:
+def update_colors_enable(self, context):
+    if self.ufit_enable_colors:
         user_interface.set_shading_material_preview_mode()
+    else:
+        user_interface.set_shading_solid_mode(light='STUDIO', color_type='MATERIAL')
+
+
+def sculpt_mode_update(self, context):
+    if self.ufit_sculpt_mode == 'guided':
         bpy.ops.object.mode_set(mode='VERTEX_PAINT')
+        context.scene.tool_settings.unified_paint_settings.size = 30
+    else:
+        bpy.ops.object.mode_set(mode='SCULPT')
+        context.scene.ufit_sculpt_brush = self.ufit_sculpt_brush  # trigger the sculpt_brush_update_function
+        checkpoints.fill_history_with_null_operations()  # fill the history with null operations so that the user cannot switch back to vertex paint mode using crtl-z
+
+
+def sculpt_brush_update(self, context):
+    if self.ufit_sculpt_brush == 'push_brush':
+        bpy.ops.wm.tool_set_by_id(name="builtin_brush.Draw")
+        bpy.data.brushes["SculptDraw"].direction = 'SUBTRACT'
+    elif self.ufit_sculpt_brush == 'pull_brush':
+        bpy.ops.wm.tool_set_by_id(name="builtin_brush.Draw")
+        bpy.data.brushes["SculptDraw"].direction = 'ADD'
+    elif self.ufit_sculpt_brush == 'smooth_brush':
+        bpy.ops.wm.tool_set_by_id(name="builtin_brush.Smooth")
+        bpy.data.brushes["Smooth"].direction = 'SMOOTH'
+    elif self.ufit_sculpt_brush == 'flatten_brush':
+        bpy.ops.wm.tool_set_by_id(name="builtin_brush.Flatten")
+        bpy.data.brushes["Flatten/Contrast"].direction = 'FLATTEN'
 
 
 def flare_tool_update(self, context):

@@ -6,7 +6,7 @@ from .ST_30_clean_up.UI_clean_up import UICleanUpScanTT
 from .ST_40_verify_clean_up.UI_verify_clean_up import UIVerifyCleanUpTT
 from .ST_50_rotate.UI_rotate_scan import UIRotateTT
 from .ST_60_circumferences.UI_circumferences import UIAddCircumferencesTT, UICircumferencesTT
-from .ST_70_push_pull_smooth.UI_push_pull_smooth import UIPushPullRegionsTT, UISmoothRegionsTT
+from .ST_70_push_pull_smooth.UI_push_pull_smooth import UIPushPullRegionsTT
 from .ST_80_pull_bottom.UI_pull_bottom import UIPullBottomTT
 from .ST_90_cutout_prep.UI_cutout_prep import UICutoutPrepTT
 from .ST_100_cutout.UI_cutout import UICutoutTT
@@ -33,7 +33,6 @@ def register():
     bpy.utils.register_class(UIAddCircumferencesTT)
     bpy.utils.register_class(UIScaleScanTT)
     bpy.utils.register_class(UIVerifyScalingTT)
-    bpy.utils.register_class(UISmoothRegionsTT)
     bpy.utils.register_class(UIPushPullRegionsTT)
     bpy.utils.register_class(UIPullBottomTT)
     bpy.utils.register_class(UICutoutPrepTT)
@@ -59,7 +58,6 @@ def unregister():
     bpy.utils.unregister_class(UIAddCircumferencesTT)
     bpy.utils.unregister_class(UIScaleScanTT)
     bpy.utils.unregister_class(UIVerifyScalingTT)
-    bpy.utils.unregister_class(UISmoothRegionsTT)
     bpy.utils.unregister_class(UIPushPullRegionsTT)
     bpy.utils.unregister_class(UIPullBottomTT)
     bpy.utils.unregister_class(UICutoutPrepTT)

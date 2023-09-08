@@ -3,6 +3,7 @@ import bpy
 import math
 import addon_utils
 from bl_ui.space_toolsystem_common import ToolSelectPanelHelper
+from bl_ui.space_toolsystem_toolbar import VIEW3D_PT_tools_active, ToolDef, _defs_sculpt
 
 
 def enable_addon(addon_module_name):
@@ -75,6 +76,20 @@ def delete_tools(workspace, tool_ids, space_type='VIEW_3D', context_mode='EDIT')
                 else:
                     if tool_group.idname == idname:
                         del tools[i:i + 2]  # delete i and i+1
+
+
+# todo: fix function - not working
+def delete_brushes(workspace, brush_ids, space_type='VIEW_3D', context_mode='SCULPT'):
+    bpy.context.window.workspace = bpy.data.workspaces[workspace]
+
+    # Get all tooldefs for builtin brushes
+    brushes = list(_defs_sculpt.generate_from_brushes(bpy.context))
+    for idname in brush_ids:
+        for i, brush in enumerate(brushes):
+            if callable(brush):
+                pass  #
+            elif brush.idname == idname:
+                del brush
 
 
 def set_active_tool(tool_name):

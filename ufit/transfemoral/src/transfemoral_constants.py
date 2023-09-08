@@ -2,7 +2,7 @@ from ...base.src.operators.core.prepare import (
     prep_move_scan, prep_clean_up, prep_verify_clean_up, prep_rotate, prep_circumferences)
 from ...base.src.operators.core.sculpt import (
     prep_push_pull_smooth, prep_cutout, prep_cutout_prep, prep_scaling, prep_pull_bottom,
-    prep_verify_scaling, minimal_prep_pull_bottom, minimal_prep_push_pull_smooth)
+    prep_verify_scaling, minimal_prep_pull_bottom, minimal_prep_push_pull_smooth, minimal_prep_free_sculpt)
 from ...base.src.operators.core.alignment import (
     prep_import_connector, prep_alignment, prep_transition_connector)
 
@@ -67,9 +67,10 @@ tf_ui_consts = {
             'help_text': 'Add the first circumference, the rest will be calculated automatically downwards. '
                          'Choose the distance between the measurements.'},
         'push_pull_smooth': {
-            'ui_name': 'Smooth/Push/Pull',
-            'help_text': 'Hold Left-Click and move mouse to select an area. Use CTRL-Click to remove selected area. '
-                         'Once selected, change the smooth/push/pull parameters in the menu.'},
+            'ui_name': 'Sculpt',
+            'help_text': 'For guided sculpting, hold Left-Click and move mouse to highlight an area. '
+                         'Use CTRL-Click to remove highlighted area. '
+                         'Once the area is highlighted, use the options in the menu to perform an action'},
         'pull_bottom': {
             'ui_name': 'Pull Bottom',
             'help_text': 'Hold Left-Click and move mouse to select the area at the bottom of the leg that '
@@ -268,8 +269,23 @@ tf_operator_consts = {
             'exec_save': True
         },
     },
+    'free_sculpt_checkpoint': {
+        'checkpoint': {
+            'name': 'push_pull_smooth',
+            'sub_steps': True
+        },
+        'default_state': None,
+        'prep_func': minimal_prep_free_sculpt,
+        'next_step': {
+            'name': 'push_pull_smooth',
+            'exec_save': True
+        },
+    },
     'push_pull_smooth_done': {
-        'checkpoint': None,
+        'checkpoint': {
+            'name': 'push_pull_smooth',
+            'sub_steps': True
+        },
         'default_state': {
             'object_name': 'uFit',
             'light': 'FLAT',

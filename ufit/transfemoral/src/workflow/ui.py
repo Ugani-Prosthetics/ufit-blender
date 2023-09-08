@@ -12,6 +12,8 @@ from .ST_90_cutout_prep.UI_cutout_prep import UICutoutPrepTF
 from .ST_100_cutout.UI_cutout import UICutoutTF
 from .ST_110_scale.UI_liner_scaling import UIScaleScanTF
 from .ST_120_verify_scaling.UI_verify_scaling import UIVerifyScalingTF
+from .ST_125_socket_carve.UI_socket_carve import UISocketCarveTF
+from .ST_130_carve_model.UI_carve_model import UICarveModelTF
 from .ST_130_thickness.UI_thickness import UIThicknessTF
 from .ST_140_verify_socket.UI_verify_socket import UIVerifySocketTF
 from .ST_150_import_connector.UI_import_connector import UIImportConnectorTF
@@ -30,12 +32,14 @@ def register():
     bpy.utils.register_class(UIRotateTF)
     bpy.utils.register_class(UICircumferencesTF)
     bpy.utils.register_class(UIAddCircumferencesTF)
-    bpy.utils.register_class(UIScaleScanTF)
-    bpy.utils.register_class(UIVerifyScalingTF)
     bpy.utils.register_class(UIPushPullRegionsTF)
     bpy.utils.register_class(UIPullBottomTF)
     bpy.utils.register_class(UICutoutPrepTF)
     bpy.utils.register_class(UICutoutTF)
+    bpy.utils.register_class(UIScaleScanTF)
+    bpy.utils.register_class(UIVerifyScalingTF)
+    bpy.utils.register_class(UISocketCarveTF)
+    bpy.utils.register_class(UICarveModelTF)
     bpy.utils.register_class(UIThicknessTF)
     bpy.utils.register_class(UIVerifySocketTF)
     bpy.utils.register_class(UIImportConnectorTF)
@@ -54,12 +58,14 @@ def unregister():
     bpy.utils.unregister_class(UIRotateTF)
     bpy.utils.unregister_class(UICircumferencesTF)
     bpy.utils.unregister_class(UIAddCircumferencesTF)
-    bpy.utils.unregister_class(UIScaleScanTF)
-    bpy.utils.unregister_class(UIVerifyScalingTF)
     bpy.utils.unregister_class(UIPushPullRegionsTF)
     bpy.utils.unregister_class(UIPullBottomTF)
     bpy.utils.unregister_class(UICutoutPrepTF)
     bpy.utils.unregister_class(UICutoutTF)
+    bpy.utils.unregister_class(UIScaleScanTF)
+    bpy.utils.unregister_class(UIVerifyScalingTF)
+    bpy.utils.unregister_class(UISocketCarveTF)
+    bpy.utils.unregister_class(UICarveModelTF)
     bpy.utils.unregister_class(UIThicknessTF)
     bpy.utils.unregister_class(UIVerifySocketTF)
     bpy.utils.unregister_class(UIImportConnectorTF)

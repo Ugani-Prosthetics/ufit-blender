@@ -12,6 +12,8 @@ from .ST_90_cutout_prep.UI_cutout_prep import UICutoutPrepTT
 from .ST_100_cutout.UI_cutout import UICutoutTT
 from .ST_110_scale.UI_liner_scaling import UIScaleScanTT
 from .ST_120_verify_scaling.UI_verify_scaling import UIVerifyScalingTT
+from .ST_125_socket_carve.UI_socket_carve import UISocketCarveTT
+from .ST_130_carve_model.UI_carve_model import UICarveModelTT
 from .ST_130_thickness.UI_thickness import UIThicknessTT
 from .ST_135_flare.UI_flare import UIFlareTT
 from .ST_140_verify_socket.UI_verify_socket import UIVerifySocketTT
@@ -31,12 +33,14 @@ def register():
     bpy.utils.register_class(UIRotateTT)
     bpy.utils.register_class(UICircumferencesTT)
     bpy.utils.register_class(UIAddCircumferencesTT)
-    bpy.utils.register_class(UIScaleScanTT)
-    bpy.utils.register_class(UIVerifyScalingTT)
     bpy.utils.register_class(UIPushPullRegionsTT)
     bpy.utils.register_class(UIPullBottomTT)
     bpy.utils.register_class(UICutoutPrepTT)
     bpy.utils.register_class(UICutoutTT)
+    bpy.utils.register_class(UIScaleScanTT)
+    bpy.utils.register_class(UIVerifyScalingTT)
+    bpy.utils.register_class(UISocketCarveTT)
+    bpy.utils.register_class(UICarveModelTT)
     bpy.utils.register_class(UIThicknessTT)
     bpy.utils.register_class(UIFlareTT)
     bpy.utils.register_class(UIVerifySocketTT)
@@ -56,12 +60,14 @@ def unregister():
     bpy.utils.unregister_class(UIRotateTT)
     bpy.utils.unregister_class(UICircumferencesTT)
     bpy.utils.unregister_class(UIAddCircumferencesTT)
-    bpy.utils.unregister_class(UIScaleScanTT)
-    bpy.utils.unregister_class(UIVerifyScalingTT)
     bpy.utils.unregister_class(UIPushPullRegionsTT)
     bpy.utils.unregister_class(UIPullBottomTT)
     bpy.utils.unregister_class(UICutoutPrepTT)
     bpy.utils.unregister_class(UICutoutTT)
+    bpy.utils.unregister_class(UIScaleScanTT)
+    bpy.utils.unregister_class(UIVerifyScalingTT)
+    bpy.utils.unregister_class(UISocketCarveTT)
+    bpy.utils.unregister_class(UICarveModelTT)
     bpy.utils.unregister_class(UIThicknessTT)
     bpy.utils.unregister_class(UIFlareTT)
     bpy.utils.unregister_class(UIVerifySocketTT)

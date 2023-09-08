@@ -11,8 +11,6 @@ from .ST_60_circumferences.OT_circumferences import (
     OTCircumferencesDoneTT,
     OTCircumferencesHighlightTT
 )
-from .ST_110_scale.OT_liner_scaling import OTLinerScaleTT
-from .ST_120_verify_scaling.OT_verify_scaling import OTApproveScalingTT
 from .ST_70_push_pull_smooth.OT_push_pull_smooth import (
     OTPushPullRegionTT,
     OTSmoothRegionTT,
@@ -22,6 +20,10 @@ from .ST_70_push_pull_smooth.OT_push_pull_smooth import (
 from .ST_80_pull_bottom.OT_pull_bottom import OTPullBottomTT, OTPullBottomDoneTT
 from .ST_90_cutout_prep.OT_cutout_prep import OTCutoutPlaneTT
 from .ST_100_cutout.OT_cutout import OTCutoutTT
+from .ST_110_scale.OT_liner_scaling import OTLinerScaleTT
+from .ST_120_verify_scaling.OT_verify_scaling import OTApproveScalingTT
+from .ST_125_socket_carve.OT_socket_carve import OTSocketCarveTT
+from .ST_130_carve_model.OT_carve_model import OTCarveModelTT
 from .ST_130_thickness.OT_thickness import OTThicknessTT
 from .ST_135_flare.OT_flare import OTFlareTT, OTFlareDoneTT
 from .ST_140_verify_socket.OT_verify_socket import OTApproveSocketTT
@@ -44,8 +46,6 @@ def register():
     bpy.utils.register_class(OTCircumferencesCalcTT)
     bpy.utils.register_class(OTCircumferencesDoneTT)
     bpy.utils.register_class(OTCircumferencesHighlightTT)
-    bpy.utils.register_class(OTLinerScaleTT)
-    bpy.utils.register_class(OTApproveScalingTT)
     bpy.utils.register_class(OTSmoothRegionTT)
     bpy.utils.register_class(OTPushPullRegionTT)
     bpy.utils.register_class(OTFreeSculptCheckpointTT)
@@ -54,6 +54,10 @@ def register():
     bpy.utils.register_class(OTPullBottomDoneTT)
     bpy.utils.register_class(OTCutoutPlaneTT)
     bpy.utils.register_class(OTCutoutTT)
+    bpy.utils.register_class(OTLinerScaleTT)
+    bpy.utils.register_class(OTApproveScalingTT)
+    bpy.utils.register_class(OTSocketCarveTT)
+    bpy.utils.register_class(OTCarveModelTT)
     bpy.utils.register_class(OTThicknessTT)
     bpy.utils.register_class(OTFlareTT)
     bpy.utils.register_class(OTFlareDoneTT)
@@ -77,8 +81,6 @@ def unregister():
     bpy.utils.unregister_class(OTCircumferencesCalcTT)
     bpy.utils.unregister_class(OTCircumferencesDoneTT)
     bpy.utils.unregister_class(OTCircumferencesHighlightTT)
-    bpy.utils.unregister_class(OTLinerScaleTT)
-    bpy.utils.unregister_class(OTApproveScalingTT)
     bpy.utils.unregister_class(OTSmoothRegionTT)
     bpy.utils.unregister_class(OTPushPullRegionTT)
     bpy.utils.unregister_class(OTFreeSculptCheckpointTT)
@@ -87,6 +89,10 @@ def unregister():
     bpy.utils.unregister_class(OTPullBottomDoneTT)
     bpy.utils.unregister_class(OTCutoutPlaneTT)
     bpy.utils.unregister_class(OTCutoutTT)
+    bpy.utils.unregister_class(OTLinerScaleTT)
+    bpy.utils.unregister_class(OTApproveScalingTT)
+    bpy.utils.unregister_class(OTSocketCarveTT)
+    bpy.utils.unregister_class(OTCarveModelTT)
     bpy.utils.unregister_class(OTThicknessTT)
     bpy.utils.unregister_class(OTFlareTT)
     bpy.utils.unregister_class(OTFlareDoneTT)

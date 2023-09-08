@@ -561,6 +561,13 @@ def verify_scaling(context):
 
 
 #########################################
+# Carve
+#########################################
+def create_carve_model(context):
+    print('creating carve model now')
+
+
+#########################################
 # Thickness
 #########################################
 def create_thickness(context):

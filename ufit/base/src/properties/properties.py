@@ -41,6 +41,7 @@ ufit_scene_properties = [
     'ufit_push_pull_circular',
     'ufit_extrude_amount',
     'ufit_twist_method',
+    'ufit_socket_or_carve',
     'ufit_print_thickness',
     'ufit_flare_tool',
     'ufit_flare_height',
@@ -172,9 +173,6 @@ def register():
                                                      ],
                                                      update=callbacks.twist_method_update)
 
-    bpy.types.Scene.ufit_print_thickness = FloatProperty(name="Thickness", min=0.0, max=10.0, step=10,
-                                                         default=4.2)
-
     # Scaling
     bpy.types.Scene.ufit_scaling_unit = EnumProperty(name="Scaling Unit", default=1,
                                                      items=[
@@ -186,6 +184,17 @@ def register():
                                                       update=callbacks.show_prescale_update)
     bpy.types.Scene.ufit_show_original = BoolProperty(name="Show Original", default=True,
                                                       update=callbacks.show_original_update)
+
+    # socket or carve
+    bpy.types.Scene.ufit_socket_or_carve = EnumProperty(name="Socket or Carve?", default=1,
+                                                        items=[
+                                                            ("socket", "Socket", "", 1),
+                                                            ("carve", "Carve", "", 2),
+                                                        ])
+
+    # Thickness
+    bpy.types.Scene.ufit_print_thickness = FloatProperty(name="Thickness", min=0.0, max=10.0, step=10,
+                                                         default=4.2)
 
     # Flare
     bpy.types.Scene.ufit_flare_tool = EnumProperty(name="Mode", default=2,
@@ -285,6 +294,11 @@ def unregister():
 
     # cutout
     del bpy.types.Scene.ufit_twist_method
+
+    # socket or carve
+    del bpy.types.Scene.ufit_socket_or_carve
+
+    # thickness
     del bpy.types.Scene.ufit_print_thickness
 
     # Scaling

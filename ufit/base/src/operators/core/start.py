@@ -39,9 +39,11 @@ def start_from_existing(context, file_path_obj, path_consts, ui_consts):
         workflow = list(ui_consts['workflow'].keys())
         workflow.reverse()
         for step in workflow:
+            print(step)
             for file in checkpoints_files:
                 if file.startswith('ST_'):
                     wf_step = get_workflow_step(step, path_consts)
+                    print(wf_step)
                     if wf_step and wf_step in file and not 'blend1' in file:
                         latest_checkpoint = os.path.join(checkpoints_dir, file)
                         active_step = step

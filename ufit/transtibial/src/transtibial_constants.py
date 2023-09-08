@@ -8,6 +8,14 @@ from ...base.src.operators.core.alignment import (
 from ...base.src.operators.core.finish import prep_export
 
 
+def socket_condition(context):
+    return context.scene.ufit_socket_or_carve == "socket"
+
+
+def carve_condition(context):
+    return context.scene.ufit_socket_or_carve == "carve"
+
+
 tt_path_consts = {
     'name': 'Transtibial',
     'paths': {
@@ -91,6 +99,13 @@ tt_ui_consts = {
         'verify_scaling': {
             'ui_name': 'Verify Scaling',
             'help_text': 'Verify the scaling is what you expected.'},
+        'socket_carve': {
+            'ui_name': 'Socket or Carve',
+            'help_text': 'Choose "Socket" if you would you like to create a full 3D socket. '
+                         'Choose "Carve" if you would like to create a positive model for CNC carving?'},
+        'carve_model': {
+            'ui_name': 'Carve Model',
+            'help_text': 'Create your carve model by choosing your parameters in the menu and clicking next'},
         'thickness': {
             'ui_name': 'Thickness',
             'help_text': 'Choose the print thickness in mm.'},
@@ -122,29 +137,27 @@ tt_ui_consts = {
 tt_operator_consts = {
     'start_modeling': {
         'checkpoint': None,
-        'default_state': None,
-        'prep_func': None,
         'next_step': {
             'name': 'import_scan',
+            'default_state': None,
+            'prep_func': None,
             'exec_save': False
         },
     },
     'start_from_existing': {
         'checkpoint': None,
-        'default_state': None,
-        'prep_func': None,
         'next_step': None,
     },
     'import_scan': {
         'checkpoint': None,
-        'default_state': {
-            'object_name': 'uFit',
-            'light': 'FLAT',
-            'color_type': 'TEXTURE'
-        },
-        'prep_func': prep_move_scan,
         'next_step': {
             'name': 'indicate',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'FLAT',
+                'color_type': 'TEXTURE'
+            },
+            'prep_func': prep_move_scan,
             'exec_save': True
         },
 
@@ -154,14 +167,14 @@ tt_operator_consts = {
             'name': 'indicate',
             'sub_steps': False
         },
-        'default_state': {
-            'object_name': 'uFit',
-            'light': 'FLAT',
-            'color_type': 'TEXTURE'
-        },
-        'prep_func': prep_clean_up,
         'next_step': {
             'name': 'clean_up',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'FLAT',
+                'color_type': 'TEXTURE'
+            },
+            'prep_func': prep_clean_up,
             'exec_save': True
         },
     },
@@ -170,14 +183,14 @@ tt_operator_consts = {
             'name': 'clean_up',
             'sub_steps': False
         },
-        'default_state': {
-            'object_name': 'uFit',
-            'light': 'FLAT',
-            'color_type': 'TEXTURE'
-        },
-        'prep_func': prep_verify_clean_up,
         'next_step': {
             'name': 'verify_clean_up',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'FLAT',
+                'color_type': 'TEXTURE'
+            },
+            'prep_func': prep_verify_clean_up,
             'exec_save': True
         },
     },
@@ -186,14 +199,14 @@ tt_operator_consts = {
             'name': 'verify_clean_up',
             'sub_steps': False
         },
-        'default_state': {
-            'object_name': 'uFit',
-            'light': 'FLAT',
-            'color_type': 'TEXTURE'
-        },
-        'prep_func': prep_rotate,
         'next_step': {
             'name': 'rotate',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'FLAT',
+                'color_type': 'TEXTURE'
+            },
+            'prep_func': prep_rotate,
             'exec_save': True
         },
     },
@@ -202,27 +215,23 @@ tt_operator_consts = {
             'name': 'rotate',
             'sub_steps': False
         },
-        'default_state': {
-            'object_name': 'uFit',
-            'light': 'FLAT',
-            'color_type': 'TEXTURE'
-        },
-        'prep_func': prep_circumferences,
         'next_step': {
             'name': 'circumferences',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'FLAT',
+                'color_type': 'TEXTURE'
+            },
+            'prep_func': prep_circumferences,
             'exec_save': True
         },
     },
     'circumference_add': {
         'checkpoint': None,
-        'default_state': None,
-        'prep_func': None,
         'next_step': None,
     },
     'circumferences_calc': {
         'checkpoint': None,
-        'default_state': None,
-        'prep_func': None,
         'next_step': None,
     },
     'circumferences_done': {
@@ -230,21 +239,19 @@ tt_operator_consts = {
             'name': 'circumferences',
             'sub_steps': False
         },
-        'default_state': {
-            'object_name': 'uFit',
-            'light': 'FLAT',
-            'color_type': 'TEXTURE'
-        },
-        'prep_func': prep_push_pull_smooth,
         'next_step': {
             'name': 'push_pull_smooth',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'FLAT',
+                'color_type': 'TEXTURE'
+            },
+            'prep_func': prep_push_pull_smooth,
             'exec_save': True
         },
     },
     'circumferences_highlight': {
         'checkpoint': None,
-        'default_state': None,
-        'prep_func': None,
         'next_step': None,
     },
     'push_pull_region': {
@@ -252,10 +259,10 @@ tt_operator_consts = {
             'name': 'push_pull_smooth',
             'sub_steps': True
         },
-        'default_state': None,
-        'prep_func': minimal_prep_push_pull_smooth,
         'next_step': {
             'name': 'push_pull_smooth',
+            'default_state': None,
+            'prep_func': minimal_prep_push_pull_smooth,
             'exec_save': True
         },
     },
@@ -264,10 +271,10 @@ tt_operator_consts = {
             'name': 'push_pull_smooth',
             'sub_steps': True
         },
-        'default_state': None,
-        'prep_func': minimal_prep_push_pull_smooth,
         'next_step': {
             'name': 'push_pull_smooth',
+            'default_state': None,
+            'prep_func': minimal_prep_push_pull_smooth,
             'exec_save': True
         },
     },
@@ -276,10 +283,10 @@ tt_operator_consts = {
             'name': 'push_pull_smooth',
             'sub_steps': True
         },
-        'default_state': None,
-        'prep_func': minimal_prep_free_sculpt,
         'next_step': {
             'name': 'push_pull_smooth',
+            'default_state': None,
+            'prep_func': minimal_prep_free_sculpt,
             'exec_save': True
         },
     },
@@ -288,14 +295,14 @@ tt_operator_consts = {
             'name': 'push_pull_smooth',  # also add a checkpoint once done
             'sub_steps': True
         },
-        'default_state': {
-            'object_name': 'uFit',
-            'light': 'FLAT',
-            'color_type': 'TEXTURE'
-        },
-        'prep_func': prep_pull_bottom,
         'next_step': {
             'name': 'pull_bottom',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'FLAT',
+                'color_type': 'TEXTURE'
+            },
+            'prep_func': prep_pull_bottom,
             'exec_save': False
         },
     },
@@ -304,23 +311,23 @@ tt_operator_consts = {
             'name': 'pull_bottom',
             'sub_steps': True
         },
-        'default_state': None,
-        'prep_func': minimal_prep_pull_bottom,
         'next_step': {
             'name': 'pull_bottom',
+            'default_state': None,
+            'prep_func': minimal_prep_pull_bottom,
             'exec_save': True
         },
     },
     'pull_bottom_done': {
         'checkpoint': None,
-        'default_state': {
-            'object_name': 'uFit',
-            'light': 'FLAT',
-            'color_type': 'TEXTURE'
-        },
-        'prep_func': prep_cutout_prep,
         'next_step': {
             'name': 'cutout_prep',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'FLAT',
+                'color_type': 'TEXTURE'
+            },
+            'prep_func': prep_cutout_prep,
             'exec_save': True
         },
     },
@@ -329,14 +336,14 @@ tt_operator_consts = {
             'name': 'cutout_prep',
             'sub_steps': False
         },
-        'default_state': {
-            'object_name': 'uFit',
-            'light': 'FLAT',
-            'color_type': 'TEXTURE'
-        },
-        'prep_func': prep_cutout,
         'next_step': {
             'name': 'cutout',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'FLAT',
+                'color_type': 'TEXTURE'
+            },
+            'prep_func': prep_cutout,
             'exec_save': True
         },
     },
@@ -345,14 +352,14 @@ tt_operator_consts = {
             'name': 'cutout',
             'sub_steps': False
         },
-        'default_state': {
-            'object_name': 'uFit',
-            'light': 'STUDIO',
-            'color_type': 'VERTEX'
-        },
-        'prep_func': prep_scaling,
         'next_step': {
             'name': 'scale',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'STUDIO',
+                'color_type': 'VERTEX'
+            },
+            'prep_func': prep_scaling,
             'exec_save': True
         },
     },
@@ -361,8 +368,6 @@ tt_operator_consts = {
             'name': 'scale',
             'sub_steps': False
         },
-        'default_state': None,  # replaced by custom main_func
-        'prep_func': None,  # replaced by custom main_func
         'next_step': None,  # replaced by custom main_func
     },
     'verify_scaling': {
@@ -370,14 +375,62 @@ tt_operator_consts = {
             'name': 'verify_scaling',
             'sub_steps': False
         },
-        'default_state': {
-            'object_name': 'uFit',
-            'light': 'STUDIO',
-            'color_type': 'MATERIAL'
-        },
-        'prep_func': None,
         'next_step': {
-            'name': 'thickness',
+            'name': 'socket_carve',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'STUDIO',
+                'color_type': 'MATERIAL'
+            },
+            'prep_func': None,
+            'exec_save': True
+        }
+    },
+    'socket_carve': {
+        'checkpoint': {
+            'name': 'socket_carve',
+            'sub_steps': False
+        },
+        'next_step': {
+            'conditions': [
+                {
+                    'condition_func': socket_condition,
+                    'name': 'thickness',
+                    'default_state': {
+                        'object_name': 'uFit',
+                        'light': 'STUDIO',
+                        'color_type': 'MATERIAL'
+                    },
+                    'prep_func': None,
+                    'exec_save': True
+                },
+                {
+                    'condition_func': carve_condition,
+                    'name': 'carve_model',
+                    'default_state': {
+                        'object_name': 'uFit',
+                        'light': 'STUDIO',
+                        'color_type': 'MATERIAL'
+                    },
+                    'prep_func': None,
+                    'exec_save': True
+                }
+            ]
+        },
+    },
+    'carve_model': {
+        'checkpoint': {
+            'name': 'carve_model',
+            'sub_steps': False
+        },
+        'next_step': {
+            'name': 'export',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'STUDIO',
+                'color_type': 'MATERIAL'
+            },
+            'prep_func': None,
             'exec_save': True
         },
     },
@@ -386,21 +439,19 @@ tt_operator_consts = {
             'name': 'thickness',
             'sub_steps': False
         },
-        'default_state': {
-            'object_name': 'uFit',
-            'light': 'STUDIO',
-            'color_type': 'MATERIAL'
-        },
-        'prep_func': prep_flare,
         'next_step': {
             'name': 'flare',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'STUDIO',
+                'color_type': 'MATERIAL'
+            },
+            'prep_func': prep_flare,
             'exec_save': True
         },
     },
     'flare': {
         'checkpoint': None,
-        'default_state': None,
-        'prep_func': None,
         'next_step': None,
     },
     'flare_done': {
@@ -408,14 +459,14 @@ tt_operator_consts = {
             'name': 'flare',
             'sub_steps': False
         },
-        'default_state': {
-            'object_name': 'uFit',
-            'light': 'STUDIO',
-            'color_type': 'MATERIAL'
-        },
-        'prep_func': None,
         'next_step': {
             'name': 'verify_socket',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'STUDIO',
+                'color_type': 'MATERIAL'
+            },
+            'prep_func': None,
             'exec_save': True
         },
     },
@@ -424,14 +475,14 @@ tt_operator_consts = {
             'name': 'verify_socket',
             'sub_steps': False
         },
-        'default_state': {
-            'object_name': 'uFit',
-            'light': 'FLAT',
-            'color_type': 'VERTEX'
-        },
-        'prep_func': prep_import_connector,
         'next_step': {
             'name': 'import_connector',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'FLAT',
+                'color_type': 'VERTEX'
+            },
+            'prep_func': prep_import_connector,
             'exec_save': True
         },
     },
@@ -440,14 +491,14 @@ tt_operator_consts = {
             'name': 'import_connector',
             'sub_steps': False
         },
-        'default_state': {
-            'object_name': 'uFit',
-            'light': 'FLAT',
-            'color_type': 'VERTEX'
-        },
-        'prep_func': prep_alignment,
         'next_step': {
             'name': 'align',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'FLAT',
+                'color_type': 'VERTEX'
+            },
+            'prep_func': prep_alignment,
             'exec_save': True
         },
     },
@@ -456,14 +507,14 @@ tt_operator_consts = {
             'name': 'align',
             'sub_steps': False
         },
-        'default_state': {
-            'object_name': 'uFit',
-            'light': 'STUDIO',
-            'color_type': 'MATERIAL'
-        },
-        'prep_func': prep_transition_connector,
         'next_step': {
             'name': 'transition',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'STUDIO',
+                'color_type': 'MATERIAL'
+            },
+            'prep_func': prep_transition_connector,
             'exec_save': True
         },
     },
@@ -472,14 +523,14 @@ tt_operator_consts = {
             'name': 'transition',
             'sub_steps': False
         },
-        'default_state': {
-            'object_name': 'uFit',
-            'light': 'STUDIO',
-            'color_type': 'RANDOM'
-        },
-        'prep_func': prep_export,
         'next_step': {
             'name': 'export',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'STUDIO',
+                'color_type': 'RANDOM'
+            },
+            'prep_func': prep_export,
             'exec_save': True
         },
     },
@@ -488,23 +539,23 @@ tt_operator_consts = {
             'name': 'export',
             'sub_steps': False
         },
-        'default_state': {
-            'object_name': 'uFit',
-            'light': 'STUDIO',
-            'color_type': 'RANDOM'
-        },
-        'prep_func': None,
         'next_step': {
             'name': 'finish',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'STUDIO',
+                'color_type': 'RANDOM'
+            },
+            'prep_func': None,
             'exec_save': True
         },
     },
     'restart': {
         'checkpoint': None,
-        'default_state': None,
-        'prep_func': None,
         'next_step': {
             'name': 'start',
+            'default_state': None,
+            'prep_func': None,
             'exec_save': False
         },
     },

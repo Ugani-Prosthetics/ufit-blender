@@ -12,9 +12,7 @@ class OTBase(bpy.types.Operator):
             ui_consts = self.get_ui_consts()
             operator_consts = self.get_operator_consts(operator_name)
             checkpoint = operator_consts.get('checkpoint')
-            prep_func = operator_consts.get('prep_func')
             next_step = operator_consts.get('next_step')
-            default_state = operator_consts.get('default_state')
 
             # add checkpoint
             if checkpoint:
@@ -26,23 +24,54 @@ class OTBase(bpy.types.Operator):
             # execute func
             self.main_func(context)
 
-            # return to default state
-            if default_state:
-                return_to_default_state(context,
-                                        object_name=default_state['object_name'],
-                                        light=default_state['light'],
-                                        color_type=default_state['color_type'])
-
-            # prep and step
-            if prep_func:
-                prep_func(context)
-
+            # move to next step
             if next_step:
-                set_active_step(context,
-                                step=next_step['name'],
-                                path_consts=path_consts,
-                                ui_consts=ui_consts,
-                                exec_save=next_step['exec_save'])
+                if not next_step.get('conditions'):
+                    prep_func = next_step.get('prep_func')
+                    default_state = next_step.get('default_state')
+
+                    if default_state:
+                        return_to_default_state(context,
+                                                object_name=default_state['object_name'],
+                                                light=default_state['light'],
+                                                color_type=default_state['color_type'])
+
+                    if prep_func:
+                        prep_func(context)
+
+                    set_active_step(context,
+                                    step=next_step['name'],
+                                    path_consts=path_consts,
+                                    ui_consts=ui_consts,
+                                    exec_save=next_step['exec_save'])
+
+                else:  # conditions
+                    for step in next_step.get('conditions'):
+                        condition_func = step.get('condition_func')
+                        if condition_func(context):
+                            prep_func = step.get('prep_func')
+                            default_state = step.get('default_state')
+
+                            if default_state:
+                                return_to_default_state(context,
+                                                        object_name=default_state['object_name'],
+                                                        light=default_state['light'],
+                                                        color_type=default_state['color_type'])
+
+                            if prep_func:
+                                prep_func(context)
+
+                            set_active_step(context,
+                                            step=step['name'],
+                                            path_consts=path_consts,
+                                            ui_consts=ui_consts,
+                                            exec_save=step['exec_save'])
+                            break
+
+
+
+
+
 
         except Exception as e:
             self.report({'ERROR'}, str(e))

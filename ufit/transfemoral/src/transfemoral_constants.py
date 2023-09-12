@@ -90,13 +90,13 @@ tf_ui_consts = {
         'verify_scaling': {
             'ui_name': 'Verify Scaling',
             'help_text': 'Verify the scaling is what you expected.'},
-        'socket_carve': {
+        'socket_milling': {
             'ui_name': 'Full Socket or Carving Model?',
             'help_text': 'Choose "Socket" if you would you like to create a full 3D socket. '
-                         'Choose "Carve" if you would like to create a positive model for CNC carving?'},
-        'carve_model': {
-            'ui_name': 'Carve Model',
-            'help_text': 'Create your carve model by choosing your parameters in the menu and clicking next'},
+                         'Choose "Milling" if you would like to create a positive model for CNC carving?'},
+        'milling_model': {
+            'ui_name': 'Milling Model',
+            'help_text': 'Create your milling model by choosing your parameters in the menu and clicking next'},
         'thickness': {
             'ui_name': 'Thickness',
             'help_text': 'Choose the print thickness in mm.'},

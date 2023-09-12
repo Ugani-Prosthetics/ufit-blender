@@ -8,14 +8,15 @@ class UIExportDevice(UFitPanel, bpy.types.Panel):
         scene = context.scene
         layout = self.layout
 
-        box0 = layout.box()
-        box0_row0 = box0.row()
-        box0_row0.prop(scene, 'ufit_show_original', text="Show Scan")
+        if context.scene.ufit_socket_or_milling == 'socket':
+            box0 = layout.box()
+            box0_row0 = box0.row()
+            box0_row0.prop(scene, 'ufit_show_original', text="Show Scan")
 
-        if context.scene.ufit_total_contact_socket:
-            box1 = layout.box()
-            box1_row0 = box1.row()
-            box1_row0.prop(scene, 'ufit_show_inner_part', text="Show Inner Part")
+            if context.scene.ufit_total_contact_socket:
+                box1 = layout.box()
+                box1_row0 = box1.row()
+                box1_row0.prop(scene, 'ufit_show_inner_part', text="Show Inner Part")
 
         get_standard_navbox(self.layout, "ufit_operators.prev_step", ot_export_device, next_text="Export")
 

@@ -22,8 +22,8 @@ from .ST_90_cutout_prep.OT_cutout_prep import OTCutoutPlaneTF
 from .ST_100_cutout.OT_cutout import OTCutoutTF
 from .ST_110_scale.OT_liner_scaling import OTLinerScaleTF
 from .ST_120_verify_scaling.OT_verify_scaling import OTApproveScalingTF
-from .ST_125_socket_carve.OT_socket_carve import OTSocketCarveTF
-from .ST_130_carve_model.OT_carve_model import OTCarveModelTF
+from .ST_125_socket_milling.OT_socket_milling import OTSocketMillingTF
+from .ST_130_milling_model.OT_milling_model import OTMillingModelTF
 from .ST_130_thickness.OT_thickness import OTThicknessTF
 from .ST_140_verify_socket.OT_verify_socket import OTApproveSocketTF
 from .ST_150_import_connector.OT_import_connector import OTImportConnectorTF
@@ -47,8 +47,8 @@ def register():
     bpy.utils.register_class(OTCircumferencesHighlightTF)
     bpy.utils.register_class(OTLinerScaleTF)
     bpy.utils.register_class(OTApproveScalingTF)
-    bpy.utils.register_class(OTSocketCarveTF)
-    bpy.utils.register_class(OTCarveModelTF)
+    bpy.utils.register_class(OTSocketMillingTF)
+    bpy.utils.register_class(OTMillingModelTF)
     bpy.utils.register_class(OTSmoothRegionTF)
     bpy.utils.register_class(OTPushPullRegionTF)
     bpy.utils.register_class(OTFreeSculptCheckpointTF)
@@ -80,8 +80,8 @@ def unregister():
     bpy.utils.unregister_class(OTCircumferencesHighlightTF)
     bpy.utils.unregister_class(OTLinerScaleTF)
     bpy.utils.unregister_class(OTApproveScalingTF)
-    bpy.utils.unregister_class(OTSocketCarveTF)
-    bpy.utils.unregister_class(OTCarveModelTF)
+    bpy.utils.unregister_class(OTSocketMillingTF)
+    bpy.utils.unregister_class(OTMillingModelTF)
     bpy.utils.unregister_class(OTSmoothRegionTF)
     bpy.utils.unregister_class(OTPushPullRegionTF)
     bpy.utils.unregister_class(OTFreeSculptCheckpointTF)

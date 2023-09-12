@@ -9,11 +9,11 @@ from ...base.src.operators.core.finish import prep_export
 
 
 def socket_condition(context):
-    return context.scene.ufit_socket_or_carve == "socket"
+    return context.scene.ufit_socket_or_milling == "socket"
 
 
-def carve_condition(context):
-    return context.scene.ufit_socket_or_carve == "carve"
+def milling_condition(context):
+    return context.scene.ufit_socket_or_milling == "milling"
 
 
 tt_path_consts = {
@@ -99,13 +99,13 @@ tt_ui_consts = {
         'verify_scaling': {
             'ui_name': 'Verify Scaling',
             'help_text': 'Verify the scaling is what you expected.'},
-        'socket_carve': {
-            'ui_name': 'Socket or Carve',
+        'socket_milling': {
+            'ui_name': 'Socket or Milling',
             'help_text': 'Choose "Socket" if you would you like to create a full 3D socket. '
-                         'Choose "Carve" if you would like to create a positive model for CNC carving?'},
-        'carve_model': {
-            'ui_name': 'Carve Model',
-            'help_text': 'Create your carve model by choosing your parameters in the menu and clicking next'},
+                         'Choose "Milling" if you would like to create a positive model for CNC carving?'},
+        'milling_model': {
+            'ui_name': 'Milling Model',
+            'help_text': 'Create your milling model by choosing your parameters in the menu and clicking next'},
         'thickness': {
             'ui_name': 'Thickness',
             'help_text': 'Choose the print thickness in mm.'},
@@ -376,7 +376,7 @@ tt_operator_consts = {
             'sub_steps': False
         },
         'next_step': {
-            'name': 'socket_carve',
+            'name': 'socket_milling',
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'STUDIO',
@@ -386,9 +386,9 @@ tt_operator_consts = {
             'exec_save': True
         }
     },
-    'socket_carve': {
+    'socket_milling': {
         'checkpoint': {
-            'name': 'socket_carve',
+            'name': 'socket_milling',
             'sub_steps': False
         },
         'next_step': {
@@ -405,8 +405,8 @@ tt_operator_consts = {
                     'exec_save': True
                 },
                 {
-                    'condition_func': carve_condition,
-                    'name': 'carve_model',
+                    'condition_func': milling_condition,
+                    'name': 'milling_model',
                     'default_state': {
                         'object_name': 'uFit',
                         'light': 'STUDIO',
@@ -418,9 +418,9 @@ tt_operator_consts = {
             ]
         },
     },
-    'carve_model': {
+    'milling_model': {
         'checkpoint': {
-            'name': 'carve_model',
+            'name': 'milling_model',
             'sub_steps': False
         },
         'next_step': {

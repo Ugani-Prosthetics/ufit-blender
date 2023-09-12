@@ -41,7 +41,9 @@ ufit_scene_properties = [
     'ufit_push_pull_circular',
     'ufit_extrude_amount',
     'ufit_twist_method',
-    'ufit_socket_or_carve',
+    'ufit_socket_or_milling',
+    'ufit_milling_flare',
+    'ufit_milling_margin',
     'ufit_print_thickness',
     'ufit_flare_tool',
     'ufit_flare_height',
@@ -185,12 +187,16 @@ def register():
     bpy.types.Scene.ufit_show_original = BoolProperty(name="Show Original", default=True,
                                                       update=callbacks.show_original_update)
 
-    # socket or carve
-    bpy.types.Scene.ufit_socket_or_carve = EnumProperty(name="Socket or Carve?", default=1,
+    # socket or milling
+    bpy.types.Scene.ufit_socket_or_milling = EnumProperty(name="Socket or Milling?", default=1,
                                                         items=[
                                                             ("socket", "Socket", "", 1),
-                                                            ("carve", "Carve", "", 2),
+                                                            ("milling", "Milling", "", 2),
                                                         ])
+    bpy.types.Scene.ufit_milling_flare = BoolProperty(name="Milling Flare", default=True)
+    bpy.types.Scene.ufit_milling_margin = FloatProperty(name="Milling Margin", min=1.0, max=10.0, step=10,
+                                                      default=3.0)
+
 
     # Thickness
     bpy.types.Scene.ufit_print_thickness = FloatProperty(name="Thickness", min=0.0, max=10.0, step=10,
@@ -295,8 +301,10 @@ def unregister():
     # cutout
     del bpy.types.Scene.ufit_twist_method
 
-    # socket or carve
-    del bpy.types.Scene.ufit_socket_or_carve
+    # socket or milling
+    del bpy.types.Scene.ufit_socket_or_milling
+    del bpy.types.Scene.ufit_milling_flare
+    del bpy.types.Scene.ufit_milling_margin
 
     # thickness
     del bpy.types.Scene.ufit_print_thickness

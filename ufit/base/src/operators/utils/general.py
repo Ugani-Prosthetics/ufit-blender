@@ -150,6 +150,24 @@ def get_selected_edges(context):
     return selected_edges
 
 
+def get_selected_max_z(obj):
+    me = obj.data
+    bm = bmesh.from_edit_mesh(me)
+
+    z_locs = [v.co.z for v in bm.verts if v.select]
+
+    return max(z_locs)
+
+
+def set_selected_to_z(obj, new_z):
+    me = obj.data
+    bm = bmesh.from_edit_mesh(me)
+
+    for v in bm.verts:
+        if v.select:
+            v.co.z = new_z
+
+
 def get_vertices_below_z(obj, z):
     verts = []
     for v in obj.data.vertices:

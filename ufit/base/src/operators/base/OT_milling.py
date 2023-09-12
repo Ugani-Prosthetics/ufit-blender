@@ -1,5 +1,5 @@
 from .....base.src.operators.core.OT_base import OTBase
-from .....base.src.operators.core.sculpt import create_carve_model
+from .....base.src.operators.core.sculpt import create_milling_model
 
 
 # class OTThickness(OTBase):
@@ -16,7 +16,7 @@ from .....base.src.operators.core.sculpt import create_carve_model
 #         create_thickness(context)
 
 
-class OTSocketCarve(OTBase):
+class OTSocketMilling(OTBase):
     @classmethod
     def poll(cls, context):
         active_object = context.active_object
@@ -30,7 +30,7 @@ class OTSocketCarve(OTBase):
         pass
 
 
-class OTCarveModel(OTBase):
+class OTMillingModel(OTBase):
     @classmethod
     def poll(cls, context):
         active_object = context.active_object
@@ -41,4 +41,4 @@ class OTCarveModel(OTBase):
             return True
 
     def main_func(self, context):
-        create_carve_model(context)
+        create_milling_model(context)

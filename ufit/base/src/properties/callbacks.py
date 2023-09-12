@@ -136,6 +136,9 @@ def show_inner_part_update(self, context):
     ufit_obj = bpy.data.objects['uFit']
     ufit_obj.hide_set(context.scene.ufit_show_inner_part)
 
+    # also hide ufit_original
+    context.scene.ufit_show_original = False
+
     # ufit_inner_obj = bpy.data.objects['uFit_Inner']
     # ufit_inner_obj.hide_set(not context.scene.ufit_show_inner_part)
 
@@ -184,5 +187,3 @@ def enum_previews_for_assistance(self, context):
 
     enum_previews = user_interface.enum_previews_from_directory_items(context, pcoll, dir)
     return enum_previews
-
-

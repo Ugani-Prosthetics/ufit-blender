@@ -335,7 +335,7 @@ def create_inner_ufit(context, ufit_obj, conn_obj):
 
     # set the origin to the center of the object and scale
     bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='MEDIAN')
-    ufit_inner.scale = (0.98, 0.98, 0.98)
+    ufit_inner.scale = (0.99, 0.99, 0.99)
 
     # apply the remesh modifier
     general.activate_object(context, ufit_inner, mode='OBJECT')
@@ -360,9 +360,11 @@ def fix_transition_inaccuracy(context, ufit_obj, conn_obj, cut_obj):
     boolean_mod.object = ufit_obj
 
     for i in range(3):
-        # select the shrinkwrap vertex group on conn_obj and subdivide
-        general.select_vertices_from_vertex_group(context, conn_obj, 'shrinkwrap_group')
-        bpy.ops.mesh.subdivide(number_cuts=2)
+        # select the inner and outer scale vertex groups on conn_obj and subdivide
+        general.select_vertices_from_vertex_group(context, conn_obj, 'scale_group_inner')
+        bpy.ops.mesh.subdivide(number_cuts=1, ngon=False, quadcorner='INNERVERT')
+        general.select_vertices_from_vertex_group(context, conn_obj, 'scale_group_outer')
+        bpy.ops.mesh.subdivide(number_cuts=1, ngon=False, quadcorner='INNERVERT')
 
         # add shrinkwrap modifier again to connector
         shrinkwrap_mod = conn_obj.modifiers.new(name="Shrinkwrap", type="SHRINKWRAP")
@@ -376,21 +378,24 @@ def fix_transition_inaccuracy(context, ufit_obj, conn_obj, cut_obj):
         override = {"object": conn_obj, "active_object": conn_obj}
         bpy.ops.object.modifier_apply(override, modifier="Shrinkwrap")
 
-    # triangulate to avoid bended faces
-    triangulate_mod = conn_obj.modifiers.new(name="Triangulate", type="TRIANGULATE")
-    triangulate_mod.quad_method = 'SHORTEST_DIAGONAL'
-    triangulate_mod.ngon_method = 'BEAUTY'
-    triangulate_mod.min_vertices = 4
-
-    # apply the triangulate modifier
-    general.activate_object(context, conn_obj, mode='OBJECT')
-    override = {"object": conn_obj, "active_object": conn_obj}
-    bpy.ops.object.modifier_apply(override, modifier="Triangulate")
+    # # triangulate to avoid bended faces
+    # triangulate_mod = conn_obj.modifiers.new(name="Triangulate", type="TRIANGULATE")
+    # triangulate_mod.quad_method = 'SHORTEST_DIAGONAL'
+    # triangulate_mod.ngon_method = 'BEAUTY'
+    # triangulate_mod.min_vertices = 4
+    #
+    # # apply the triangulate modifier
+    # general.activate_object(context, conn_obj, mode='OBJECT')
+    # override = {"object": conn_obj, "active_object": conn_obj}
+    # bpy.ops.object.modifier_apply(override, modifier="Triangulate")
 
     # decimate connector to reduce vertices and avoid long calculation time for union
-    general.activate_object(context, conn_obj, mode='EDIT')
-    bpy.ops.mesh.select_all(action='SELECT')
-    bpy.ops.mesh.decimate(ratio=0.01)
+    # general.activate_object(context, conn_obj, mode='EDIT')
+    # bpy.ops.mesh.select_all(action='SELECT')
+    # bpy.ops.mesh.vert_connect_concave()
+
+    # general.select_vertices_from_vertex_group(context, conn_obj, 'shrinkwrap_group')
+    # bpy.ops.mesh.decimate(ratio=0.05)
 
     # remove the intersect modifier
     cut_obj.modifiers.remove(boolean_mod)

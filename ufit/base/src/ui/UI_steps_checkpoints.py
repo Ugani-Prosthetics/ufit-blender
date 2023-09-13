@@ -53,6 +53,7 @@ class UIAssistance(UFitPanel, bpy.types.Panel):
 class UIProgress(UFitPanel, bpy.types.Panel):
     bl_idname = "VIEW3D_PT_progress"
     bl_label = base_ui_consts['persistent']['progress']['ui_name']
+    bl_options = {'DEFAULT_CLOSED'}
     # bl_options = {"HIDE_HEADER"}
 
     def draw(self, context):

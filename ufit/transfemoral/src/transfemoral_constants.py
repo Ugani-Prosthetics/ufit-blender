@@ -85,7 +85,7 @@ tf_ui_consts = {
             'help_text': 'Make corrections to the cutout curve by selecting a point using Left-Click, '
                          'press G, move mouse to the destination and Left-Click again.'},
         'scale': {
-            'ui_name': 'Liner Scaling',
+            'ui_name': 'Scaling',
             'help_text': 'Scale the scan in mm or % to increase or decrease its size.'},
         'verify_scaling': {
             'ui_name': 'Verify Scaling',
@@ -96,7 +96,7 @@ tf_ui_consts = {
                          'Choose "Milling" if you would like to create a positive model for CNC carving?'},
         'milling_model': {
             'ui_name': 'Milling Model',
-            'help_text': 'Create your milling model by choosing your parameters in the menu and clicking next'},
+            'help_text': 'Create your milling model by choosing your parameters in the menu and clicking next.'},
         'thickness': {
             'ui_name': 'Thickness',
             'help_text': 'Choose the print thickness in mm.'},
@@ -114,8 +114,8 @@ tf_ui_consts = {
             'ui_name': 'Transition',
             'help_text': 'Move the plane up and down to make sure the connector transitions nicely with the socket.'},
         'export': {
-            'ui_name': 'Export Socket',
-            'help_text': 'Verify the results before exporting the socket.'},
+            'ui_name': 'Export Model',
+            'help_text': 'Verify the results before exporting the model.'},
         'finish': {
             'ui_name': 'Finished'},
     },

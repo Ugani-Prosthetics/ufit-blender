@@ -15,16 +15,9 @@ class UIReportProblem(UFitPanel, bpy.types.Panel):
         box0 = layout.box()
         get_label_multiline(
             context=context,
-            text='Reporting a problem usually takes about 2 minutes processing!',
+            text='Checkpoint files and the 3D scan will be send to the uFit team via WeTransfer '
+                 'and an automated email will be initiated. The process usually takes about 2 minutes.',
             parent=box0
-        )
-        box1 = layout.box()
-        get_label_multiline(
-            context=context,
-            text='By clicking the Report Problem button you will be reporting the current status to the uFit team. '
-                 'Your last two checkpoints and the scan will be uploaded to WeTransfer and an automated email will '
-                 'be created for you to send.',
-            parent=box1
         )
 
         row = layout.row()

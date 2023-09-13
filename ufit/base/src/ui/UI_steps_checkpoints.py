@@ -31,12 +31,12 @@ class UIAssistance(UFitPanel, bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
 
-        col = layout.row().column()
-
-        try:
-            col.template_icon_view(context.scene, "ufit_assistance_previews", scale=10, scale_popup=5)
-        except Exception as e:
-            pass  # do nothing
+        if context.scene.ufit_assistance_previews_dir:
+            col = layout.row().column()
+            try:
+                col.template_icon_view(context.scene, "ufit_assistance_previews", scale=10, scale_popup=5)
+            except Exception as e:
+                pass  # do nothing
 
         box0 = layout.box()
         get_label_multiline(

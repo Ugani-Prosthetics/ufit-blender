@@ -10,8 +10,9 @@ from ....src import base_globals
 # Export Socket
 #################################
 def prep_export(context):
-    # show the uFit Original Object
-    context.scene.ufit_show_original = True
+    if context.scene.ufit_socket_or_milling == 'socket':
+        # show the uFit Original Object
+        context.scene.ufit_show_original = True
 
     # unshow the z-axis
     context.space_data.overlay.show_axis_z = False

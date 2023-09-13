@@ -1,3 +1,4 @@
+import os
 import bpy
 import math
 import bpy.utils.previews
@@ -175,15 +176,17 @@ def show_inner_part_update(self, context):
 
 
 def enum_previews_for_assistance(self, context):
-    dir = context.scene.ufit_assistance_previews_dir
+    if context.scene.ufit_assistance_previews_dir:
+        # Get the preview collection, create new if not exists.
+        pcoll = preview_collections.get('assistance')
+        if not pcoll:
+            pcoll = bpy.utils.previews.new()
+            pcoll.my_previews_dir = ""
+            pcoll.my_previews = ()
+            preview_collections['assistance'] = pcoll
 
-    # Get the preview collection, create new if not exists.
-    pcoll = preview_collections.get('assistance')
-    if not pcoll:
-        pcoll = bpy.utils.previews.new()
-        pcoll.my_previews_dir = ""
-        pcoll.my_previews = ()
-        preview_collections['assistance'] = pcoll
+        enum_previews = user_interface.enum_previews_from_directory_items(context, pcoll, dir)
+        print(enum_previews)
+        return enum_previews
 
-    enum_previews = user_interface.enum_previews_from_directory_items(context, pcoll, dir)
-    return enum_previews
+    return []

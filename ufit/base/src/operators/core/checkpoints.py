@@ -56,11 +56,10 @@ def set_assistance(step, path_consts, ui_consts):
         # set paths to assistance image
         assistance_dir = os.path.join(os.path.dirname(__file__),
                                       f"../../../..{path_consts['paths']['assistance_path']}/{step}")
-        file_name = f'{step}.png'
-
-        bpy.context.scene.ufit_assistance_previews_dir = assistance_dir
-
-        # add_image_texture('assistance_image', assistance_dir, file_name)
+        if os.path.isdir(assistance_dir):
+            bpy.context.scene.ufit_assistance_previews_dir = assistance_dir
+        else:
+            bpy.context.scene.ufit_assistance_previews_dir = ''
 
 
 def set_modal_step(context, modal_func, name):

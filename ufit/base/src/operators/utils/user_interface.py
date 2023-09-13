@@ -12,6 +12,16 @@ def enable_addon(addon_module_name):
         addon_utils.enable(addon_module_name, default_set=True)
 
 
+def get_addon_version(addon_module_name):
+    for mod in addon_utils.modules():
+        if mod.bl_info.get('name') == addon_module_name:
+            version = mod.bl_info.get('version')
+            if version:
+                return f'{version[0]}.{version[1]}.{version[2]}'
+
+    return None
+
+
 def set_theme_vertex_size(size):
     bpy.context.preferences.themes['Default'].view_3d.vertex_size = size
 

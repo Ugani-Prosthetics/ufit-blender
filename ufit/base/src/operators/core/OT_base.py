@@ -68,11 +68,6 @@ class OTBase(bpy.types.Operator):
                                             exec_save=step['exec_save'])
                             break
 
-
-
-
-
-
         except Exception as e:
             self.report({'ERROR'}, str(e))
 

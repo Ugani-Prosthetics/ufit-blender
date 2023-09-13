@@ -1,4 +1,6 @@
 import bpy
+from .core.OT_base import OTBase
+from .core.errors import report_problem
 from ....base.src.operators.utils import user_interface
 
 
@@ -11,7 +13,7 @@ def change_view(context, orthographic):
     bpy.ops.object.mode_set(mode=mode)
 
 
-class OTuFitGizmo(bpy.types.Operator):
+class OTuFitGizmo(OTBase):
     """Tooltip"""
     bl_idname = "ufit_operators.ufit_gizmo"
     bl_label = "Gizmo"
@@ -33,6 +35,8 @@ class OTuFitGizmo(bpy.types.Operator):
         return True
 
     def execute(self, context):
-        change_view(context, self.action)
+        return self.execute_base(context,
+                                 'gizmo')
 
-        return {'FINISHED'}
+    def main_func(self, context):
+        change_view(context, self.action)

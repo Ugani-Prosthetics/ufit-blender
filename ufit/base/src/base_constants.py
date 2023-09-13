@@ -11,6 +11,9 @@ base_ui_consts = {
         'view': {
             'ui_name': 'View'
         },
+        'report_problem': {
+            'ui_name': 'Report Problem'
+        },
         'ufit_gizmo': {
             'ui_name': 'View Modes'
         },
@@ -35,17 +38,40 @@ base_ui_consts = {
 base_operator_consts = {
     'platform_login': {
         'checkpoint': None,
-        'default_state': None,
-        'prep_func': None,
         'next_step': {
             'name': 'device_type',
+            'default_state': None,
+            'prep_func': None,
             'exec_save': False
         },
     },
     'device_type': {
         'checkpoint': None,
-        'default_state': None,
-        'prep_func': None,
-        'next_step': None,
+        'next_step': {
+            'name': 'start',
+            'default_state': None,
+            'prep_func': None,
+            'exec_save': False
+        },
+    },
+    'report_problem': {
+        'checkpoint': None,
+        'next_step': None
+    },
+    'gizmo': {
+        'checkpoint': None,
+        'next_step': None
+    },
+    'checkpoint_rollback': {
+        'checkpoint': None,
+        'next_step': None
+    },
+    'prev_step': {
+        'checkpoint': None,
+        'next_step': None
+    },
+    'next_step': {
+        'checkpoint': None,
+        'next_step': None
     },
 }

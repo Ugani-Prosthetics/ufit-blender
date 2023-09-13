@@ -1,5 +1,4 @@
 from .core.OT_base import OTBase
-from .core.checkpoints import set_active_step
 
 
 class OTDeviceType(OTBase):
@@ -13,11 +12,11 @@ class OTDeviceType(OTBase):
         return True
 
     def execute(self, context):
-        set_active_step(context,
-                        step='start',
-                        path_consts=None,
-                        ui_consts=None,
-                        exec_save=False)
+        return self.execute_base(context,
+                                 'device_type')
 
-        return {'FINISHED'}
+    def main_func(self, context):
+        pass
+
+
 

@@ -7,7 +7,6 @@ class UIUFitView(UFitPanel, bpy.types.Panel):
     bl_idname = "VIEW3D_PT_ufit_view"
     bl_label = base_ui_consts['persistent']['view']['ui_name']
     # bl_options = {"HIDE_HEADER"}
-    # bl_options = {'DEFAULT_CLOSED'}
 
     def draw(self, context):
         scene = context.scene

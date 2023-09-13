@@ -185,8 +185,9 @@ def enum_previews_for_assistance(self, context):
             pcoll.my_previews = ()
             preview_collections['assistance'] = pcoll
 
-        enum_previews = user_interface.enum_previews_from_directory_items(context, pcoll, dir)
-        print(enum_previews)
+        enum_previews = user_interface.enum_previews_from_directory_items(context, pcoll,
+                                                                          context.scene.ufit_assistance_previews_dir)
+
         return enum_previews
 
     return []

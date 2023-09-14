@@ -58,6 +58,7 @@ def report_problem(context):
     report_zip_file = create_report_zip(context)
 
     # try 10 times to make the wetransfer link
+    wetransfer_link = None
     for i in range(10):
         try:
             wetransfer_link = wetransfer_upload(report_zip_file)
@@ -70,11 +71,19 @@ def report_problem(context):
     recipient = 'ufit@ugani.org'
     subject = 'uFit - Report Problem'
     ufit_version = get_addon_version('uFit')
-    body = f'uFit checkpoint files are uploaded to {wetransfer_link} and are ready for further investigation. %0D%0A %0D%0A' \
-           f'Problem encountered by uFit user: {context.scene.ufit_user} %0D%0A %0D%0A' \
-           f'uFit version: {ufit_version} %0D%0A %0D%0A' \
-           f'Problem description:%0D%0A' \
-           f'[Please provide a short problem description here and then send the email]'
+    if wetransfer_link:
+        body = f'uFit checkpoint files are uploaded to {wetransfer_link} and are ready for further investigation. %0D%0A %0D%0A' \
+               f'Problem encountered by uFit user: {context.scene.ufit_user} %0D%0A %0D%0A' \
+               f'uFit version: {ufit_version} %0D%0A %0D%0A' \
+               f'Problem description:%0D%0A' \
+               f'[Please provide a short problem description here and then send the email]'
+    else:
+        body = f'The system did not succeed in uploading the files to WeTransfer. ' \
+               f'Please manually attach the last two checkpoint files (.blend) and the 3D scan for the uFit team.' \
+               f'Problem encountered by uFit user: {context.scene.ufit_user} %0D%0A %0D%0A' \
+               f'uFit version: {ufit_version} %0D%0A %0D%0A' \
+               f'Problem description:%0D%0A' \
+               f'[Please provide a short problem description here and then send the email]'
 
     open_email_client(recipient=recipient,
                       subject=subject,

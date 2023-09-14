@@ -29,7 +29,7 @@ class UIFinished(UFitPanel, bpy.types.Panel):
         box0 = layout.box()
         get_label_multiline(
             context=context,
-            text=f'Your device is ready for printing. Go to your patient folder to find the exported stl file.',
+            text=f'Your model is ready for printing. Go to your patient folder to find the exported stl file.',
             parent=box0
         )
 

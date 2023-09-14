@@ -42,9 +42,6 @@ def prep_clean_up(context):
     general.activate_object(context, ufit_obj, mode='EDIT')
     user_interface.set_shading_wireframe_mode()
 
-    # hide the 3D cursor
-    context.space_data.overlay.show_cursor = False
-
     # activate tools
     user_interface.set_active_tool('builtin.select_circle')
 

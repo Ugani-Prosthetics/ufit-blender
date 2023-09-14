@@ -726,6 +726,9 @@ def flare(context):
                              use_proportional_connected=False,
                              use_proportional_projected=False)
 
+    # increase the substep number
+    context.scene.ufit_substep = context.scene.ufit_substep + 1
+
 
 def flare_done(context):
     bpy.context.scene.tool_settings.use_proportional_edit = False

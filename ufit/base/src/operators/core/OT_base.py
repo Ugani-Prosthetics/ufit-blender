@@ -32,9 +32,7 @@ class OTBase(bpy.types.Operator):
 
                     if default_state:
                         return_to_default_state(context,
-                                                object_name=default_state['object_name'],
-                                                light=default_state['light'],
-                                                color_type=default_state['color_type'])
+                                                **default_state)
 
                     if prep_func:
                         prep_func(context)
@@ -54,9 +52,7 @@ class OTBase(bpy.types.Operator):
 
                             if default_state:
                                 return_to_default_state(context,
-                                                        object_name=default_state['object_name'],
-                                                        light=default_state['light'],
-                                                        color_type=default_state['color_type'])
+                                                        **default_state)
 
                             if prep_func:
                                 prep_func(context)

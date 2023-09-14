@@ -855,7 +855,7 @@ def return_to_default_object_mode(context, obj):
     user_interface.set_active_tool('builtin.select_box')
 
 
-def return_to_default_state(context, object_name, light, color_type):
+def return_to_default_state(context, object_name, light, color_type, overlay_axes=(0, 0, 0), overlay_text=False):
     # activate object in object mode
     obj = bpy.data.objects[object_name]
 
@@ -882,8 +882,15 @@ def return_to_default_state(context, object_name, light, color_type):
     context.scene.ufit_quad_view = False
     context.scene.ufit_orthographic_view = False
 
-    # turn on overlay
+    # overlay
     bpy.context.space_data.overlay.show_overlays = True
+    bpy.context.space_data.overlay.show_floor = False  # never show the floor
+    context.space_data.overlay.show_cursor = False  # never show the 3D cursor
+    context.space_data.overlay.show_object_origins = False  # never show the object origins
+    bpy.context.space_data.overlay.show_axis_x = overlay_axes[0]
+    bpy.context.space_data.overlay.show_axis_y = overlay_axes[1]
+    bpy.context.space_data.overlay.show_axis_z = overlay_axes[2]
+    bpy.context.space_data.overlay.show_text = overlay_text
 
 
 def filter_close_vertex_array(arr, rtol, atol):

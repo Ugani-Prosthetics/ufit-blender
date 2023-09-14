@@ -72,7 +72,7 @@ def report_problem(context):
     subject = 'uFit - Report Problem'
     ufit_version = get_addon_version('uFit')
     if wetransfer_link:
-        body = f'uFit checkpoint files are uploaded to {wetransfer_link} and are ready for further investigation. %0D%0A %0D%0A' \
+        body = f'uFit checkpoint files are uploaded to {wetransfer_link} and are ready for further investigation by the uFit Team. %0D%0A %0D%0A' \
                f'Problem encountered by uFit user: {context.scene.ufit_user} %0D%0A %0D%0A' \
                f'uFit version: {ufit_version} %0D%0A %0D%0A' \
                f'Problem description:%0D%0A' \

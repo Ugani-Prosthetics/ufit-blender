@@ -204,7 +204,9 @@ tt_operator_consts = {
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'FLAT',
-                'color_type': 'TEXTURE'
+                'color_type': 'TEXTURE',
+                'overlay_axes': (1, 1, 1),
+                'overlay_text': True
             },
             'prep_func': prep_rotate,
             'exec_save': True
@@ -220,7 +222,7 @@ tt_operator_consts = {
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'FLAT',
-                'color_type': 'TEXTURE'
+                'color_type': 'TEXTURE',
             },
             'prep_func': prep_circumferences,
             'exec_save': True
@@ -451,13 +453,21 @@ tt_operator_consts = {
         },
     },
     'flare': {
-        'checkpoint': None,
-        'next_step': None,
+        'checkpoint': {
+            'name': 'flare',
+            'sub_steps': True
+        },
+        'next_step': {
+            'name': 'flare',
+            'default_state': None,
+            'prep_func': None,
+            'exec_save': True
+        },
     },
     'flare_done': {
         'checkpoint': {
             'name': 'flare',
-            'sub_steps': False
+            'sub_steps': True
         },
         'next_step': {
             'name': 'verify_socket',
@@ -496,7 +506,9 @@ tt_operator_consts = {
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'FLAT',
-                'color_type': 'VERTEX'
+                'color_type': 'VERTEX',
+                'overlay_axes': (1, 1, 1),
+                'overlay_text': True
             },
             'prep_func': prep_alignment,
             'exec_save': True
@@ -512,7 +524,7 @@ tt_operator_consts = {
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'STUDIO',
-                'color_type': 'MATERIAL'
+                'color_type': 'MATERIAL',
             },
             'prep_func': prep_transition_connector,
             'exec_save': True

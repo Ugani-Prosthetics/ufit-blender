@@ -19,23 +19,7 @@ tf_path_consts = {
 }
 
 tf_ui_consts = {
-    'persistent': {
-        'view': {
-            'ui_name': 'View'
-        },
-        'ufit_gizmo': {
-            'ui_name': 'View Modes'
-        },
-        'checkpoints': {
-            'ui_name': 'Checkpoints'
-        },
-        'assistance': {
-            'ui_name': 'Assistance'
-        },
-        'progress': {
-            'ui_name': 'Progress'
-        },
-    },
+    'persistent': {},
     'modal': {
         'highlight_circumferences': {
             'ui_name': 'Circumferences',

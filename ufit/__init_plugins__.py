@@ -26,6 +26,7 @@ for mod in modulesNames:
 
 
 def reload_modules():
+    print("semi is here")
     import importlib
 
     print('Bert is here')

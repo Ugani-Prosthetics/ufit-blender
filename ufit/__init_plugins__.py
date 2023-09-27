@@ -28,6 +28,8 @@ for mod in modulesNames:
 def reload_modules():
     import importlib
 
+    print('Bert is here')
+
     for current_module_full_name in modules_full_names.values():
         if current_module_full_name in sys.modules.keys():
             print(f'reloading module now: {current_module_full_name}')

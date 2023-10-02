@@ -91,7 +91,7 @@ tt_ui_consts = {
             'ui_name': 'Milling Model',
             'help_text': 'Create your milling model by choosing your parameters in the menu and clicking next.'},
         'thickness': {
-            'ui_name': 'Thickness',
+            'ui_name': 'Base Thickness',
             'help_text': 'Choose the print thickness in mm.'},
         'flare': {
             'ui_name': 'Flare',

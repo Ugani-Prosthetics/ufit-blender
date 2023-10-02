@@ -8,7 +8,7 @@ from ...base.src.operators.core.alignment import (
 
 
 tf_path_consts = {
-    'name': 'Transtibial',
+    'name': 'Transfemoral',
     'paths': {
         'images_path': '/transfemoral/static/images',
         'assistance_path': '/transfemoral/static/images/assistance',

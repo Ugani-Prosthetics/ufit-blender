@@ -11,6 +11,7 @@ class OTBase(bpy.types.Operator):
             path_consts = self.get_path_consts()
             ui_consts = self.get_ui_consts()
             operator_consts = self.get_operator_consts(operator_name)
+
             checkpoint = operator_consts.get('checkpoint')
             next_step = operator_consts.get('next_step')
 

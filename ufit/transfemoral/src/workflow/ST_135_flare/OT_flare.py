@@ -4,7 +4,7 @@ from .....base.src.operators.base.OT_flare import OTFlare, OTFlareDone
 
 class OTFlareTF(OTBaseTF, OTFlare):
     """Tooltip"""
-    bl_idname = "tt_operators.flare"
+    bl_idname = "tf_operators.flare"
     bl_label = "Flare"
     bl_options = {"REGISTER", "UNDO"}
 
@@ -15,7 +15,7 @@ class OTFlareTF(OTBaseTF, OTFlare):
 
 class OTFlareDoneTF(OTBaseTF, OTFlareDone):
     """Tooltip"""
-    bl_idname = "tt_operators.flare_done"
+    bl_idname = "tf_operators.flare_done"
     bl_label = "Done"
     bl_options = {"REGISTER", "UNDO"}
 

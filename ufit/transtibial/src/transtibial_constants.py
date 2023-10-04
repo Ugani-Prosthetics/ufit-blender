@@ -2,7 +2,8 @@ from ...base.src.operators.core.prepare import (
     prep_move_scan, prep_clean_up, prep_verify_clean_up, prep_rotate, prep_circumferences)
 from ...base.src.operators.core.sculpt import (
     prep_push_pull_smooth, prep_cutout, prep_cutout_prep, prep_scaling, prep_pull_bottom,
-    prep_verify_scaling, minimal_prep_pull_bottom, minimal_prep_push_pull_smooth, minimal_prep_free_sculpt, prep_flare)
+    prep_verify_scaling, minimal_prep_pull_bottom, minimal_prep_push_pull_smooth, minimal_prep_free_sculpt,
+    prep_custom_thickness, prep_flare)
 from ...base.src.operators.core.alignment import (
     prep_import_connector, prep_alignment, prep_transition_connector)
 from ...base.src.operators.core.finish import prep_export
@@ -424,6 +425,34 @@ tt_operator_consts = {
         'checkpoint': {
             'name': 'thickness',
             'sub_steps': False
+        },
+        'next_step': {
+            'name': 'custom_thickness',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'FLAT',
+                'color_type': 'MATERIAL'
+            },
+            'prep_func': prep_custom_thickness,
+            'exec_save': True
+        },
+    },
+    'custom_thickness': {
+        'checkpoint': {
+            'name': 'custom_thickness',
+            'sub_steps': True
+        },
+        'next_step': {
+            'name': 'custom_thickness',
+            'default_state': None,
+            'prep_func': None,
+            'exec_save': True
+        },
+    },
+    'custom_thickness_done': {
+        'checkpoint': {
+            'name': 'custom_thickness',
+            'sub_steps': True
         },
         'next_step': {
             'name': 'flare',

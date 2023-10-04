@@ -679,6 +679,13 @@ def create_thickness(context):
 
 
 #########################################
+# Custom Thickness
+#########################################
+def prep_custom_thickness(context):
+    pass
+
+
+#########################################
 # Flare
 #########################################
 def prep_flare(context):

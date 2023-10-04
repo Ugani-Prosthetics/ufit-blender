@@ -181,7 +181,7 @@ def register():
                                                          ("millimeter", "mm", "", 1),
                                                          ("percentage", "%", "", 2)
                                                      ])
-    bpy.types.Scene.ufit_liner_scaling = FloatProperty(name="Liner Scaling", min=-50.0, max=50.0, step=50, default=0)
+    bpy.types.Scene.ufit_liner_scaling = FloatProperty(name="Scaling", min=-50.0, max=50.0, step=50, default=0)
     bpy.types.Scene.ufit_show_prescale = BoolProperty(name="Show Pre-scaling", default=True,
                                                       update=callbacks.show_prescale_update)
     bpy.types.Scene.ufit_show_original = BoolProperty(name="Show Original", default=True,

@@ -289,7 +289,7 @@ tt_operator_consts = {
                 'color_type': 'TEXTURE'
             },
             'prep_func': prep_pull_bottom,
-            'exec_save': False
+            'exec_save': True
         },
     },
     'pull_bottom': {

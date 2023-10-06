@@ -25,7 +25,6 @@ def update_progress(context, step, workflow):
 
 def set_active_step(context, step, path_consts, ui_consts, exec_save=True):
     bpy.types.Scene.ufit_active_step = step
-    set_assistance(step, path_consts, ui_consts)
 
     if exec_save:
         # workaround to undo the history after each step
@@ -35,6 +34,7 @@ def set_active_step(context, step, path_consts, ui_consts, exec_save=True):
         bpy.ops.wm.open_mainfile(filepath=file_path)
 
         set_ufit_logo()  # reset logo because textures are removed when opening new files
+        set_assistance(step, path_consts, ui_consts)
 
         update_progress(context, step, ui_consts['workflow'])
 

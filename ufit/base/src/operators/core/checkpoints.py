@@ -35,6 +35,7 @@ def set_active_step(context, step, path_consts, ui_consts, exec_save=True):
 
         set_ufit_logo()  # reset logo because textures are removed when opening new files
         set_assistance(step, path_consts, ui_consts)
+
         update_progress(context, step, ui_consts['workflow'])
 
         # fill the history by pushing "null operation" undo steps

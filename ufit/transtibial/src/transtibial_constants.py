@@ -94,6 +94,10 @@ tt_ui_consts = {
         'thickness': {
             'ui_name': 'Base Thickness',
             'help_text': 'Choose the print thickness in mm.'},
+        'custom_thickness': {
+            'ui_name': 'Custom Thickness',
+            'help_text': 'Highlight the region that you would like to give custom thickness. '
+                         'Use the apply thickness button to see the result.'},
         'flare': {
             'ui_name': 'Flare',
             'help_text': 'Provide the flare height and flare percentage in the menu, or use the interactive tool, to '

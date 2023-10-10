@@ -682,7 +682,59 @@ def create_thickness(context):
 # Custom Thickness
 #########################################
 def prep_custom_thickness(context):
-    pass
+    # set obj params
+    ufit_obj = bpy.data.objects['uFit']
+
+    # switch to object mode
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+    # duplicate UFit object (also copies the vertex group)
+    ufit_outer_shell = general.duplicate_obj(ufit_obj, 'uFit_Outer', context.collection, data=True, actions=False)
+
+    # scale outer shell
+    thickness = context.scene.ufit_print_thickness / 1000
+    general.activate_object(context, ufit_outer_shell, mode='EDIT')  # activate the UFitOuter Object
+    general.scale_distance_xy(ufit_outer_shell, thickness)
+    general.activate_object(context, ufit_obj, mode='OBJECT')  # activate the UFit Object
+
+    # toggle editmode to make sure everything is applied
+    bpy.ops.object.editmode_toggle()
+    bpy.ops.object.editmode_toggle()
+
+    # join/merge outer and inner shell
+    selected_objects = [ufit_obj, ufit_outer_shell]
+    join_dict = {
+        'object': ufit_obj,
+        'active_object': ufit_obj,
+        'selected_objects': selected_objects,
+        'selected_editable_objects': selected_objects
+    }
+    bpy.ops.object.join(join_dict)
+
+    # switch to edit mode and deselect all
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.select_all(action='DESELECT')  # deselect all vertices
+
+    # activate the vertex group
+    ufit_mesh = ufit_obj.data
+    vertex_group = ufit_obj.vertex_groups.get('cutout_edge')
+    if vertex_group is not None:
+        # iterate over the vertices of the object and check if they have the vertex group assigned to them
+        vertex_indices = [v.index for v in ufit_mesh.vertices if vertex_group.index in [g.group for g in v.groups]]
+        general.select_verts_by_idx(ufit_obj, vertex_indices)
+
+    # remove wrongly selected edges (very exceptional)
+    general.deselect_non_loop_edges(ufit_obj)
+
+    # connect outer and inner shell (bridge with looptools)
+    # bpy.ops.mesh.looptools_relax(input='selected', interpolation='cubic', iterations='10', regular=True)
+    bpy.ops.mesh.bridge_edge_loops()
+    # bpy.ops.mesh.looptools_bridge(cubic_strength=1, interpolation='cubic', loft=False, loft_loop=False, min_width=0,
+    #                               mode='shortest', remove_faces=True, reverse=False, segments=1, twist=0)
+
+    # make manifold
+    bpy.ops.object.mode_set(mode='OBJECT')
+    bpy.ops.mesh.print3d_clean_non_manifold()
 
 
 #########################################

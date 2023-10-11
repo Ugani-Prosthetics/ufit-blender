@@ -731,6 +731,7 @@ def flare(context):
 
 
 def flare_done(context):
+    context.scene.ufit_substep = 0  # reset the substep
     bpy.context.scene.tool_settings.use_proportional_edit = False
 
 

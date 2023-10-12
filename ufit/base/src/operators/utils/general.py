@@ -1028,60 +1028,56 @@ def create_new_vertex_group_for_selected(context, obj, vg_name, mode='OBJECT'):
     bpy.ops.object.mode_set(mode=mode)
 
 
-
-def get_non_manifold_in_model(context, obj):
-
-    def add_vertex_to_holes(vertices_neighbours, holes, hol, v):
-        holes[hol].add(v)
-        for vn in vertices_neighbours[v]:
-            holes[hol].add(vn)
-
-    def find_non_manifold(vertices_neighbours):
-        nr_holes = 0
-        holes = {}
-        for v in vertices_neighbours:
-            hole_found = False
-            for hol in holes:
-                if v in holes[hol] or any(check in vertices_neighbours[v] for check in holes[hol]):
-                    add_vertex_to_holes(vertices_neighbours, holes, hol, v)
-                    hole_found = True
-                    break
-            if not hole_found:
-                holes[nr_holes] = set()
-                add_vertex_to_holes(vertices_neighbours, holes, nr_holes, v)
-                nr_holes = nr_holes + 1
-        return holes
-
+def get_non_manifold_areas(context, obj):
     activate_object(context, obj, mode='EDIT')
-# select holes/non-manifold
+
+    # select holes/non-manifold
     bpy.ops.mesh.select_non_manifold()
     obj = obj.data
     bm = bmesh.from_edit_mesh(obj)
 
-# get all non-manifold vertices
+    # get all non-manifold vertices
     non_manifold_vertices = []
     for v in bm.verts:
         if v.select:
             non_manifold_vertices.append(v)
 
-# get for each non-manifold vertex the non-manifold neighbours
-    vertices_neighbours = {}
+    # get for each non-manifold vertex the non-manifold neighbours
+    verts_neighbours = {}
     for vert in non_manifold_vertices:
-        vertices_neighbours[vert.index] = []
+        verts_neighbours[vert.index] = []
         for e in vert.link_edges:
             neighbour = e.other_vert(vert)
             if neighbour in non_manifold_vertices:
-                vertices_neighbours[vert.index].append(neighbour.index)
+                verts_neighbours[vert.index].append(neighbour.index)
 
+    # get the non-manifold areas
+    i = 0
+    non_manifold_areas = {}
+    old_neighbours = set()
+    new_neighbours = {list(verts_neighbours.keys())[0]}  # take the first vertex
+    while len(verts_neighbours.keys()) > 0:
+        added_neighbours = new_neighbours - old_neighbours
+        old_neighbours = set(new_neighbours)  # make sure to make a deep copy
 
+        if added_neighbours:
+            for n in added_neighbours:
+                if verts_neighbours.get(n):
+                    new_neighbours.update(verts_neighbours.get(n))  # extend the set
+                    verts_neighbours.pop(n)
+        else:
+            non_manifold_areas[f'nm_{i}'] = list(new_neighbours)
+            old_neighbours = set()
+            new_neighbours = {list(verts_neighbours.keys())[0]}  # take the first vertex
+            i += 1
 
-
-
-
-    holes = find_non_manifold(vertices_neighbours)
+        if len(verts_neighbours.keys()) == 0:
+            non_manifold_areas[f'non_manifold_{i}'] = list(new_neighbours)
 
     bm.select_flush_mode()
-# return selected_vertices
-    return holes
+
+    # return selected_vertices
+    return non_manifold_areas
+
 
 

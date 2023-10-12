@@ -79,16 +79,12 @@ def clean_up(context):
 def prep_verify_clean_up(context):
     ufit_obj = bpy.data.objects['uFit']
     general.activate_object(context, ufit_obj, mode='EDIT')
-    holes = general.get_non_manifold_in_model(context, ufit_obj)
+    non_manifold_areas = general.get_non_manifold_areas(context, ufit_obj)
     bpy.ops.object.mode_set(mode='OBJECT')
 
-    for hole in holes:
-        print(holes[hole])
-        vertex_group = ufit_obj.vertex_groups.new(name=f'hole_{hole}')
-        vertex_group.add(list(holes[hole]), 1, 'REPLACE')
-
-
-
+    for nma in non_manifold_areas:
+        vertex_group = ufit_obj.vertex_groups.new(name=nma)
+        vertex_group.add(list(non_manifold_areas[nma]), 1, 'REPLACE')
 
 
 def verify_clean_up(context):

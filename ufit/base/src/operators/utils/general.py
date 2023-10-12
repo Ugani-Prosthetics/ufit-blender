@@ -1067,23 +1067,18 @@ def get_non_manifold_in_model(context, obj):
 # get for each non-manifold vertex the non-manifold neighbours
     vertices_neighbours = {}
     for vert in non_manifold_vertices:
-        vertices_neighbours[vert] = []
+        vertices_neighbours[vert.index] = []
         for e in vert.link_edges:
             neighbour = e.other_vert(vert)
             if neighbour in non_manifold_vertices:
-                vertices_neighbours[vert].append(neighbour)
-
-    allvertices = {}
-
-    for v in vertices_neighbours:
-        allvertices [v.index] = []
-        for vn in vertices_neighbours[v]:
-            allvertices [v.index].append(vn.index)
+                vertices_neighbours[vert.index].append(neighbour.index)
 
 
 
 
-    holes = find_non_manifold(allvertices)
+
+
+    holes = find_non_manifold(vertices_neighbours)
 
     bm.select_flush_mode()
 # return selected_vertices

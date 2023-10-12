@@ -1026,3 +1026,67 @@ def create_new_vertex_group_for_selected(context, obj, vg_name, mode='OBJECT'):
 
     # return to the required mode
     bpy.ops.object.mode_set(mode=mode)
+
+
+
+def get_non_manifold_in_model(context, obj):
+
+    def add_vertex_to_holes(vertices_neighbours, holes, hol, v):
+        holes[hol].add(v)
+        for vn in vertices_neighbours[v]:
+            holes[hol].add(vn)
+
+    def find_non_manifold(vertices_neighbours):
+        nr_holes = 0
+        holes = {}
+        for v in vertices_neighbours:
+            hole_found = False
+            for hol in holes:
+                if v in holes[hol] or any(check in vertices_neighbours[v] for check in holes[hol]):
+                    add_vertex_to_holes(vertices_neighbours, holes, hol, v)
+                    hole_found = True
+                    break
+            if not hole_found:
+                holes[nr_holes] = set()
+                add_vertex_to_holes(vertices_neighbours, holes, nr_holes, v)
+                nr_holes = nr_holes + 1
+        return holes
+
+    activate_object(context, obj, mode='EDIT')
+# select holes/non-manifold
+    bpy.ops.mesh.select_non_manifold()
+    obj = obj.data
+    bm = bmesh.from_edit_mesh(obj)
+
+# get all non-manifold vertices
+    non_manifold_vertices = []
+    for v in bm.verts:
+        if v.select:
+            non_manifold_vertices.append(v)
+
+# get for each non-manifold vertex the non-manifold neighbours
+    vertices_neighbours = {}
+    for vert in non_manifold_vertices:
+        vertices_neighbours[vert] = []
+        for e in vert.link_edges:
+            neighbour = e.other_vert(vert)
+            if neighbour in non_manifold_vertices:
+                vertices_neighbours[vert].append(neighbour)
+
+    allvertices = {}
+
+    for v in vertices_neighbours:
+        allvertices [v.index] = []
+        for vn in vertices_neighbours[v]:
+            allvertices [v.index].append(vn.index)
+
+
+
+
+    holes = find_non_manifold(allvertices)
+
+    bm.select_flush_mode()
+# return selected_vertices
+    return holes
+
+

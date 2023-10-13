@@ -115,13 +115,15 @@ def prep_alignment(context):
     user_interface.focus_on_selected()  # focus on both selected objects
     foot_obj.select_set(False)  # deselect foot after focus
     foot_obj.hide_select = True  # do not make selectable
-    conn_obj.hide_set(True)
 
+    # change the view
     context.scene.ufit_quad_view = True
     context.scene.ufit_orthographic_view = True
-
-    # change the view for the user
     user_interface.change_orthographic('FRONT')
+    user_interface.change_view_orbit(10, 'ORBITDOWN')
+
+    # make sure to show the connector
+    context.scene.ufit_show_connector = True
 
     # show the z-axis
     context.space_data.overlay.show_axis_z = True

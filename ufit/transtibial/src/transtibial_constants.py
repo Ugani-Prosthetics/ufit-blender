@@ -489,7 +489,7 @@ tt_operator_consts = {
             'name': 'align',
             'default_state': {
                 'object_name': 'uFit',
-                'light': 'FLAT',
+                'light': 'STUDIO',
                 'color_type': 'VERTEX',
                 'overlay_axes': (1, 1, 1),
                 'overlay_text': True

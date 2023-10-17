@@ -26,6 +26,7 @@ ufit_scene_properties = [
     'ufit_checkpoint_collection',
     'ufit_help_text',
     'ufit_import_unit',
+    'ufit_non_manifold_highlighted',
     'ufit_circum_z_ixs',
     'ufit_init_circumferences',
     'ufit_sculpt_circumferences',
@@ -124,6 +125,9 @@ def register():
                                                         ("centimeter", "cm", "", 2),
                                                         ("millimeter", "mm", "", 3),
                                                     ])
+
+    # clean up
+    bpy.types.Scene.ufit_non_manifold_highlighted = IntProperty(name="Non Manifold Highlighted", default=0)
 
     # circumferences
     max_num_circumferences = 15
@@ -283,6 +287,9 @@ def unregister():
 
     # import scan
     del bpy.types.Scene.ufit_import_unit
+
+    # clean up
+    del bpy.types.Scene.ufit_non_manifold_highlighted
 
     # circumferences
     del bpy.types.Scene.ufit_circum_z_ixs

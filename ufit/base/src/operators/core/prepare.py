@@ -1,10 +1,15 @@
 import bpy
 from ..utils import annotations, general, user_interface
+from ..utils.general import select_vertices_from_vertex_group
 
 
 #########################################
 # Move to center
 #########################################
+
+
+
+
 def prep_move_scan(context):
     # switch to annotation tool
     user_interface.activate_new_grease_pencil(context, name='Selections', layer_name='Knee')
@@ -85,6 +90,24 @@ def prep_verify_clean_up(context):
     for nma in non_manifold_areas:
         vertex_group = ufit_obj.vertex_groups.new(name=nma)
         vertex_group.add(list(non_manifold_areas[nma]), 1, 'REPLACE')
+
+    context.scene.ufit_non_manifold_highlighted = 0
+    select_vertices_from_vertex_group(context, ufit_obj,
+                                      ufit_obj.vertex_groups[context.scene.ufit_non_manifold_highlighted].name)
+
+
+def highlight_next_non_manifold(context):
+    ufit_obj = bpy.data.objects['uFit']
+
+    if context.scene.ufit_non_manifold_highlighted < len(ufit_obj.vertex_groups) - 1:
+        context.scene.ufit_non_manifold_highlighted += 1
+    else:
+        context.scene.ufit_non_manifold_highlighted = 0
+
+    select_vertices_from_vertex_group(context, ufit_obj,
+                                      ufit_obj.vertex_groups[context.scene.ufit_non_manifold_highlighted].name)
+
+    user_interface.focus_on_selected()
 
 
 def verify_clean_up(context):

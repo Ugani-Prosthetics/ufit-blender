@@ -714,10 +714,8 @@ def find_closest_n_vertices_kdtree(source_obj, target_obj, n=4):
 def select_vertices_from_vertex_group(context, obj, vg_name):
     # edit mode
     activate_object(context, obj, mode='EDIT')
-
     # deselect all vertices
     bpy.ops.mesh.select_all(action='DESELECT')
-
     # activate the scale inner vertex group
     vgroups = obj.vertex_groups
     vgroups.active_index = vgroups[vg_name].index
@@ -1028,6 +1026,8 @@ def create_new_vertex_group_for_selected(context, obj, vg_name, mode='OBJECT'):
     bpy.ops.object.mode_set(mode=mode)
 
 
+
+
 def get_non_manifold_areas(context, obj):
     activate_object(context, obj, mode='EDIT')
 
@@ -1072,7 +1072,7 @@ def get_non_manifold_areas(context, obj):
             i += 1
 
         if len(verts_neighbours.keys()) == 0:
-            non_manifold_areas[f'non_manifold_{i}'] = list(new_neighbours)
+            non_manifold_areas[f'nm_{i}'] = list(new_neighbours)
 
     bm.select_flush_mode()
 

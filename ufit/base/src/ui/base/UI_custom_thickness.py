@@ -10,9 +10,9 @@ class UICustomThickness(UFitPanel, bpy.types.Panel):
 
         box0 = layout.box()
         box0_row0 = box0.row()
-        box0_row0.prop(scene, 'ufit_print_thickness')
+        box0_row0.prop(scene, 'ufit_print_thickness', text="Extra Thickness")
         box0_row1 = box0.row()
-        box0_row1.operator(ot_custom_thickness)
+        box0_row1.operator(ot_custom_thickness, text="Apply")
 
         get_standard_navbox(self.layout, "ufit_operators.prev_step", ot_custom_thickness_done)
 

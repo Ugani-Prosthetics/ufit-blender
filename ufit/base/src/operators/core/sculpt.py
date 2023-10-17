@@ -129,7 +129,7 @@ def smooth_region(context):
     bpy.ops.object.editmode_toggle()
 
 
-def push_pull_region(context, extrusion):
+def push_pull_region(context, extrusion, exclude_vertex_groups=None):
     # set the ufit object
     ufit_obj = bpy.data.objects['uFit']
 
@@ -139,6 +139,10 @@ def push_pull_region(context, extrusion):
     # decrease selected region
     # general.decrease_selected_vertices_region(ufit_obj, 2)
 
+    # deselect vertex groups
+    if exclude_vertex_groups:
+        for vg in exclude_vertex_groups:
+            bpy.ops.object.vertex_group_deselect()
     # move vertices along there normals
     general.move_verts_along_faces_normal(ufit_obj, extrusion)
 
@@ -688,7 +692,15 @@ def prep_custom_thickness(context):
 
     # add area selection color attribute and add shader nodes
     color_attributes.add_new_color_attr(ufit_obj, name=color_attr_select, color=(1, 1, 1, 1))
-    ufit_obj.data.attributes.active_color_index = 1
+
+    i = 0
+    index = 0
+    for i,ca in enumerate(ufit_obj.data.attributes.active_color_index):
+        if ca.name == "area_selection":
+            index = i
+            break
+
+    # ufit_obj.data.attributes.active_color_index = 1
 
     # activate vertex paint mode
     # user_interface.set_shading_material_preview_mode()
@@ -698,8 +710,8 @@ def prep_custom_thickness(context):
     bpy.data.brushes["Draw"].secondary_color = (1, 1, 1)  # white
 
 
-def create_custom_thickness(context):
-    push_pull_region(context,0.005)
+def create_custom_thickness(context, extrusion):
+    push_pull_region(context, extrusion)
 
 
 def minimal_prep_custom_thickness(context):

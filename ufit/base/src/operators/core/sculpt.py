@@ -693,14 +693,11 @@ def prep_custom_thickness(context):
     # add area selection color attribute and add shader nodes
     color_attributes.add_new_color_attr(ufit_obj, name=color_attr_select, color=(1, 1, 1, 1))
 
-    i = 0
-    index = 0
-    for i,ca in enumerate(ufit_obj.data.attributes.active_color_index):
+    for i,ca in enumerate(ufit_obj.data.color_attributes):
         if ca.name == "area_selection":
-            index = i
+            ufit_obj.data.attributes.active_color_index = i
             break
 
-    # ufit_obj.data.attributes.active_color_index = 1
 
     # activate vertex paint mode
     # user_interface.set_shading_material_preview_mode()

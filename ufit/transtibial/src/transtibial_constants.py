@@ -294,7 +294,7 @@ tt_operator_consts = {
                 'color_type': 'TEXTURE'
             },
             'prep_func': prep_pull_bottom,
-            'exec_save': False
+            'exec_save': True
         },
     },
     'pull_bottom': {
@@ -522,7 +522,7 @@ tt_operator_consts = {
             'name': 'align',
             'default_state': {
                 'object_name': 'uFit',
-                'light': 'FLAT',
+                'light': 'STUDIO',
                 'color_type': 'VERTEX',
                 'overlay_axes': (1, 1, 1),
                 'overlay_text': True

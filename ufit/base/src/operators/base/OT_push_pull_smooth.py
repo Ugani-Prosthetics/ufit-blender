@@ -19,7 +19,7 @@ class OTPushPullRegion(OTBase):
     def poll(cls, context):
         # check if there is an ufit object and a vertex is selected
         active_object = context.active_object
-        selected_verts = color_attributes.get_vertices_by_color_exclude_simple(active_object, color_attr_select, Vector((0, 0, 0, 1)))
+        selected_verts = color_attributes.get_vertices_by_color_exclude_simple(active_object, color_attr_select, Vector((1, 1, 1, 1)))
         if active_object is not None \
                 and active_object.type == 'MESH' \
                 and active_object.mode == 'VERTEX_PAINT' \
@@ -48,7 +48,7 @@ class OTSmoothRegion(OTBase):
     def poll(cls, context):
         # check if there is an ufit object and a vertex is selected
         active_object = context.active_object
-        selected_verts = color_attributes.get_vertices_by_color_exclude_simple(active_object, color_attr_select, Vector((0, 0, 0, 1)))
+        selected_verts = color_attributes.get_vertices_by_color_exclude_simple(active_object, color_attr_select, Vector((1, 1, 1, 1)))
         if active_object is not None \
                 and active_object.type == 'MESH' \
                 and active_object.mode == 'VERTEX_PAINT' \

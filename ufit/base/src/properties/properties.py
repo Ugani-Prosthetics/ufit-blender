@@ -72,18 +72,18 @@ class CheckpointPG(bpy.types.PropertyGroup):
 #################################
 def register():
     # platform
-    bpy.types.Scene.ufit_platform = bpy.props.EnumProperty(name="Platform", default=1,
-                                                           items=[
-                                                               ("https://ufit.ugani.org", "uFit", "", 1),
-                                                           ])
-    bpy.types.Scene.ufit_user = bpy.props.StringProperty(name="User")
-    bpy.types.Scene.ufit_password = bpy.props.StringProperty(name="Password", subtype='PASSWORD')
+    bpy.types.Scene.ufit_platform = EnumProperty(name="Platform", default=1,
+                                                 items=[
+                                                     ("https://ufit.ugani.org", "uFit", "", 1),
+                                                 ])
+    bpy.types.Scene.ufit_user = StringProperty(name="User")
+    bpy.types.Scene.ufit_password = StringProperty(name="Password", subtype='PASSWORD')
 
     # device type
     bpy.types.Scene.ufit_device_type = EnumProperty(name="Device Type", default=1,
                                                     items=[
                                                         ("transtibial", "Transtibial", "", 1),
-                                                        # ("transfemoral", "Transfemoral", "", 2),
+                                                        ("transfemoral", "Transfemoral", "", 2),
                                                     ])
 
     # settings
@@ -181,7 +181,7 @@ def register():
                                                          ("millimeter", "mm", "", 1),
                                                          ("percentage", "%", "", 2)
                                                      ])
-    bpy.types.Scene.ufit_liner_scaling = FloatProperty(name="Liner Scaling", min=-50.0, max=50.0, step=50, default=0)
+    bpy.types.Scene.ufit_liner_scaling = FloatProperty(name="Scaling", min=-50.0, max=50.0, step=50, default=0)
     bpy.types.Scene.ufit_show_prescale = BoolProperty(name="Show Pre-scaling", default=True,
                                                       update=callbacks.show_prescale_update)
     bpy.types.Scene.ufit_show_original = BoolProperty(name="Show Original", default=True,

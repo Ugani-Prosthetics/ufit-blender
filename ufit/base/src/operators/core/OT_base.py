@@ -1,19 +1,20 @@
 import bpy
 from abc import abstractmethod
-from .....base.src.operators.core.checkpoints import set_active_step, add_checkpoint
+from .....base.src.operators.core.checkpoints import set_active_step, add_checkpoint, rollback_to_checkpoint
 from .....base.src.operators.utils.general import return_to_default_state
 from ...base_constants import base_path_consts, base_ui_consts, base_operator_consts
 
 
 class OTBase(bpy.types.Operator):
     def execute_base(self, context, operator_name):
-        try:
-            path_consts = self.get_path_consts()
-            ui_consts = self.get_ui_consts()
-            operator_consts = self.get_operator_consts(operator_name)
-            checkpoint = operator_consts.get('checkpoint')
-            next_step = operator_consts.get('next_step')
+        path_consts = self.get_path_consts()
+        ui_consts = self.get_ui_consts()
+        operator_consts = self.get_operator_consts(operator_name)
 
+        checkpoint = operator_consts.get('checkpoint')
+        next_step = operator_consts.get('next_step')
+
+        try:
             # add checkpoint
             if checkpoint:
                 if checkpoint.get('sub_steps'):
@@ -65,6 +66,12 @@ class OTBase(bpy.types.Operator):
                             break
 
         except Exception as e:
+            if checkpoint:
+                # a checkpoint has been saved while an exception appeared (remove the last checkpoint from collection)
+                collection = context.scene.ufit_checkpoint_collection
+                positive_index = collection.find(context.scene.ufit_checkpoint_collection[-1].name)
+                collection.remove(positive_index)  # can only remove positive indexes
+
             self.report({'ERROR'}, str(e))
 
         return {'FINISHED'}

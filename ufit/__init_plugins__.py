@@ -60,7 +60,8 @@ def init_ufit():
             delta = now - last_authenticated
             days_diff = delta.days
 
-        if is_authenticated() or days_diff <= 10:  # make sure authentication happens every 10 days
+        if is_authenticated() or \
+                (days_diff <= 10 and bpy.context.scene.ufit_user and bpy.context.scene.ufit_password):  # make sure authentication happens every 10 days
             bpy.context.scene.ufit_active_step = 'device_type'
 
 

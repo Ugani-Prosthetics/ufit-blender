@@ -92,8 +92,8 @@ tf_ui_consts = {
             'ui_name': 'Milling Model',
             'help_text': 'Create your milling model by choosing your parameters in the menu and clicking next.'},
         'thickness': {
-            'ui_name': 'Thickness',
-            'help_text': 'Choose the print thickness in mm.'},
+            'ui_name': 'Base Thickness',
+            'help_text': 'Choose the base 3D printing thickness in mm.'},
         'custom_thickness': {
             'ui_name': 'Custom Thickness',
             'help_text': 'Highlight the region that you would like to give custom thickness. '
@@ -294,7 +294,7 @@ tf_operator_consts = {
                 'color_type': 'TEXTURE'
             },
             'prep_func': prep_pull_bottom,
-            'exec_save': False
+            'exec_save': True
         },
     },
     'pull_bottom': {
@@ -522,7 +522,7 @@ tf_operator_consts = {
             'name': 'align',
             'default_state': {
                 'object_name': 'uFit',
-                'light': 'FLAT',
+                'light': 'STUDIO',
                 'color_type': 'VERTEX',
                 'overlay_axes': (1, 1, 1),
                 'overlay_text': True

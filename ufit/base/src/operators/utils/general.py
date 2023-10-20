@@ -711,17 +711,34 @@ def find_closest_n_vertices_kdtree(source_obj, target_obj, n=4):
     return closest_vertices
 
 
-def select_vertices_from_vertex_group(context, obj, vg_name):
+def activate_vertex_group(context, obj, vg_name):
+    # activate the scale inner vertex group
+    vgroups = obj.vertex_groups
+    vgroups.active_index = vgroups[vg_name].index
+
+
+def select_vertices_from_vertex_groups(context, obj, vg_names):
     # edit mode
     activate_object(context, obj, mode='EDIT')
 
     # deselect all vertices
     bpy.ops.mesh.select_all(action='DESELECT')
 
-    # activate the scale inner vertex group
-    vgroups = obj.vertex_groups
-    vgroups.active_index = vgroups[vg_name].index
-    bpy.ops.object.vertex_group_select()
+    for vg in vg_names:
+        # activate the vertex group
+        activate_vertex_group(context, obj, vg)
+
+        # select the vertices
+        bpy.ops.object.vertex_group_select()
+
+
+def deselect_vertices_from_vertex_groups(context, obj, vg_names):
+    for vg in vg_names:
+        # activate the vertex group
+        activate_vertex_group(context, obj, vg)
+
+        # deselect the vertices
+        bpy.ops.object.vertex_group_deselect()
 
 
 def get_vertices_from_vertex_group(obj, vg_name):

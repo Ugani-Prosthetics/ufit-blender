@@ -165,11 +165,11 @@ def scale_connector_scale_groups(context):
     conn_obj.hide_set(False)
 
     # select scale_group_inner and scale smaller
-    general.select_vertices_from_vertex_group(context, conn_obj, "scale_group_inner")
+    general.select_vertices_from_vertex_groups(context, conn_obj, vg_names=["scale_group_inner"])
     bpy.ops.transform.resize(value=(0.95, 0.95, 0.95))
 
     # select scale_group_outer and scale bigger
-    general.select_vertices_from_vertex_group(context, conn_obj, "scale_group_outer")
+    general.select_vertices_from_vertex_groups(context, conn_obj, vg_names=["scale_group_outer"])
     bpy.ops.transform.resize(value=(2, 2, 2))
 
 
@@ -233,11 +233,11 @@ def correct_thickness_connector(context, conn_obj):
     # bpy.ops.mesh.subdivide(number_cuts=5)
 
     # create inner shell object for shrinkwrap
-    general.select_vertices_from_vertex_group(context, conn_obj, 'inner_shell_group')
+    general.select_vertices_from_vertex_groups(context, conn_obj, vg_names=['inner_shell_group'])
     inner_shell_obj = general.create_obj_from_selection(context, 'Inner_Shell', copy_vg=True)
 
     # # extrude the bottom of the inner shell object along it's curve
-    general.select_vertices_from_vertex_group(context, inner_shell_obj, 'inner_shell_bottom')
+    general.select_vertices_from_vertex_groups(context, inner_shell_obj, vg_names=['inner_shell_bottom'])
     general.move_selected_verts_along_local_axis(inner_shell_obj, 0.02, axis=(False, True, False))
 
     # relax the inner_shell_bottom
@@ -266,7 +266,7 @@ def correct_thickness_connector(context, conn_obj):
 
     # move outer shell in the xy direction
     thickness = context.scene.ufit_print_thickness / 1000 - 0.0005
-    general.select_vertices_from_vertex_group(context, conn_obj, 'outer_shell_group')
+    general.select_vertices_from_vertex_groups(context, conn_obj, vg_names=['outer_shell_group'])
     general.scale_selected_verts_distance_xy(conn_obj, thickness)
 
     # get all vertices below x mm and pull/push to connector height down
@@ -282,11 +282,11 @@ def correct_thickness_connector(context, conn_obj):
 
 def create_inner_ufit(context, ufit_obj, conn_obj):
     # duplicate the inner shell group
-    general.select_vertices_from_vertex_group(context, conn_obj, 'inner_shell_group')
+    general.select_vertices_from_vertex_groups(context, conn_obj, vg_names=['inner_shell_group'])
     ufit_inner = general.create_obj_from_selection(context, 'uFit_Inner', copy_vg=True)
 
     # select all vertices and create faces
-    general.select_vertices_from_vertex_group(context, ufit_inner, 'inner_shell_group')
+    general.select_vertices_from_vertex_groups(context, ufit_inner, vg_names=['inner_shell_group'])
     bpy.ops.mesh.edge_face_add()
 
     # toggle edit mode
@@ -308,7 +308,7 @@ def create_inner_ufit(context, ufit_obj, conn_obj):
     bpy.ops.object.modifier_apply(override, modifier="Boolean")
 
     # on uFit_Inner delete the top face
-    general.select_vertices_from_vertex_group(context, ufit_inner, 'scale_group_inner')
+    general.select_vertices_from_vertex_groups(context, ufit_inner, vg_names=['scale_group_inner'])
     bpy.ops.mesh.delete(type='FACE')
 
     # add a solididfy modifier on uFit_Inner
@@ -363,9 +363,9 @@ def fix_transition_inaccuracy(context, ufit_obj, conn_obj, cut_obj):
 
     for i in range(3):
         # select the inner and outer scale vertex groups on conn_obj and subdivide
-        general.select_vertices_from_vertex_group(context, conn_obj, 'scale_group_inner')
+        general.select_vertices_from_vertex_groups(context, conn_obj, vg_names=['scale_group_inner'])
         bpy.ops.mesh.subdivide(number_cuts=1, ngon=False, quadcorner='INNERVERT')
-        general.select_vertices_from_vertex_group(context, conn_obj, 'scale_group_outer')
+        general.select_vertices_from_vertex_groups(context, conn_obj, vg_names=['scale_group_outer'])
         bpy.ops.mesh.subdivide(number_cuts=1, ngon=False, quadcorner='INNERVERT')
 
         # add shrinkwrap modifier again to connector

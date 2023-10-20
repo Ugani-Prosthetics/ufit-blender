@@ -1,7 +1,6 @@
 from .....base.src.operators.core.OT_base import OTBase
 from mathutils import Vector
-from .....base.src.operators.core.sculpt import create_custom_thickness
-from .....base.src.operators.core.prepare import remeasure_circumferences
+from .....base.src.operators.core.sculpt import create_custom_thickness, custom_thickness_done
 from .....base.src.operators.utils import color_attributes
 from .....base.src.operators.core.sculpt import color_attr_select
 
@@ -20,10 +19,7 @@ class OTCustomThickness(OTBase):
 
     def main_func(self, context):
         extrusion = context.scene.ufit_print_thickness / 1000
-
         create_custom_thickness(context, extrusion)
-
-        remeasure_circumferences(context)
 
 
 class OTCustomThicknessDone(OTBase):
@@ -37,4 +33,4 @@ class OTCustomThicknessDone(OTBase):
             return True
 
     def main_func(self, context):
-        pass
+        custom_thickness_done(context)

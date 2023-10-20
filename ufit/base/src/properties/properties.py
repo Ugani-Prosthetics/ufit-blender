@@ -129,6 +129,7 @@ def register():
     # clean up
     bpy.types.Scene.ufit_non_manifold_highlighted = IntProperty(name="Non Manifold Highlighted", default=0)
 
+
     # circumferences
     max_num_circumferences = 15
     bpy.types.Scene.ufit_circum_z_ixs = FloatVectorProperty(name='Circumferences Heights', size=max_num_circumferences)

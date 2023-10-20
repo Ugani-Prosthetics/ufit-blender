@@ -1026,8 +1026,6 @@ def create_new_vertex_group_for_selected(context, obj, vg_name, mode='OBJECT'):
     bpy.ops.object.mode_set(mode=mode)
 
 
-
-
 def get_non_manifold_areas(context, obj):
     activate_object(context, obj, mode='EDIT')
 
@@ -1074,10 +1072,30 @@ def get_non_manifold_areas(context, obj):
         if len(verts_neighbours.keys()) == 0:
             non_manifold_areas[f'nm_{i}'] = list(new_neighbours)
 
+    # collect non_manifold areas with more than x vertices
+    areas_to_remove = []
+    for nm_area in non_manifold_areas:
+        if len(non_manifold_areas[nm_area]) > 75:
+            areas_to_remove.append(nm_area)
+
+    # remove non_manifold areas with more than x vertices
+    for a in areas_to_remove:
+        non_manifold_areas.pop(a)
+
     bm.select_flush_mode()
 
     # return selected_vertices
     return non_manifold_areas
 
+
+def highlight_next_vertex_group(context, obj):
+
+    if context.scene.ufit_non_manifold_highlighted < len(obj.vertex_groups) - 1:
+        context.scene.ufit_non_manifold_highlighted += 1
+    else:
+        context.scene.ufit_non_manifold_highlighted = 0
+
+    select_vertices_from_vertex_group(context, obj,
+                                      obj.vertex_groups[context.scene.ufit_non_manifold_highlighted].name)
 
 

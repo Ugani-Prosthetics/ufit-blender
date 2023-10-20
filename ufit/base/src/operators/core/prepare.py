@@ -1,6 +1,6 @@
 import bpy
 from ..utils import annotations, general, user_interface
-from ..utils.general import select_vertices_from_vertex_group
+from ..utils.general import select_vertices_from_vertex_group, highlight_next_vertex_group
 
 
 #########################################
@@ -92,22 +92,26 @@ def prep_verify_clean_up(context):
         vertex_group.add(list(non_manifold_areas[nma]), 1, 'REPLACE')
 
     context.scene.ufit_non_manifold_highlighted = 0
+
     select_vertices_from_vertex_group(context, ufit_obj,
                                       ufit_obj.vertex_groups[context.scene.ufit_non_manifold_highlighted].name)
 
 
 def highlight_next_non_manifold(context):
+
     ufit_obj = bpy.data.objects['uFit']
+    if len(ufit_obj.vertex_groups) != 0:
+        highlight_next_vertex_group(context, ufit_obj)
+        user_interface.focus_on_selected()
 
-    if context.scene.ufit_non_manifold_highlighted < len(ufit_obj.vertex_groups) - 1:
-        context.scene.ufit_non_manifold_highlighted += 1
-    else:
-        context.scene.ufit_non_manifold_highlighted = 0
 
-    select_vertices_from_vertex_group(context, ufit_obj,
-                                      ufit_obj.vertex_groups[context.scene.ufit_non_manifold_highlighted].name)
+def auto_fix_non_manifold(context):
 
-    user_interface.focus_on_selected()
+    ufit_obj = bpy.data.objects['uFit']
+    if len(ufit_obj.vertex_groups) != 0:
+        bpy.ops.mesh.edge_face_add()
+        bpy.ops.mesh.select_all(action='DESELECT')
+        bpy.ops.object.vertex_group_remove()
 
 
 def verify_clean_up(context):

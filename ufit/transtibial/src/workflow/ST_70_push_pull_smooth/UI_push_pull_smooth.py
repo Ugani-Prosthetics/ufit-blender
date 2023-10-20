@@ -4,7 +4,7 @@ from ...transtibial_constants import tt_ui_consts
 
 class UIPushPullRegionsTT(UIPushPullRegions):
     bl_idname = "VIEW3D_PT_tt_push_pull_regions"
-    bl_label = tt_ui_consts['workflow']['push_pull_smooth']['ui_name']
+    bl_label = tt_ui_consts["workflow"]["push_pull_smooth"]["ui_name"]
 
     def draw(self, context):
         self.draw_base(context,

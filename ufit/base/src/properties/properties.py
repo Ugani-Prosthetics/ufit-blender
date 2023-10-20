@@ -143,7 +143,7 @@ def register():
     bpy.types.Scene.ufit_sculpt_mode = EnumProperty(name="Mode", default=1,
                                                     items=[
                                                         ("guided", "Guided", "", 1),
-                                                        ("free", "Free", "", 3),
+                                                        ("free", "Free", "", 2),
                                                     ],
                                                     update=callbacks.sculpt_mode_update)
     bpy.types.Scene.ufit_sculpt_tool = EnumProperty(name="Sculpting Tool", default=1,

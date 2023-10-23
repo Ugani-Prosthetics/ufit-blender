@@ -127,7 +127,7 @@ def register():
                                                     ])
 
     # clean up
-    bpy.types.Scene.ufit_non_manifold_highlighted = IntProperty(name="Non Manifold Highlighted", default=0)
+    bpy.types.Scene.ufit_non_manifold_highlighted = StringProperty(name="Non Manifold Highlighted")
 
 
     # circumferences

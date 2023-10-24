@@ -131,7 +131,7 @@ def highlight_next_non_manifold(context):
         user_interface.focus_on_selected()
 
 
-def auto_fix_non_manifold(context):
+def fix_non_manifold(context):
     ufit_obj = bpy.data.objects['uFit']
     if len(ufit_obj.vertex_groups) != 0:
         bpy.ops.mesh.edge_face_add()

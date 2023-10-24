@@ -182,7 +182,7 @@ tt_operator_consts = {
         'checkpoint': None,
         'next_step': None,
     },
-    'auto_fix_non_manifold': {
+    'fix_non_manifold': {
         'checkpoint': None,
         'next_step': None,
     },

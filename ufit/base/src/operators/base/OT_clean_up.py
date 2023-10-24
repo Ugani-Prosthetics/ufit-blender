@@ -1,6 +1,6 @@
 from ..utils import general
 from .....base.src.operators.core.OT_base import OTBase
-from .....base.src.operators.core.prepare import clean_up, verify_clean_up, highlight_next_non_manifold, auto_fix_non_manifold
+from .....base.src.operators.core.prepare import clean_up, verify_clean_up, highlight_next_non_manifold, fix_non_manifold
 
 
 class OTCleanUp(OTBase):
@@ -34,7 +34,7 @@ class OTHighlightNonManifold(OTBase):
         highlight_next_non_manifold(context)
 
 
-class OTAutoFixNonManifold(OTBase):
+class OTFixNonManifold(OTBase):
     @classmethod
     def poll(cls, context):
         active_object = context.active_object
@@ -48,7 +48,7 @@ class OTAutoFixNonManifold(OTBase):
                 return True
 
     def main_func(self, context):
-        auto_fix_non_manifold(context)
+        fix_non_manifold(context)
 
 
 class OTApproveCleanUp(OTBase):

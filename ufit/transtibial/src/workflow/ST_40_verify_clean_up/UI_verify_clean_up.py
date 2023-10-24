@@ -10,7 +10,7 @@ class UIVerifyCleanUpTT(UIVerifyCleanUp):
         self.draw_base(context,
                        ot_approve_clean_up="tt_operators.approve_clean_up",
                        ot_highlight_non_manifold="tt_operators.highlight_non_manifold",
-                       ot_auto_fix_non_manifold="tt_operators.auto_fix_non_manifold")
+                       ot_fix_non_manifold="tt_operators.fix_non_manifold")
 
 
 

@@ -1,5 +1,5 @@
 from ..OT_Base_TT import OTBaseTT
-from .....base.src.operators.base.OT_clean_up import OTApproveCleanUp, OTHighlightNonManifold, OTAutoFixNonManifold
+from .....base.src.operators.base.OT_clean_up import OTApproveCleanUp, OTHighlightNonManifold, OTFixNonManifold
 
 
 class OTHighlightNonManifoldTT(OTBaseTT, OTHighlightNonManifold):
@@ -13,15 +13,15 @@ class OTHighlightNonManifoldTT(OTBaseTT, OTHighlightNonManifold):
                                  operator_name='highlight_non_manifold')
 
 
-class OTAutoFixNonManifoldTT(OTBaseTT, OTAutoFixNonManifold):
+class OTFixNonManifoldTT(OTBaseTT, OTFixNonManifold):
     """Tooltip"""
-    bl_idname = "tt_operators.auto_fix_non_manifold"
+    bl_idname = "tt_operators.fix_non_manifold"
     bl_label = "Auto Fix Non Manifold"
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context):
         return self.execute_base(context,
-                                 operator_name='auto_fix_non_manifold')
+                                 operator_name='fix_non_manifold')
 
 
 class OTApproveCleanUpTT(OTBaseTT, OTApproveCleanUp):

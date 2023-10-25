@@ -327,6 +327,10 @@ def create_cutout_path(context):
     return ufit_cutout_ob
 
 
+def lift_ufit_non_manifold_top(context):
+    pass
+
+
 def create_cutout_plane(context):
     ufit_cutout_ob = create_cutout_path(context)
     general.activate_object(context, ufit_cutout_ob, mode='EDIT')
@@ -337,9 +341,16 @@ def create_cutout_plane(context):
 
     bpy.context.object.data.dimensions = '3D'
 
+    # default values
+    tilt = 90
+    extrude = 0.005
+    if context.scene.ufit_device_type == 'transfemoral':
+        tilt = 45
+        extrude = 0.01
+
     # tilt local z-axis 90 degrees so that it aligns in the xy plane
     bpy.ops.curve.tilt_clear()  # first clear the tilt
-    bpy.ops.transform.tilt(value=math.radians(90),
+    bpy.ops.transform.tilt(value=math.radians(tilt),
                            mirror=False,
                            use_proportional_edit=False,
                            proportional_edit_falloff='SMOOTH',
@@ -348,10 +359,10 @@ def create_cutout_plane(context):
                            use_proportional_projected=False)
 
     # Z_UP not working in all cases
-    bpy.context.object.data.twist_mode = bpy.context.scene.bl_rna.properties['ufit_twist_method'].default
+    bpy.context.object.data.twist_mode = 'Z_UP'
 
-    # extrude the curve 4cm everywhere
-    bpy.context.object.data.extrude = 0.005
+    # extrude the curve x cm everywhere
+    bpy.context.object.data.extrude = extrude
 
     # smoothen the curve
     bpy.context.object.data.twist_smooth = 100
@@ -503,6 +514,7 @@ def perform_cutout(context):
 
 
 def cutout(context):
+    lift_ufit_non_manifold_top(context)
     create_cutout_line(context)
     perform_cutout(context)
 

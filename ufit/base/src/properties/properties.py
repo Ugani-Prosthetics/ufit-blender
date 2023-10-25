@@ -40,7 +40,6 @@ ufit_scene_properties = [
     'ufit_smooth_factor',
     'ufit_push_pull_circular',
     'ufit_extrude_amount',
-    'ufit_twist_method',
     'ufit_socket_or_milling',
     'ufit_milling_flare',
     'ufit_milling_margin',
@@ -166,15 +165,6 @@ def register():
                                                      ],
                                                      update=callbacks.sculpt_brush_update)
 
-    # Cutout
-    bpy.types.Scene.ufit_twist_method = EnumProperty(name="Twist Method", default=2,
-                                                     items=[
-                                                         ("MINIMUM", "minimum", "", 1),
-                                                         ("Z_UP", "z-up", "", 2),
-                                                         ("TANGENT", "tangent", "", 3),
-                                                     ],
-                                                     update=callbacks.twist_method_update)
-
     # Scaling
     bpy.types.Scene.ufit_scaling_unit = EnumProperty(name="Scaling Unit", default=1,
                                                      items=[
@@ -297,9 +287,6 @@ def unregister():
     del bpy.types.Scene.ufit_enable_colors
     del bpy.types.Scene.ufit_push_pull_circular
     del bpy.types.Scene.ufit_extrude_amount
-
-    # cutout
-    del bpy.types.Scene.ufit_twist_method
 
     # socket or milling
     del bpy.types.Scene.ufit_socket_or_milling

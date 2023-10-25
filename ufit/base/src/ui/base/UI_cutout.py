@@ -16,6 +16,8 @@ class UICutout(UFitPanel, bpy.types.Panel):
 
         # box0
         box0 = layout.box()
-        box0.prop(scene, 'ufit_twist_method')
+
+        box0.prop(object.data, 'twist_mode')
+        box0.prop(object.data, 'extrude')
 
         get_standard_navbox(self.layout, "ufit_operators.prev_step", ot_cutout)

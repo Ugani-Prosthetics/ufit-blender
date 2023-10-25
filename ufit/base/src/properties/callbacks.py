@@ -53,11 +53,6 @@ def show_original_update(self, context):
         ufit_original.hide_set(True)
 
 
-def twist_method_update(self, context):
-    ufit_cutout = bpy.data.curves['uFit_Cutout']
-    ufit_cutout.twist_mode = self.ufit_twist_method
-
-
 def update_colors_enable(self, context):
     if self.ufit_enable_colors:
         user_interface.set_shading_material_preview_mode()

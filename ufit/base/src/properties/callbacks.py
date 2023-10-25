@@ -85,6 +85,26 @@ def sculpt_brush_update(self, context):
         bpy.data.brushes["Flatten/Contrast"].direction = 'FLATTEN'
 
 
+def mean_tilt_update(self, context):
+    tilt = int(self.ufit_mean_tilt)
+
+    # select all of the curve
+    bpy.ops.curve.select_all(action='SELECT')
+
+    # set the tilt
+    bpy.ops.curve.tilt_clear()  # first clear the tilt
+    bpy.ops.transform.tilt(value=math.radians(tilt),
+                           mirror=False,
+                           use_proportional_edit=False,
+                           proportional_edit_falloff='SMOOTH',
+                           proportional_size=1,
+                           use_proportional_connected=False,
+                           use_proportional_projected=False)
+
+    # deselect all of the curve
+    bpy.ops.curve.select_all(action='DESELECT')
+
+
 def flare_tool_update(self, context):
     # (re)select vertices from cutout edge
     # when the user switches tool, it can be used as a reset to reselect the edge

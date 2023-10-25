@@ -190,8 +190,18 @@ def register():
                                                         ])
     bpy.types.Scene.ufit_milling_flare = BoolProperty(name="Milling Flare", default=True)
     bpy.types.Scene.ufit_milling_margin = FloatProperty(name="Milling Margin", min=1.0, max=10.0, step=10,
-                                                      default=3.0)
+                                                        default=3.0)
 
+
+    # cutout
+    bpy.types.Scene.ufit_mean_tilt = EnumProperty(name="Tilt", default=3,
+                                                  items=[
+                                                      ("0", "0°", "", 1),
+                                                      ("45", "45°", "", 2),
+                                                      ("90", "90°", "", 3),
+                                                      ("135", "135°", "", 4),
+                                                  ],
+                                                  update=callbacks.mean_tilt_update)
 
     # Thickness
     bpy.types.Scene.ufit_print_thickness = FloatProperty(name="Thickness", min=0.0, max=10.0, step=10,

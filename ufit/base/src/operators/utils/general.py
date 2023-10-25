@@ -1045,7 +1045,7 @@ def create_new_vertex_group_for_selected(context, obj, vg_name, mode='OBJECT'):
     bpy.ops.object.mode_set(mode=mode)
 
 
-def get_non_manifold_areas(context, obj):
+def get_non_manifold_areas(context, obj, max_verts=None):
     activate_object(context, obj, mode='EDIT')
 
     # select holes/non-manifold
@@ -1091,17 +1091,33 @@ def get_non_manifold_areas(context, obj):
         if len(verts_neighbours.keys()) == 0:
             non_manifold_areas[f'nm_{i}'] = list(new_neighbours)
 
-    # collect non_manifold areas with more than x vertices
-    areas_to_remove = []
-    for nm_area in non_manifold_areas:
-        if len(non_manifold_areas[nm_area]) > 75:
-            areas_to_remove.append(nm_area)
+    if max_verts:
+        # collect non_manifold areas with more than x vertices
+        areas_to_remove = []
+        for nm_area in non_manifold_areas:
+            if len(non_manifold_areas[nm_area]) > max_verts:
+                areas_to_remove.append(nm_area)
 
-    # remove non_manifold areas with more than x vertices
-    for a in areas_to_remove:
-        non_manifold_areas.pop(a)
+        # remove non_manifold areas with more than x vertices
+        for a in areas_to_remove:
+            non_manifold_areas.pop(a)
 
     bm.select_flush_mode()
 
     # return selected_vertices
+    return non_manifold_areas
+
+
+def create_non_manifold_vertex_groups(context, obj, max_verts=None):
+    # get the non-manifold areas
+    activate_object(context, obj, mode='EDIT')
+    non_manifold_areas = get_non_manifold_areas(context, obj, max_verts)
+    bpy.ops.mesh.select_all(action='DESELECT')
+
+    # switch to object mode to add non-manifold areas as vertex groups
+    bpy.ops.object.mode_set(mode='OBJECT')
+    for nma in non_manifold_areas:
+        vertex_group = obj.vertex_groups.new(name=nma)
+        vertex_group.add(list(non_manifold_areas[nma]), 1, 'REPLACE')
+
     return non_manifold_areas

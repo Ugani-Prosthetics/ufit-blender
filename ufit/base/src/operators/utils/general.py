@@ -1043,3 +1043,65 @@ def create_new_vertex_group_for_selected(context, obj, vg_name, mode='OBJECT'):
 
     # return to the required mode
     bpy.ops.object.mode_set(mode=mode)
+
+
+def get_non_manifold_areas(context, obj):
+    activate_object(context, obj, mode='EDIT')
+
+    # select holes/non-manifold
+    bpy.ops.mesh.select_non_manifold()
+    obj = obj.data
+    bm = bmesh.from_edit_mesh(obj)
+
+    # get all non-manifold vertices
+    non_manifold_vertices = []
+    for v in bm.verts:
+        if v.select:
+            non_manifold_vertices.append(v)
+
+    # get for each non-manifold vertex the non-manifold neighbours
+    verts_neighbours = {}
+    for vert in non_manifold_vertices:
+        verts_neighbours[vert.index] = []
+        for e in vert.link_edges:
+            neighbour = e.other_vert(vert)
+            if neighbour in non_manifold_vertices:
+                verts_neighbours[vert.index].append(neighbour.index)
+
+    # get the non-manifold areas
+    i = 0
+    non_manifold_areas = {}
+    old_neighbours = set()
+    new_neighbours = {list(verts_neighbours.keys())[0]}  # take the first vertex
+    while len(verts_neighbours.keys()) > 0:
+        added_neighbours = new_neighbours - old_neighbours
+        old_neighbours = set(new_neighbours)  # make sure to make a deep copy
+
+        if added_neighbours:
+            for n in added_neighbours:
+                if verts_neighbours.get(n):
+                    new_neighbours.update(verts_neighbours.get(n))  # extend the set
+                    verts_neighbours.pop(n)
+        else:
+            non_manifold_areas[f'nm_{i}'] = list(new_neighbours)
+            old_neighbours = set()
+            new_neighbours = {list(verts_neighbours.keys())[0]}  # take the first vertex
+            i += 1
+
+        if len(verts_neighbours.keys()) == 0:
+            non_manifold_areas[f'nm_{i}'] = list(new_neighbours)
+
+    # collect non_manifold areas with more than x vertices
+    areas_to_remove = []
+    for nm_area in non_manifold_areas:
+        if len(non_manifold_areas[nm_area]) > 75:
+            areas_to_remove.append(nm_area)
+
+    # remove non_manifold areas with more than x vertices
+    for a in areas_to_remove:
+        non_manifold_areas.pop(a)
+
+    bm.select_flush_mode()
+
+    # return selected_vertices
+    return non_manifold_areas

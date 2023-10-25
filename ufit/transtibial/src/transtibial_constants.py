@@ -183,6 +183,14 @@ tt_operator_consts = {
             'exec_save': True
         },
     },
+    'highlight_non_manifold': {
+        'checkpoint': None,
+        'next_step': None,
+    },
+    'fix_non_manifold': {
+        'checkpoint': None,
+        'next_step': None,
+    },
     'verify_clean_up': {
         'checkpoint': {
             'name': 'verify_clean_up',

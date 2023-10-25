@@ -26,6 +26,7 @@ ufit_scene_properties = [
     'ufit_checkpoint_collection',
     'ufit_help_text',
     'ufit_import_unit',
+    'ufit_non_manifold_highlighted',
     'ufit_circum_z_ixs',
     'ufit_init_circumferences',
     'ufit_sculpt_circumferences',
@@ -40,7 +41,6 @@ ufit_scene_properties = [
     'ufit_smooth_factor',
     'ufit_push_pull_circular',
     'ufit_extrude_amount',
-    'ufit_twist_method',
     'ufit_socket_or_milling',
     'ufit_milling_flare',
     'ufit_milling_margin',
@@ -125,6 +125,10 @@ def register():
                                                         ("millimeter", "mm", "", 3),
                                                     ])
 
+    # clean up
+    bpy.types.Scene.ufit_non_manifold_highlighted = StringProperty(name="Non Manifold Highlighted")
+
+
     # circumferences
     max_num_circumferences = 15
     bpy.types.Scene.ufit_circum_z_ixs = FloatVectorProperty(name='Circumferences Heights', size=max_num_circumferences)
@@ -166,15 +170,6 @@ def register():
                                                      ],
                                                      update=callbacks.sculpt_brush_update)
 
-    # Cutout
-    bpy.types.Scene.ufit_twist_method = EnumProperty(name="Twist Method", default=2,
-                                                     items=[
-                                                         ("MINIMUM", "minimum", "", 1),
-                                                         ("Z_UP", "z-up", "", 2),
-                                                         ("TANGENT", "tangent", "", 3),
-                                                     ],
-                                                     update=callbacks.twist_method_update)
-
     # Scaling
     bpy.types.Scene.ufit_scaling_unit = EnumProperty(name="Scaling Unit", default=1,
                                                      items=[
@@ -195,8 +190,18 @@ def register():
                                                         ])
     bpy.types.Scene.ufit_milling_flare = BoolProperty(name="Milling Flare", default=True)
     bpy.types.Scene.ufit_milling_margin = FloatProperty(name="Milling Margin", min=1.0, max=10.0, step=10,
-                                                      default=3.0)
+                                                        default=3.0)
 
+
+    # cutout
+    bpy.types.Scene.ufit_mean_tilt = EnumProperty(name="Tilt", default=3,
+                                                  items=[
+                                                      ("0", "0°", "", 1),
+                                                      ("45", "45°", "", 2),
+                                                      ("90", "90°", "", 3),
+                                                      ("135", "135°", "", 4),
+                                                  ],
+                                                  update=callbacks.mean_tilt_update)
 
     # Thickness
     bpy.types.Scene.ufit_print_thickness = FloatProperty(name="Thickness", min=0.0, max=10.0, step=10,
@@ -284,6 +289,9 @@ def unregister():
     # import scan
     del bpy.types.Scene.ufit_import_unit
 
+    # clean up
+    del bpy.types.Scene.ufit_non_manifold_highlighted
+
     # circumferences
     del bpy.types.Scene.ufit_circum_z_ixs
     del bpy.types.Scene.ufit_init_circumferences
@@ -297,9 +305,6 @@ def unregister():
     del bpy.types.Scene.ufit_enable_colors
     del bpy.types.Scene.ufit_push_pull_circular
     del bpy.types.Scene.ufit_extrude_amount
-
-    # cutout
-    del bpy.types.Scene.ufit_twist_method
 
     # socket or milling
     del bpy.types.Scene.ufit_socket_or_milling

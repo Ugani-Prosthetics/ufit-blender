@@ -1,5 +1,6 @@
 import bpy
 from ..utils import annotations, general, user_interface
+from ..utils.general import select_vertices_from_vertex_groups
 
 
 #########################################
@@ -78,10 +79,53 @@ def clean_up(context):
 ###############################
 def prep_verify_clean_up(context):
     ufit_obj = bpy.data.objects['uFit']
-    general.activate_object(context, ufit_obj, mode='EDIT')
 
-    # select holes/non-manifold
-    bpy.ops.mesh.select_non_manifold()
+    # get fixable non-manifold areas (with less than x verts)
+    non_manifold_areas = general.create_non_manifold_vertex_groups(context, ufit_obj, max_verts=75)
+
+    # highlight first non-manifold area or force switch to edit mode
+    if non_manifold_areas:
+        context.scene.ufit_non_manifold_highlighted = list(non_manifold_areas.keys())[0]
+        highlight_next_non_manifold(context)
+    else:
+        bpy.ops.object.mode_set(mode='EDIT')
+
+
+def highlight_next_non_manifold(context):
+    ufit_obj = bpy.data.objects['uFit']
+
+    # get the vertex groups of the non-manifold areas
+    nm_vertex_groups = [vg for vg in ufit_obj.vertex_groups if vg.name.startswith('nm_')]
+
+    if nm_vertex_groups:
+        active_vg = ufit_obj.vertex_groups[ufit_obj.vertex_groups.active_index].name
+
+        if active_vg.startswith('nm_') and active_vg != context.scene.ufit_non_manifold_highlighted:
+            # the active
+            context.scene.ufit_non_manifold_highlighted = active_vg
+        else:
+            # get the name of the next active non-manifold area
+            for i, nm_vg in enumerate(nm_vertex_groups):
+                if nm_vg.name == context.scene.ufit_non_manifold_highlighted:
+                    next_index = i + 1
+                    if next_index > len(nm_vertex_groups) - 1:
+                        next_index = 0
+                    context.scene.ufit_non_manifold_highlighted = nm_vertex_groups[next_index].name
+                    break
+
+        # highlight vertices from non-manifold area (vertex group)
+        select_vertices_from_vertex_groups(context, ufit_obj, vg_names=[context.scene.ufit_non_manifold_highlighted])
+
+        # focus on the selected area
+        user_interface.focus_on_selected()
+
+
+def fix_non_manifold(context):
+    ufit_obj = bpy.data.objects['uFit']
+    if len(ufit_obj.vertex_groups) != 0:
+        bpy.ops.mesh.edge_face_add()
+        bpy.ops.mesh.select_all(action='DESELECT')
+        bpy.ops.object.vertex_group_remove()
 
 
 def verify_clean_up(context):

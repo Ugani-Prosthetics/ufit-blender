@@ -53,11 +53,6 @@ def show_original_update(self, context):
         ufit_original.hide_set(True)
 
 
-def twist_method_update(self, context):
-    ufit_cutout = bpy.data.curves['uFit_Cutout']
-    ufit_cutout.twist_mode = self.ufit_twist_method
-
-
 def update_colors_enable(self, context):
     if self.ufit_enable_colors:
         user_interface.set_shading_material_preview_mode()
@@ -88,6 +83,26 @@ def sculpt_brush_update(self, context):
     elif self.ufit_sculpt_brush == 'flatten_brush':
         bpy.ops.wm.tool_set_by_id(name="builtin_brush.Flatten")
         bpy.data.brushes["Flatten/Contrast"].direction = 'FLATTEN'
+
+
+def mean_tilt_update(self, context):
+    tilt = int(self.ufit_mean_tilt)
+
+    # select all of the curve
+    bpy.ops.curve.select_all(action='SELECT')
+
+    # set the tilt
+    bpy.ops.curve.tilt_clear()  # first clear the tilt
+    bpy.ops.transform.tilt(value=math.radians(tilt),
+                           mirror=False,
+                           use_proportional_edit=False,
+                           proportional_edit_falloff='SMOOTH',
+                           proportional_size=1,
+                           use_proportional_connected=False,
+                           use_proportional_projected=False)
+
+    # deselect all of the curve
+    bpy.ops.curve.select_all(action='DESELECT')
 
 
 def flare_tool_update(self, context):

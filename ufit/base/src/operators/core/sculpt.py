@@ -308,6 +308,29 @@ def prep_cutout_prep(context):
     user_interface.activate_new_grease_pencil(context, name='Selections', layer_name='Cutout')
 
 
+def lift_ufit_non_manifold_top(context):
+    ufit_obj = bpy.data.objects['uFit']
+    non_manifold_areas = general.create_non_manifold_vertex_groups(context, ufit_obj, max_verts=None)
+
+    # get the non-manifold area with the biggest amount of vertices (big gap at top of socket)
+    max_nma = None
+    max_verts = 0
+    for nma, verts in non_manifold_areas.items():
+        if len(verts) > max_verts:
+            max_verts = len(verts)
+            max_nma = nma
+
+    if max_nma:
+        # highlight vertices from non-manifold area (vertex group)
+        general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=[max_nma])
+
+        # deactivate snapping to move verts up
+        bpy.context.scene.tool_settings.use_snap = False
+
+        # move the verts x cm up
+        bpy.ops.transform.translate(value=(0, 0, 0.05))
+
+
 def create_cutout_path(context):
     ufit_cutout_cu = bpy.data.curves.new("uFit_Cutout", "CURVE")
     ufit_cutout_ob = bpy.data.objects.new("uFit_Cutout", ufit_cutout_cu)
@@ -337,9 +360,9 @@ def create_cutout_plane(context):
 
     bpy.context.object.data.dimensions = '3D'
 
-    # tilt local z-axis 90 degrees so that it aligns in the xy plane
+    # tilt local z-axis x degrees
     bpy.ops.curve.tilt_clear()  # first clear the tilt
-    bpy.ops.transform.tilt(value=math.radians(90),
+    bpy.ops.transform.tilt(value=math.radians(int(bpy.context.scene.bl_rna.properties['ufit_mean_tilt'].default)),
                            mirror=False,
                            use_proportional_edit=False,
                            proportional_edit_falloff='SMOOTH',
@@ -348,10 +371,10 @@ def create_cutout_plane(context):
                            use_proportional_projected=False)
 
     # Z_UP not working in all cases
-    bpy.context.object.data.twist_mode = bpy.context.scene.bl_rna.properties['ufit_twist_method'].default
+    bpy.context.object.data.twist_mode = 'Z_UP'
 
-    # extrude the curve 4cm everywhere
-    bpy.context.object.data.extrude = 0.005
+    # extrude the curve x cm everywhere
+    bpy.context.object.data.extrude = 0.01
 
     # smoothen the curve
     bpy.context.object.data.twist_smooth = 100
@@ -380,6 +403,9 @@ def create_cutout_line(context):
     # set obj params
     ufit_obj = bpy.data.objects['uFit']
     ufit_cutout_obj = bpy.data.objects['uFit_Cutout']
+
+    # activate ufit_cutout_obj
+    general.activate_object(context, ufit_cutout_obj, mode='EDIT')
 
     # increase the smoothness of the cutout plane
     bpy.context.object.data.twist_smooth = 500
@@ -503,6 +529,7 @@ def perform_cutout(context):
 
 
 def cutout(context):
+    lift_ufit_non_manifold_top(context)
     create_cutout_line(context)
     perform_cutout(context)
 

@@ -183,10 +183,38 @@ tf_operator_consts = {
             'exec_save': True
         },
     },
+    'highlight_non_manifold': {
+        'checkpoint': None,
+        'next_step': None,
+    },
+    'fill_non_manifold': {
+        'checkpoint': {
+            'name': 'verify_clean_up',
+            'sub_steps': True
+        },
+        'next_step': {
+            'name': 'verify_clean_up',
+            'default_state': None,
+            'prep_func': None,
+            'exec_save': True
+        },
+    },
+    'delete_non_manifold': {
+        'checkpoint': {
+            'name': 'verify_clean_up',
+            'sub_steps': True
+        },
+        'next_step': {
+            'name': 'verify_clean_up',
+            'default_state': None,
+            'prep_func': None,
+            'exec_save': True
+        },
+    },
     'verify_clean_up': {
         'checkpoint': {
             'name': 'verify_clean_up',
-            'sub_steps': False
+            'sub_steps': True
         },
         'next_step': {
             'name': 'rotate',

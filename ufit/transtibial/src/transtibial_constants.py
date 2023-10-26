@@ -187,9 +187,29 @@ tt_operator_consts = {
         'checkpoint': None,
         'next_step': None,
     },
-    'fix_non_manifold': {
-        'checkpoint': None,
-        'next_step': None,
+    'fill_non_manifold': {
+        'checkpoint': {
+            'name': 'verify_clean_up',
+            'sub_steps': True
+        },
+        'next_step': {
+            'name': 'verify_clean_up',
+            'default_state': None,
+            'prep_func': None,
+            'exec_save': True
+        },
+    },
+    'delete_non_manifold': {
+        'checkpoint': {
+            'name': 'verify_clean_up',
+            'sub_steps': True
+        },
+        'next_step': {
+            'name': 'verify_clean_up',
+            'default_state': None,
+            'prep_func': None,
+            'exec_save': True
+        },
     },
     'verify_clean_up': {
         'checkpoint': {

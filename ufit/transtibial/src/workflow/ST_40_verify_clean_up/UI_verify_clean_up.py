@@ -8,11 +8,10 @@ class UIVerifyCleanUpTT(UIVerifyCleanUp):
 
     def draw(self, context):
         self.draw_base(context,
-                       ot_approve_clean_up="tt_operators.approve_clean_up",
                        ot_highlight_non_manifold="tt_operators.highlight_non_manifold",
-                       ot_fix_non_manifold="tt_operators.fix_non_manifold")
-
-
+                       ot_fill_non_manifold="tt_operators.fill_non_manifold",
+                       ot_delete_non_manifold="tt_operators.delete_non_manifold",
+                       ot_approve_clean_up="tt_operators.approve_clean_up")
 
     @classmethod
     def poll(cls, context):

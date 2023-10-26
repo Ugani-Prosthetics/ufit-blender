@@ -75,9 +75,6 @@ def set_push_pull_smooth_shader_nodes(ufit_obj, color_attr_name):
 def prep_push_pull_smooth(context):
     ufit_obj = bpy.data.objects['uFit']
 
-    # reset substep
-    context.scene.ufit_substep = 0
-
     # add area selection color attribute and add shader nodes
     color_attributes.add_new_color_attr(ufit_obj, name=color_attr_select, color=(1, 1, 1, 1))
     set_push_pull_smooth_shader_nodes(ufit_obj, color_attr_name=color_attr_select)
@@ -100,9 +97,6 @@ def minimal_prep_push_pull_smooth(context):
     # reset color attribute to all white vertices
     color_attributes.reset_color_attribute(ufit_obj, color_attr_select, color=(1, 1, 1, 1))
 
-    # increase the substep number
-    context.scene.ufit_substep = context.scene.ufit_substep + 1
-
 
 # called after remeasuring
 def minimal_prep_free_sculpt(context):
@@ -110,9 +104,6 @@ def minimal_prep_free_sculpt(context):
 
     # activate the uFit Object
     general.activate_object(context, ufit_obj, mode='SCULPT')
-
-    # increase the substep number
-    context.scene.ufit_substep = context.scene.ufit_substep + 1
 
 
 def smooth_region(context):
@@ -231,9 +222,6 @@ def push_pull_smooth_done(context):
 def prep_pull_bottom(context):
     ufit_obj = bpy.data.objects['uFit']
 
-    # reset substep
-    context.scene.ufit_substep = 0
-
     # change to orthographic view
     context.scene.ufit_orthographic_view = True
 
@@ -252,9 +240,6 @@ def minimal_prep_pull_bottom(context):
 
     # activate edit mode
     general.activate_object(context, ufit_obj, mode='EDIT')
-
-    # increase the extrude number
-    context.scene.ufit_substep = context.scene.ufit_substep + 1
 
 
 def pull_bottom(context, extrusion):
@@ -287,9 +272,6 @@ def pull_bottom(context, extrusion):
 # Prepare Cutout
 #################################
 def prep_cutout_prep(context):
-    # reset substep
-    context.scene.ufit_substep = 0
-
     # create ufit measure and original objects
     ufit_obj = bpy.data.objects['uFit']
     ufit_original = general.duplicate_obj(ufit_obj, 'uFit_Original', context.collection, data=True, actions=False)
@@ -719,9 +701,6 @@ def create_thickness(context):
 def prep_custom_thickness(context):
     ufit_obj = bpy.data.objects['uFit']
 
-    # reset substep
-    context.scene.ufit_substep = 0
-
     # add area selection color attribute and add shader nodes
     color_attributes.add_new_color_attr(ufit_obj, name=color_attr_select, color=(1, 1, 1, 1))
 
@@ -753,9 +732,6 @@ def custom_thickness_done(context):
 #########################################
 def prep_flare(context):
     ufit_obj = bpy.data.objects['uFit']
-
-    # reset substep
-    context.scene.ufit_substep = 0
 
     # activate quad view
     context.scene.ufit_quad_view = True
@@ -799,12 +775,8 @@ def flare(context):
                              use_proportional_connected=False,
                              use_proportional_projected=False)
 
-    # increase the substep number
-    context.scene.ufit_substep = context.scene.ufit_substep + 1
-
 
 def flare_done(context):
-    context.scene.ufit_substep = 0  # reset the substep
     bpy.context.scene.tool_settings.use_proportional_edit = False
 
 

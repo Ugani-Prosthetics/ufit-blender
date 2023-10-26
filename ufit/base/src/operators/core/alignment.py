@@ -248,7 +248,7 @@ def correct_thickness_connector(context, conn_obj):
     #                               lock_y=False, lock_z=False, radius=1, angle=0, regular=True)
     #
     # # subdivide inner shell object
-    # # general.select_vertices_from_vertex_group(context, inner_shell_obj, vg_names=['inner_shell_group'])
+    # # general.select_vertices_from_vertex_groups(context, inner_shell_obj, vg_names=['inner_shell_group'])
     # # bpy.ops.mesh.subdivide(number_cuts=5)
 
     # add shrinkwrap modifier to connector
@@ -396,7 +396,7 @@ def fix_transition_inaccuracy(context, ufit_obj, conn_obj, cut_obj):
     # bpy.ops.mesh.select_all(action='SELECT')
     # bpy.ops.mesh.vert_connect_concave()
 
-    # general.select_vertices_from_vertex_group(context, conn_obj, vg_names=['shrinkwrap_group'])
+    # general.select_vertices_from_vertex_groups(context, conn_obj, vg_names=['shrinkwrap_group'])
     # bpy.ops.mesh.decimate(ratio=0.05)
 
     # remove the intersect modifier

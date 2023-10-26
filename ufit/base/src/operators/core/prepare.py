@@ -1,6 +1,5 @@
 import bpy
 from ..utils import annotations, general, user_interface
-from ..utils.general import select_vertices_from_vertex_groups
 
 
 #########################################
@@ -71,7 +70,10 @@ def clean_up(context):
 
     # some extra clean up
     bpy.ops.mesh.delete_loose()
-    bpy.ops.mesh.fill_holes(sides=100)
+
+    # Reselect all and fill holes
+    # bpy.ops.mesh.select_all(action='SELECT')
+    # bpy.ops.mesh.fill_holes(sides=100)
 
 
 ###############################
@@ -114,18 +116,25 @@ def highlight_next_non_manifold(context):
                     break
 
         # highlight vertices from non-manifold area (vertex group)
-        select_vertices_from_vertex_groups(context, ufit_obj, vg_names=[context.scene.ufit_non_manifold_highlighted])
+        general.select_vertices_from_vertex_groups(context, ufit_obj,
+                                                   vg_names=[context.scene.ufit_non_manifold_highlighted])
 
         # focus on the selected area
         user_interface.focus_on_selected()
 
 
-def fix_non_manifold(context):
+def fill_non_manifold(context):
     ufit_obj = bpy.data.objects['uFit']
     if len(ufit_obj.vertex_groups) != 0:
         bpy.ops.mesh.edge_face_add()
         bpy.ops.mesh.select_all(action='DESELECT')
         bpy.ops.object.vertex_group_remove()
+
+
+def delete_non_manifold(context):
+    bpy.ops.mesh.select_linked(delimit=set())
+    bpy.ops.mesh.delete(type='VERT')
+    bpy.ops.object.vertex_group_remove()
 
 
 def verify_clean_up(context):
@@ -162,8 +171,7 @@ def save_rotation(context):
 # Circumferences
 #################################
 def prep_circumferences(context):
-    # reset substep
-    context.scene.ufit_substep = 0
+    pass
 
 
 def add_circumference(context, i, z=0.0):

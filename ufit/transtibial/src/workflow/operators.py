@@ -3,7 +3,12 @@ from .ST_0_start.OT_start_modeling import OTStartModelingTT, OTStartFromExisting
 from .ST_10_import_scan.OT_import_scan import OTImportScanTT
 from .ST_20_indicate.OT_indicate_patella import OTMoveScanTT
 from .ST_30_clean_up.OT_clean_up import OTCleanUpTT
-from .ST_40_verify_clean_up.OT_verify_clean_up import OTApproveCleanUpTT, OTHighlightNonManifoldTT, OTFixNonManifoldTT
+from .ST_40_verify_clean_up.OT_verify_clean_up import (
+    OTApproveCleanUpTT,
+    OTHighlightNonManifoldTT,
+    OTFixNonManifoldTT,
+    OTDeleteNonManifoldTT
+)
 from .ST_50_rotate.OT_rotate_scan import OTSaveRotationTT
 from .ST_60_circumferences.OT_circumferences import (
     OTCircumferenceTT,
@@ -42,6 +47,7 @@ def register():
     bpy.utils.register_class(OTCleanUpTT)
     bpy.utils.register_class(OTHighlightNonManifoldTT)
     bpy.utils.register_class(OTFixNonManifoldTT)
+    bpy.utils.register_class(OTDeleteNonManifoldTT)
     bpy.utils.register_class(OTApproveCleanUpTT)
     bpy.utils.register_class(OTSaveRotationTT)
     bpy.utils.register_class(OTCircumferenceTT)
@@ -79,6 +85,7 @@ def unregister():
     bpy.utils.unregister_class(OTCleanUpTT)
     bpy.utils.unregister_class(OTHighlightNonManifoldTT)
     bpy.utils.unregister_class(OTFixNonManifoldTT)
+    bpy.utils.unregister_class(OTDeleteNonManifoldTT)
     bpy.utils.unregister_class(OTApproveCleanUpTT)
     bpy.utils.unregister_class(OTSaveRotationTT)
     bpy.utils.unregister_class(OTCircumferenceTT)

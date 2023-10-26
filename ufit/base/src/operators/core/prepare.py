@@ -1,6 +1,6 @@
 import bpy
 from ..utils import annotations, general, user_interface
-from ..utils.general import select_vertices_from_vertex_group
+from ..utils.general import select_vertices_from_vertex_group, get_vertices_from_vertex_group
 
 
 #########################################
@@ -137,6 +137,12 @@ def fix_non_manifold(context):
         bpy.ops.mesh.edge_face_add()
         bpy.ops.mesh.select_all(action='DESELECT')
         bpy.ops.object.vertex_group_remove()
+
+
+def delete_non_manifold(context):
+    ufit_obj = bpy.data.objects['uFit']
+    bpy.ops.mesh.select_linked(delimit=set())
+    bpy.ops.mesh.delete(type='VERT')
 
 
 def verify_clean_up(context):

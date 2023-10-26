@@ -1,6 +1,5 @@
 import bpy
 from ..utils import annotations, general, user_interface
-from ..utils.general import select_vertices_from_vertex_group, get_vertices_from_vertex_group
 
 
 #########################################

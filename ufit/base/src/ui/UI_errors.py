@@ -26,3 +26,25 @@ class UIReportProblem(UFitPanel, bpy.types.Panel):
     @classmethod
     def poll(cls, context):
         return context.scene.ufit_active_step not in ['platform_login', 'device_type', 'start', 'import_scan']
+
+
+class UIErrorMessage(UFitPanel, bpy.types.Panel):
+    bl_idname = "VIEW3D_PT_ufit_error_message"
+    bl_label = base_ui_consts['persistent']['error_message']['ui_name']
+
+    def draw(self, context):
+        scene = context.scene
+        layout = self.layout
+
+        box0 = layout.box()
+        get_label_multiline(
+            context=context,
+            text=context.scene.ufit_error_message,
+            parent=box0
+        )
+
+    @classmethod
+    def poll(cls, context):
+        if context.scene.ufit_error_message:
+            return True
+        return False

@@ -14,6 +14,9 @@ class OTBase(bpy.types.Operator):
         checkpoint = operator_consts.get('checkpoint')
         next_step = operator_consts.get('next_step')
 
+        # reset the error message
+        context.scene.ufit_error_message = ""
+
         try:
             # add checkpoint
             if checkpoint:
@@ -68,6 +71,8 @@ class OTBase(bpy.types.Operator):
                 collection = context.scene.ufit_checkpoint_collection
                 positive_index = collection.find(context.scene.ufit_checkpoint_collection[-1].name)
                 collection.remove(positive_index)  # can only remove positive indexes
+
+            context.scene.ufit_error_message = str(e)
 
             self.report({'ERROR'}, str(e))
 

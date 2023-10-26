@@ -742,6 +742,9 @@ def prep_flare(context):
     # switch to edit mode and select vertices from cutout edge
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=['cutout_edge'])
 
+    # move cursor to the middle of the selection
+    bpy.ops.view3d.snap_cursor_to_selected()
+
     # set the default flare tool
     user_interface.set_active_tool(bpy.context.scene.bl_rna.properties['ufit_flare_tool'].default)
 

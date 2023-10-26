@@ -28,8 +28,7 @@ class OTStartFromExisting(OTBase, ImportHelper):
         return True
 
     def check(self, context):
-        # Ensure the operator behaves as expected
-
+        # a check is executed each time a folder or file is clicked
         if os.path.isdir(self.filepath):
             folder_name = os.path.basename(os.path.dirname(self.filepath))
             for dt in bpy.context.scene.bl_rna.properties['ufit_device_type'].enum_items:
@@ -38,14 +37,10 @@ class OTStartFromExisting(OTBase, ImportHelper):
         return True
 
     def cancel(self, context):
-        # This method is used to close the modal operator
+        # This method closes the modal operator and is entered by calling bpy.ops.file.cancel()
         start_from_existing(context, self.filepath, self.get_path_consts(), self.get_ui_consts())
 
-    def invoke(self, context, event):
-        # Open a file dialog to select a directory
-        context.window_manager.fileselect_add(self)
-        return {'RUNNING_MODAL'}
-
     def main_func(self, context):
-        pass
         # start_from_existing(context, self.filepath, self.get_path_consts(), self.get_ui_consts())
+        pass
+

@@ -132,6 +132,3 @@ def import_zip(context, filepath):
 
     # apply scaling
     bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
-
-
-

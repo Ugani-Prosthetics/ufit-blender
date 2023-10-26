@@ -29,10 +29,11 @@ class OTStartFromExisting(OTBase, ImportHelper):
 
     def check(self, context):
         # Ensure the operator behaves as expected
+
         if os.path.isdir(self.filepath):
             folder_name = os.path.basename(os.path.dirname(self.filepath))
-            for dt in all_devices:
-                if folder_name.startswith(f'{dt}_'):
+            for dt in bpy.context.scene.bl_rna.properties['ufit_device_type'].enum_items:
+                if folder_name.startswith(f'{dt.identifier}_'):
                     bpy.ops.file.cancel()
         return True
 

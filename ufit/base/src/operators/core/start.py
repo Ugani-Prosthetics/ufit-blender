@@ -29,7 +29,7 @@ def start_from_existing(context, file_path_obj, path_consts, ui_consts):
     checkpoints_dir = os.path.join(modeling_folder, "checkpoints")
     if os.path.isdir(checkpoints_dir):
         if context.scene.ufit_device_type not in modeling_folder:
-            raise Exception(f"The chosen device type does not match the modeling device type.")
+            raise Exception(f"The chosen device type does not match the folder name")
 
         checkpoints_files = os.listdir(checkpoints_dir)
         checkpoints_files.reverse()

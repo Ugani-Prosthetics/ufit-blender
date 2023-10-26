@@ -26,6 +26,9 @@ base_ui_consts = {
         'progress': {
             'ui_name': 'Progress'
         },
+        'error_message': {
+            'ui_name': 'Error Message',
+        },
     },
     'workflow': {
         'device_type': {

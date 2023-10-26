@@ -25,6 +25,7 @@ ufit_scene_properties = [
     'ufit_checkpoints',
     'ufit_checkpoint_collection',
     'ufit_help_text',
+    'ufit_error_message',
     'ufit_import_unit',
     'ufit_non_manifold_highlighted',
     'ufit_circum_z_ixs',
@@ -117,6 +118,9 @@ def register():
     bpy.types.Scene.ufit_assistance_previews = EnumProperty(items=callbacks.enum_previews_for_assistance)
     bpy.types.Scene.ufit_help_text = StringProperty(name="Help Text")
 
+    # error message
+    bpy.types.Scene.ufit_error_message = StringProperty(name="Error Message")
+
     # import scan
     bpy.types.Scene.ufit_import_unit = EnumProperty(name="Scan Unit", default=3,
                                                     items=[
@@ -127,7 +131,6 @@ def register():
 
     # clean up
     bpy.types.Scene.ufit_non_manifold_highlighted = StringProperty(name="Non Manifold Highlighted")
-
 
     # circumferences
     max_num_circumferences = 15
@@ -285,6 +288,9 @@ def unregister():
 
     # assistance
     del bpy.types.Scene.ufit_help_text
+
+    # error message
+    del bpy.types.Scene.ufit_error_message
 
     # import scan
     del bpy.types.Scene.ufit_import_unit

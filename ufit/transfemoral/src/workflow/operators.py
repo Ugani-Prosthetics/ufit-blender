@@ -25,6 +25,7 @@ from .ST_120_verify_scaling.OT_verify_scaling import OTApproveScalingTF
 from .ST_125_socket_milling.OT_socket_milling import OTSocketMillingTF
 from .ST_130_milling_model.OT_milling_model import OTMillingModelTF
 from .ST_130_thickness.OT_thickness import OTThicknessTF
+from .ST_132_custom_thickness.OT_custom_thickness import OTCustomThicknessTF, OTCustomThicknessDoneTF
 from .ST_135_flare.OT_flare import OTFlareTF, OTFlareDoneTF
 from .ST_140_verify_socket.OT_verify_socket import OTApproveSocketTF
 from .ST_150_import_connector.OT_import_connector import OTImportConnectorTF
@@ -59,6 +60,8 @@ def register():
     bpy.utils.register_class(OTCutoutPlaneTF)
     bpy.utils.register_class(OTCutoutTF)
     bpy.utils.register_class(OTThicknessTF)
+    bpy.utils.register_class(OTCustomThicknessTF)
+    bpy.utils.register_class(OTCustomThicknessDoneTF)
     bpy.utils.register_class(OTFlareTF)
     bpy.utils.register_class(OTFlareDoneTF)
     bpy.utils.register_class(OTApproveSocketTF)
@@ -94,6 +97,8 @@ def unregister():
     bpy.utils.unregister_class(OTCutoutPlaneTF)
     bpy.utils.unregister_class(OTCutoutTF)
     bpy.utils.unregister_class(OTThicknessTF)
+    bpy.utils.unregister_class(OTCustomThicknessTF)
+    bpy.utils.unregister_class(OTCustomThicknessDoneTF)
     bpy.utils.unregister_class(OTFlareTF)
     bpy.utils.unregister_class(OTFlareDoneTF)
     bpy.utils.unregister_class(OTApproveSocketTF)

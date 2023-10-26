@@ -24,6 +24,13 @@ def delete_color_attribute(obj, name):
     obj.data.color_attributes.remove(color_attr)
 
 
+def activate_color_attribute(obj, name):
+    for i, ca in enumerate(obj.data.color_attributes):
+        if ca.name == name:
+            obj.data.attributes.active_color_index = i
+            break
+
+
 def reset_color_attribute(obj, name, color):
     area_selection = obj.data.color_attributes[name].data
     for vert in area_selection:

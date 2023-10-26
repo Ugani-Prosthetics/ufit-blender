@@ -11,7 +11,7 @@ def make_inner_outer_parallel(context, conn_obj):
     # The inner vertices aren't scaled, so they are straight up.
     # Goal of the function is to make the inner shell (almost) parallel to the outer shell)
 
-    general.select_vertices_from_vertex_group(context, conn_obj, 'scale_group_inner')
+    general.select_vertices_from_vertex_groups(context, conn_obj, vg_names=['scale_group_inner'])
 
     if context.scene.ufit_resize > 0:
         # object mode required for depsgraph object
@@ -47,7 +47,7 @@ def make_inner_outer_parallel(context, conn_obj):
 
 def create_cutter_obj(context, conn_obj):
     # select vertices from vertex group (switches to edit mode)
-    general.select_vertices_from_vertex_group(context, conn_obj, 'scale_group_inner')
+    general.select_vertices_from_vertex_groups(context, conn_obj, vg_names=['scale_group_inner'])
 
     # separate vertices
     cut_obj = general.create_obj_from_selection(context, 'Cutter')

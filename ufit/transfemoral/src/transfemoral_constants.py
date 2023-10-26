@@ -2,7 +2,8 @@ from ...base.src.operators.core.prepare import (
     prep_move_scan, prep_clean_up, prep_verify_clean_up, prep_rotate, prep_circumferences)
 from ...base.src.operators.core.sculpt import (
     prep_push_pull_smooth, prep_cutout, prep_cutout_prep, prep_scaling, prep_pull_bottom,
-    prep_verify_scaling, minimal_prep_pull_bottom, minimal_prep_push_pull_smooth, minimal_prep_free_sculpt, prep_flare)
+    prep_verify_scaling, minimal_prep_pull_bottom, minimal_prep_push_pull_smooth, minimal_prep_free_sculpt,
+    prep_custom_thickness, prep_flare, minimal_prep_custom_thickness)
 from ...base.src.operators.core.alignment import (
     prep_import_connector, prep_alignment, prep_transition_connector)
 from ...base.src.operators.core.finish import prep_export
@@ -91,8 +92,12 @@ tf_ui_consts = {
             'ui_name': 'Milling Model',
             'help_text': 'Create your milling model by choosing your parameters in the menu and clicking next.'},
         'thickness': {
-            'ui_name': 'Thickness',
-            'help_text': 'Choose the print thickness in mm.'},
+            'ui_name': 'Base Thickness',
+            'help_text': 'Choose the base 3D printing thickness in mm.'},
+        'custom_thickness': {
+            'ui_name': 'Custom Thickness',
+            'help_text': 'Highlight the region that you would like to give custom thickness. '
+                         'Use the apply thickness button to see the result.'},
         'flare': {
             'ui_name': 'Flare',
             'help_text': 'Provide the flare height and flare percentage in the menu, or use the interactive tool, to '
@@ -289,7 +294,7 @@ tf_operator_consts = {
                 'color_type': 'TEXTURE'
             },
             'prep_func': prep_pull_bottom,
-            'exec_save': False
+            'exec_save': True
         },
     },
     'pull_bottom': {
@@ -426,6 +431,34 @@ tf_operator_consts = {
             'sub_steps': False
         },
         'next_step': {
+            'name': 'custom_thickness',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'STUDIO',
+                'color_type': 'MATERIAL'
+            },
+            'prep_func': prep_custom_thickness,
+            'exec_save': True
+        },
+    },
+    'custom_thickness': {
+        'checkpoint': {
+            'name': 'custom_thickness',
+            'sub_steps': True
+        },
+        'next_step': {
+            'name': 'custom_thickness',
+            'default_state': None,
+            'prep_func': minimal_prep_custom_thickness,
+            'exec_save': True
+        },
+    },
+    'custom_thickness_done': {
+        'checkpoint': {
+            'name': 'custom_thickness',
+            'sub_steps': True
+        },
+        'next_step': {
             'name': 'flare',
             'default_state': {
                 'object_name': 'uFit',
@@ -489,7 +522,7 @@ tf_operator_consts = {
             'name': 'align',
             'default_state': {
                 'object_name': 'uFit',
-                'light': 'FLAT',
+                'light': 'STUDIO',
                 'color_type': 'VERTEX',
                 'overlay_axes': (1, 1, 1),
                 'overlay_text': True

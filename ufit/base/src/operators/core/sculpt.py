@@ -129,7 +129,7 @@ def smooth_region(context):
     bpy.ops.object.editmode_toggle()
 
 
-def push_pull_region(context, extrusion):
+def push_pull_region(context, extrusion, exclude_vertex_groups=None):
     # set the ufit object
     ufit_obj = bpy.data.objects['uFit']
 
@@ -139,11 +139,19 @@ def push_pull_region(context, extrusion):
     # decrease selected region
     # general.decrease_selected_vertices_region(ufit_obj, 2)
 
+    # deselect vertices that should be excluded
+    if exclude_vertex_groups:
+        general.deselect_vertices_from_vertex_groups(context, ufit_obj, exclude_vertex_groups)
+
     # move vertices along there normals
     general.move_verts_along_faces_normal(ufit_obj, extrusion)
 
-    # # increase the selected region for smoothing
+    # increase the selected region for smoothing
     general.increase_selected_vertices_region(ufit_obj, 2)
+
+    # deselect vertices again that should be excluded
+    if exclude_vertex_groups:
+        general.deselect_vertices_from_vertex_groups(context, ufit_obj, exclude_vertex_groups)
 
     # smooth the smooth_vertices and deselect
     bpy.ops.mesh.vertices_smooth(factor=0.5, repeat=7)
@@ -155,7 +163,7 @@ def push_pull_region_circular(context, extrusion):
     # select vertices by color attribute layer - exclude default color black
     color_attributes.select_vertices_by_color_exclude(context, ufit_obj, color_attr_select, Vector((1, 1, 1, 1)))
 
-    # get the selected vertices again (indexes are ruined)
+    # get the selected vertices (indexes are ruined)
     selected_verts = general.get_selected_vertices(context)
     temp = np.array([(v['co'][0], v['co'][1], v['co'][2]) for v in selected_verts])
     center = Vector(np.sum(temp, axis=0) / temp.shape[0])
@@ -300,6 +308,29 @@ def prep_cutout_prep(context):
     user_interface.activate_new_grease_pencil(context, name='Selections', layer_name='Cutout')
 
 
+def lift_ufit_non_manifold_top(context):
+    ufit_obj = bpy.data.objects['uFit']
+    non_manifold_areas = general.create_non_manifold_vertex_groups(context, ufit_obj, max_verts=None)
+
+    # get the non-manifold area with the biggest amount of vertices (big gap at top of socket)
+    max_nma = None
+    max_verts = 0
+    for nma, verts in non_manifold_areas.items():
+        if len(verts) > max_verts:
+            max_verts = len(verts)
+            max_nma = nma
+
+    if max_nma:
+        # highlight vertices from non-manifold area (vertex group)
+        general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=[max_nma])
+
+        # deactivate snapping to move verts up
+        bpy.context.scene.tool_settings.use_snap = False
+
+        # move the verts x cm up
+        bpy.ops.transform.translate(value=(0, 0, 0.05))
+
+
 def create_cutout_path(context):
     ufit_cutout_cu = bpy.data.curves.new("uFit_Cutout", "CURVE")
     ufit_cutout_ob = bpy.data.objects.new("uFit_Cutout", ufit_cutout_cu)
@@ -329,9 +360,9 @@ def create_cutout_plane(context):
 
     bpy.context.object.data.dimensions = '3D'
 
-    # tilt local z-axis 90 degrees so that it aligns in the xy plane
+    # tilt local z-axis x degrees
     bpy.ops.curve.tilt_clear()  # first clear the tilt
-    bpy.ops.transform.tilt(value=math.radians(90),
+    bpy.ops.transform.tilt(value=math.radians(int(bpy.context.scene.bl_rna.properties['ufit_mean_tilt'].default)),
                            mirror=False,
                            use_proportional_edit=False,
                            proportional_edit_falloff='SMOOTH',
@@ -340,10 +371,10 @@ def create_cutout_plane(context):
                            use_proportional_projected=False)
 
     # Z_UP not working in all cases
-    bpy.context.object.data.twist_mode = bpy.context.scene.bl_rna.properties['ufit_twist_method'].default
+    bpy.context.object.data.twist_mode = 'Z_UP'
 
-    # extrude the curve 4cm everywhere
-    bpy.context.object.data.extrude = 0.005
+    # extrude the curve x cm everywhere
+    bpy.context.object.data.extrude = 0.01
 
     # smoothen the curve
     bpy.context.object.data.twist_smooth = 100
@@ -372,6 +403,9 @@ def create_cutout_line(context):
     # set obj params
     ufit_obj = bpy.data.objects['uFit']
     ufit_cutout_obj = bpy.data.objects['uFit_Cutout']
+
+    # activate ufit_cutout_obj
+    general.activate_object(context, ufit_cutout_obj, mode='EDIT')
 
     # increase the smoothness of the cutout plane
     bpy.context.object.data.twist_smooth = 500
@@ -495,6 +529,7 @@ def perform_cutout(context):
 
 
 def cutout(context):
+    lift_ufit_non_manifold_top(context)
     create_cutout_line(context)
     perform_cutout(context)
 
@@ -574,7 +609,7 @@ def create_milling_model(context):
         flare_done(context)  # deactivate proportional editing
 
     # select cutout edge
-    general.select_vertices_from_vertex_group(context, ufit_obj, 'cutout_edge')
+    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=['cutout_edge'])
 
     # use the standard duplicate operator (Shift + D)
     bpy.ops.mesh.duplicate_move()
@@ -602,7 +637,7 @@ def create_milling_model(context):
     general.create_new_vertex_group_for_selected(context, ufit_obj, 'milling_model_edge', mode='EDIT')
 
     # select again the vertices from cutout_edge group (contains the original + copied vertices)
-    general.select_vertices_from_vertex_group(context, ufit_obj, 'cutout_edge')
+    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=['cutout_edge'])
 
     # connect vertices via bridge edge loops
     bpy.ops.mesh.bridge_edge_loops()
@@ -612,7 +647,7 @@ def create_milling_model(context):
     new_z = max_z + context.scene.ufit_milling_margin/100  # add milling margin
 
     # set new z coordinate for the milling_model_edge vertex group
-    general.select_vertices_from_vertex_group(context, ufit_obj, 'milling_model_edge')
+    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=['milling_model_edge'])
     general.set_selected_to_z(ufit_obj, new_z)
 
     # fill the hole
@@ -679,10 +714,48 @@ def create_thickness(context):
 
 
 #########################################
+# Custom Thickness
+#########################################
+def prep_custom_thickness(context):
+    ufit_obj = bpy.data.objects['uFit']
+
+    # reset substep
+    context.scene.ufit_substep = 0
+
+    # add area selection color attribute and add shader nodes
+    color_attributes.add_new_color_attr(ufit_obj, name=color_attr_select, color=(1, 1, 1, 1))
+
+    # activate color attribute area_selection:
+    color_attributes.activate_color_attribute(ufit_obj, color_attr_select)
+
+    # activate vertex paint mode
+    general.activate_object(context, ufit_obj, mode='VERTEX_PAINT')
+    context.scene.tool_settings.unified_paint_settings.size = 30  # change the brush size to 30px
+    bpy.data.brushes["Draw"].color = (0, 1, 0)  # green
+    bpy.data.brushes["Draw"].secondary_color = (1, 1, 1)  # white
+
+
+def minimal_prep_custom_thickness(context):
+    minimal_prep_push_pull_smooth(context)
+
+
+def create_custom_thickness(context, extrusion):
+    push_pull_region(context, extrusion, exclude_vertex_groups=['cutout_edge'])
+
+
+def custom_thickness_done(context):
+    ufit_obj = bpy.data.objects['uFit']
+    color_attributes.delete_color_attribute(ufit_obj, color_attr_select)
+
+
+#########################################
 # Flare
 #########################################
 def prep_flare(context):
     ufit_obj = bpy.data.objects['uFit']
+
+    # reset substep
+    context.scene.ufit_substep = 0
 
     # activate quad view
     context.scene.ufit_quad_view = True
@@ -691,7 +764,7 @@ def prep_flare(context):
     bpy.context.scene.tool_settings.use_proportional_edit = True
 
     # switch to edit mode and select vertices from cutout edge
-    general.select_vertices_from_vertex_group(context, ufit_obj, 'cutout_edge')
+    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=['cutout_edge'])
 
     # set the default flare tool
     user_interface.set_active_tool(bpy.context.scene.bl_rna.properties['ufit_flare_tool'].default)
@@ -708,7 +781,7 @@ def flare(context):
     ufit_obj = bpy.data.objects['uFit']
 
     # make sure the vertices from the cutout edge are selected
-    general.select_vertices_from_vertex_group(context, ufit_obj, 'cutout_edge')
+    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=['cutout_edge'])
 
     # calculate the flare percentage
     flare_perc = 1 + context.scene.ufit_flare_percentage/100
@@ -731,6 +804,7 @@ def flare(context):
 
 
 def flare_done(context):
+    context.scene.ufit_substep = 0  # reset the substep
     bpy.context.scene.tool_settings.use_proportional_edit = False
 
 

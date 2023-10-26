@@ -15,6 +15,7 @@ from .ST_120_verify_scaling.UI_verify_scaling import UIVerifyScalingTT
 from .ST_125_socket_milling.UI_socket_milling import UISocketMillingTT
 from .ST_130_milling_model.UI_milling_model import UIMillingModelTT
 from .ST_130_thickness.UI_thickness import UIThicknessTT
+from .ST_132_custom_thickness.UI_custom_thickness import UICustomThicknessTT
 from .ST_135_flare.UI_flare import UIFlareTT
 from .ST_140_verify_socket.UI_verify_socket import UIVerifySocketTT
 from .ST_150_import_connector.UI_import_connector import UIImportConnectorTT
@@ -42,6 +43,7 @@ def register():
     bpy.utils.register_class(UISocketMillingTT)
     bpy.utils.register_class(UIMillingModelTT)
     bpy.utils.register_class(UIThicknessTT)
+    bpy.utils.register_class(UICustomThicknessTT)
     bpy.utils.register_class(UIFlareTT)
     bpy.utils.register_class(UIVerifySocketTT)
     bpy.utils.register_class(UIImportConnectorTT)
@@ -69,6 +71,7 @@ def unregister():
     bpy.utils.unregister_class(UISocketMillingTT)
     bpy.utils.unregister_class(UIMillingModelTT)
     bpy.utils.unregister_class(UIThicknessTT)
+    bpy.utils.unregister_class(UICustomThicknessTT)
     bpy.utils.unregister_class(UIFlareTT)
     bpy.utils.unregister_class(UIVerifySocketTT)
     bpy.utils.unregister_class(UIImportConnectorTT)

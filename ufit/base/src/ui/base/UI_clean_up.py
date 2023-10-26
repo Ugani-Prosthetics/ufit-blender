@@ -9,7 +9,8 @@ class UICleanUpScan(UFitPanel, bpy.types.Panel):
 
 
 class UIVerifyCleanUp(UFitPanel, bpy.types.Panel):
-    def draw_base(self, context, ot_approve_clean_up, ot_highlight_non_manifold, ot_fix_non_manifold, ot_delete_non_manifold):
+    def draw_base(self, context, ot_highlight_non_manifold, ot_fill_non_manifold,
+                  ot_delete_non_manifold, ot_approve_clean_up):
         scene = context.scene
         layout = self.layout
         ufit_obj = bpy.data.objects['uFit']
@@ -27,7 +28,7 @@ class UIVerifyCleanUp(UFitPanel, bpy.types.Panel):
         box0_row1 = box0.row()
         box0_row1.operator(ot_highlight_non_manifold, text="Next Issue")
         box0_row2 = box0.row()
-        box0_row2.operator(ot_fix_non_manifold, text="Fix")
+        box0_row2.operator(ot_fill_non_manifold, text="Fill")
         box0_row2.operator(ot_delete_non_manifold, text="Delete")
         box0_row1.enabled = True if nr_non_manifold else False
 

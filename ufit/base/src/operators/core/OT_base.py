@@ -17,10 +17,7 @@ class OTBase(bpy.types.Operator):
         try:
             # add checkpoint
             if checkpoint:
-                if checkpoint.get('sub_steps'):
-                    add_checkpoint(context, checkpoint['name'], path_consts, ui_consts, sub_step_nr=context.scene.ufit_substep)
-                else:
-                    add_checkpoint(context, checkpoint['name'], path_consts, ui_consts)
+                add_checkpoint(context, checkpoint['name'], path_consts, ui_consts, checkpoint.get('sub_steps'))
 
             # execute func
             self.main_func(context)

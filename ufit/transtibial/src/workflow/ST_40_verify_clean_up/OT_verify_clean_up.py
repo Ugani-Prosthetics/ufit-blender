@@ -1,12 +1,12 @@
 from ..OT_Base_TT import OTBaseTT
-from .....base.src.operators.base.OT_clean_up import (OTApproveCleanUp, OTHighlightNonManifold, OTFixNonManifold,
+from .....base.src.operators.base.OT_clean_up import (OTApproveCleanUp, OTHighlightNonManifold, OTFillNonManifold,
                                                       OTDeleteNonManifold)
 
 
 class OTHighlightNonManifoldTT(OTBaseTT, OTHighlightNonManifold):
     """Tooltip"""
     bl_idname = "tt_operators.highlight_non_manifold"
-    bl_label = "Highlight NonManifold"
+    bl_label = "Highlight Non Manifold"
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context):
@@ -14,21 +14,21 @@ class OTHighlightNonManifoldTT(OTBaseTT, OTHighlightNonManifold):
                                  operator_name='highlight_non_manifold')
 
 
-class OTFixNonManifoldTT(OTBaseTT, OTFixNonManifold):
+class OTFillNonManifoldTT(OTBaseTT, OTFillNonManifold):
     """Tooltip"""
-    bl_idname = "tt_operators.fix_non_manifold"
-    bl_label = "Auto Fix Non Manifold"
+    bl_idname = "tt_operators.fill_non_manifold"
+    bl_label = "Fix Non Manifold"
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context):
         return self.execute_base(context,
-                                 operator_name='fix_non_manifold')
+                                 operator_name='fill_non_manifold')
 
 
 class OTDeleteNonManifoldTT(OTBaseTT, OTDeleteNonManifold):
     """Tooltip"""
     bl_idname = "tt_operators.delete_non_manifold"
-    bl_label = "Delete NonManifold"
+    bl_label = "Delete Non Manifold"
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context):

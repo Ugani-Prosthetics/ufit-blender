@@ -181,26 +181,32 @@ def get_workflow_step_nr(step, path_consts, raise_exception=True):
         return -1
 
 
-def add_checkpoint(context, step, path_consts, ui_consts, sub_step_nr=0):
+def add_checkpoint(context, step, path_consts, ui_consts, sub_steps):
     workflow_step = get_workflow_step(step, path_consts)
     step_nr = get_workflow_step_nr(step, path_consts)
+
+    if not sub_steps:
+        context.scene.ufit_substep = 0
 
     if workflow_step:
         workflow = ui_consts['workflow']
 
         # save the file
-        file_name = f"{workflow_step}_{sub_step_nr}.blend"
+        file_name = f"{workflow_step}_{context.scene.ufit_substep}.blend"
         file_path = f'{context.scene.ufit_folder_checkpoints}/{file_name}'
         bpy.ops.wm.save_as_mainfile(filepath=file_path)
 
         # add the checkpoint
-        name = f'{workflow[step]["ui_name"]} {sub_step_nr}' if sub_step_nr != 0 else f'{workflow[step]["ui_name"]}'
+        name = f'{workflow[step]["ui_name"]} {context.scene.ufit_substep}' if context.scene.ufit_substep != 0 else f'{workflow[step]["ui_name"]}'
         checkpoint_item = context.scene.ufit_checkpoint_collection.add()  # add an item to the property collection
         checkpoint_item.step = step
         checkpoint_item.step_nr = step_nr
-        checkpoint_item.sub_step_nr = sub_step_nr
+        checkpoint_item.sub_step_nr = context.scene.ufit_substep
         checkpoint_item.name = name  # set the property 'step' of the Checkpoint_PG item
         checkpoint_item.file_path = file_path
+
+        if sub_steps:
+            context.scene.ufit_substep += 1
     else:
         raise Exception('Could not save the checkpoint.')
 

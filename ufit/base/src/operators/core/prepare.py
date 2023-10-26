@@ -70,7 +70,10 @@ def clean_up(context):
 
     # some extra clean up
     bpy.ops.mesh.delete_loose()
-    bpy.ops.mesh.fill_holes(sides=100)
+
+    # Reselect all and fill holes
+    # bpy.ops.mesh.select_all(action='SELECT')
+    # bpy.ops.mesh.fill_holes(sides=100)
 
 
 ###############################
@@ -120,7 +123,7 @@ def highlight_next_non_manifold(context):
         user_interface.focus_on_selected()
 
 
-def fix_non_manifold(context):
+def fill_non_manifold(context):
     ufit_obj = bpy.data.objects['uFit']
     if len(ufit_obj.vertex_groups) != 0:
         bpy.ops.mesh.edge_face_add()
@@ -129,9 +132,9 @@ def fix_non_manifold(context):
 
 
 def delete_non_manifold(context):
-    ufit_obj = bpy.data.objects['uFit']
     bpy.ops.mesh.select_linked(delimit=set())
     bpy.ops.mesh.delete(type='VERT')
+    bpy.ops.object.vertex_group_remove()
 
 
 def verify_clean_up(context):
@@ -168,8 +171,7 @@ def save_rotation(context):
 # Circumferences
 #################################
 def prep_circumferences(context):
-    # reset substep
-    context.scene.ufit_substep = 0
+    pass
 
 
 def add_circumference(context, i, z=0.0):

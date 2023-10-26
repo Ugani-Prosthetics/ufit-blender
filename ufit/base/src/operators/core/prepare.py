@@ -79,19 +79,8 @@ def clean_up(context):
 def prep_verify_clean_up(context):
     ufit_obj = bpy.data.objects['uFit']
 
-    # get the non-manifold areas
-    general.activate_object(context, ufit_obj, mode='EDIT')
-    non_manifold_areas = general.get_non_manifold_areas(context, ufit_obj)
-    bpy.ops.mesh.select_all(action='DESELECT')
-
-    # turn off the overlays
-    # bpy.context.space_data.overlay.show_overlays = False
-
-    # switch to object mode to add non-manifold areas as vertex groups
-    bpy.ops.object.mode_set(mode='OBJECT')
-    for nma in non_manifold_areas:
-        vertex_group = ufit_obj.vertex_groups.new(name=nma)
-        vertex_group.add(list(non_manifold_areas[nma]), 1, 'REPLACE')
+    # get fixable non-manifold areas (with less than x verts)
+    non_manifold_areas = general.create_non_manifold_vertex_groups(context, ufit_obj, max_verts=75)
 
     # highlight first non-manifold area or force switch to edit mode
     if non_manifold_areas:
@@ -124,7 +113,8 @@ def highlight_next_non_manifold(context):
                     break
 
         # highlight vertices from non-manifold area (vertex group)
-        select_vertices_from_vertex_group(context, ufit_obj, context.scene.ufit_non_manifold_highlighted)
+        general.select_vertices_from_vertex_groups(context, ufit_obj,
+                                                   vg_names=[context.scene.ufit_non_manifold_highlighted])
 
         # focus on the selected area
         user_interface.focus_on_selected()

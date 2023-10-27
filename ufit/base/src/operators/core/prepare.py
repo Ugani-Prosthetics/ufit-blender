@@ -127,6 +127,8 @@ def fill_non_manifold(context):
     ufit_obj = bpy.data.objects['uFit']
     if len(ufit_obj.vertex_groups) != 0:
         bpy.ops.mesh.edge_face_add()
+        bpy.ops.mesh.quads_convert_to_tris(quad_method='BEAUTY', ngon_method='BEAUTY')
+        bpy.ops.mesh.subdivide(number_cuts=5)
         bpy.ops.mesh.select_all(action='DESELECT')
         bpy.ops.object.vertex_group_remove()
 
@@ -140,7 +142,12 @@ def delete_non_manifold(context):
 def verify_clean_up(context):
     ufit_obj = bpy.data.objects['uFit']
 
-    general.subdivide_until_vertex_count(ufit_obj, 30000)  # make sure to have more than 30000 vertices
+    # smooth all vertices
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.mesh.vertices_smooth(factor=0.5, repeat=7)
+
+    # make sure to have more than 30000 vertices
+    general.subdivide_until_vertex_count(ufit_obj, 30000)
 
 
 ###############################

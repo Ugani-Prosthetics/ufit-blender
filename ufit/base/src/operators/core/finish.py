@@ -12,7 +12,7 @@ from ....src import base_globals
 def prep_export(context):
     if context.scene.ufit_socket_or_milling == 'socket':
         # show the uFit Original Object
-        context.scene.ufit_show_original = True
+        context.scene.ufit_show_original = False
 
     # unshow the z-axis
     context.space_data.overlay.show_axis_z = False

@@ -8,7 +8,6 @@ tt_scene_properties = [
     'tt_connector_type',
     'tt_foot_type',
     'tt_amputation_side',
-    'tt_non_manifold_highlighted'
 ]
 
 
@@ -38,5 +37,4 @@ def unregister():
     del bpy.types.Scene.tt_connector_type
     del bpy.types.Scene.tt_foot_type
     del bpy.types.Scene.tt_amputation_side
-    del bpy.types.Scene.tt_non_manifold_highlighted
 

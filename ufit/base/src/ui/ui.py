@@ -23,12 +23,11 @@ def register():
 def unregister():
     bpy.utils.unregister_class(UIUFitLogo)
     bpy.utils.unregister_class(UIReportProblem)
-    bpy.utils.unregister_class(UIErrorMessage)
     bpy.utils.unregister_class(UIUFitView)
     bpy.utils.unregister_class(UIPlatformLogin)
     bpy.utils.unregister_class(UIUFitGizmo)
     bpy.utils.unregister_class(UICheckpoints)
     bpy.utils.unregister_class(UIAssistance)
     bpy.utils.unregister_class(UIProgress)
-    bpy.utils.register_class(UIErrorMessage)
+    bpy.utils.unregister_class(UIErrorMessage)
     bpy.utils.unregister_class(UIDeviceType)

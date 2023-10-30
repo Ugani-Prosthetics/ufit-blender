@@ -28,4 +28,7 @@ class UIImportScan(UFitPanel, bpy.types.Panel):
         row2 = layout.row()
         row2.operator(ot_import_scan)
 
+        nav_box = layout.box().row()
+        nav_box.operator("ufit_operators.prev_step", text="Back")
+
 

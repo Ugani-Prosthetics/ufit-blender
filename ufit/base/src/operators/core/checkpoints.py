@@ -94,6 +94,12 @@ def previous_step(context, path_consts, ui_consts):
                         path_consts=None,
                         ui_consts=None,
                         exec_save=False)
+    elif context.scene.ufit_active_step == 'import_scan':
+        set_active_step(context,
+                        step='start',
+                        path_consts=None,
+                        ui_consts=None,
+                        exec_save=False)
     else:
         cp_rollback = context.scene.ufit_checkpoint_collection[-1]
         context.scene.ufit_checkpoints = cp_rollback.name

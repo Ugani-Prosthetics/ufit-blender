@@ -57,7 +57,7 @@ def start_from_existing(context, file_path_obj, path_consts, ui_consts):
 
             return None
 
-    raise Exception(f"No checkpoint folder found. Please use 'Start New' for this scan.")
+    raise Exception(f"No checkpoint folder found. Please use 'Create New' for this scan.")
 
 
 #################################
@@ -104,7 +104,7 @@ def init_modeling_folders(context, filepath):
         return obj_filepath
 
     else:
-        raise Exception(f"Found checkpoints folder. You can't use 'Start New' in this location.")
+        raise Exception(f"Found checkpoints folder. You can't use 'Create New' in this location.")
 
 
 def import_zip(context, filepath):

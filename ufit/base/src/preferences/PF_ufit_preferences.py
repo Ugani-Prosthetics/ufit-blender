@@ -36,6 +36,12 @@ class PFuFit(bpy.types.AddonPreferences):
         default=0,
     )
 
+    offline_free_sculpting_count: bpy.props.IntProperty(
+        name="Free_sculpting Count",
+        description="Free_sculpting Count",
+        default=0,
+    )
+
     def draw(self, context):
         layout = self.layout
         layout.label(text="Platform Authentication")

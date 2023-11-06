@@ -22,7 +22,6 @@ from .ST_132_custom_thickness.OT_custom_thickness import OTCustomThicknessFS, OT
 from .ST_180_export.OT_export_socket import OTExportSocketFS
 from .ST_190_finish.OT_finish import OTFinishFS
 
-
 def register():
     bpy.utils.register_class(OTStartModelingFS)
     bpy.utils.register_class(OTStartFromExistingFS)

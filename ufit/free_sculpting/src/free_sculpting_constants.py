@@ -178,30 +178,6 @@ fs_operator_consts = {
             'sub_steps': False
         },
         'next_step': {
-            'name': 'circumferences',
-            'default_state': {
-                'object_name': 'uFit',
-                'light': 'FLAT',
-                'color_type': 'TEXTURE',
-            },
-            'prep_func': prep_circumferences,
-            'exec_save': True
-        },
-    },
-    'circumference_add': {
-        'checkpoint': None,
-        'next_step': None,
-    },
-    'circumferences_calc': {
-        'checkpoint': None,
-        'next_step': None,
-    },
-    'circumferences_done': {
-        'checkpoint': {
-            'name': 'circumferences',
-            'sub_steps': False
-        },
-        'next_step': {
             'name': 'push_pull_smooth',
             'default_state': {
                 'object_name': 'uFit',
@@ -209,13 +185,10 @@ fs_operator_consts = {
                 'color_type': 'TEXTURE'
             },
             'prep_func': prep_push_pull_smooth,
-            'exec_save': True
+            'exec_save': True,
         },
     },
-    'circumferences_highlight': {
-        'checkpoint': None,
-        'next_step': None,
-    },
+
     'push_pull_region': {
         'checkpoint': {
             'name': 'push_pull_smooth',
@@ -348,54 +321,7 @@ fs_operator_consts = {
             'exec_save': True
         }
     },
-    'socket_milling': {
-        'checkpoint': {
-            'name': 'socket_milling',
-            'sub_steps': False
-        },
-        'next_step': {
-            'conditions': [
-                {
-                    'condition_func': socket_condition,
-                    'name': 'thickness',
-                    'default_state': {
-                        'object_name': 'uFit',
-                        'light': 'STUDIO',
-                        'color_type': 'MATERIAL'
-                    },
-                    'prep_func': None,
-                    'exec_save': True
-                },
-                {
-                    'condition_func': milling_condition,
-                    'name': 'milling_model',
-                    'default_state': {
-                        'object_name': 'uFit',
-                        'light': 'STUDIO',
-                        'color_type': 'MATERIAL'
-                    },
-                    'prep_func': None,
-                    'exec_save': True
-                }
-            ]
-        },
-    },
-    'milling_model': {
-        'checkpoint': {
-            'name': 'milling_model',
-            'sub_steps': False
-        },
-        'next_step': {
-            'name': 'export',
-            'default_state': {
-                'object_name': 'uFit',
-                'light': 'STUDIO',
-                'color_type': 'RANDOM'
-            },
-            'prep_func': prep_export,
-            'exec_save': True
-        },
-    },
+
     'thickness': {
         'checkpoint': {
             'name': 'thickness',

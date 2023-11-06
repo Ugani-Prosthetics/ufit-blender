@@ -10,6 +10,6 @@ def register():
 
 
 def unregister():
-    properties.unregister()
+    #properties.unregister()
     wf_operators.unregister()
     wf_ui.unregister()

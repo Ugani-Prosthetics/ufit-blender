@@ -4,7 +4,7 @@ from ..OT_Base_FS import OTBaseFS
 
 class OTStartModelingFS(OTBaseFS, OTStartModeling):
     """Tooltip"""
-    bl_idname = "operators.start_modeling"
+    bl_idname = "fs_operators.start_modeling"
     bl_label = "Start New"
     bl_options = {"REGISTER", "UNDO"}
 
@@ -15,7 +15,7 @@ class OTStartModelingFS(OTBaseFS, OTStartModeling):
 
 class OTStartFromExistingFS(OTBaseFS, OTStartFromExisting):
     """Tooltip"""
-    bl_idname = "operators.start_from_existing"
+    bl_idname = "fs_operators.start_from_existing"
     bl_label = "Start From Existing"
     bl_options = {"REGISTER", "UNDO"}
 

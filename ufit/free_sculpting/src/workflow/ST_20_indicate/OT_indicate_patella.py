@@ -4,7 +4,7 @@ from .....base.src.operators.base.OT_indicate import OTMoveScan
 
 class OTMoveScanFS(OTBaseFS, OTMoveScan):
     """Tooltip"""
-    bl_idname = "operators.move_scan"
+    bl_idname = "fs_operators.move_scan"
     bl_label = "Move Scan"
     bl_options = {"REGISTER", "UNDO"}
 

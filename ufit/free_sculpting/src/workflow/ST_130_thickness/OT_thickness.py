@@ -4,7 +4,7 @@ from .....base.src.operators.base.OT_thickness import OTThickness
 
 class OTThicknessFS(OTBaseFS, OTThickness):
     """Tooltip"""
-    bl_idname = "operators.thickness"
+    bl_idname = "fs_operators.thickness"
     bl_label = "Choose Print Thickness"
     bl_options = {"REGISTER", "UNDO"}
 

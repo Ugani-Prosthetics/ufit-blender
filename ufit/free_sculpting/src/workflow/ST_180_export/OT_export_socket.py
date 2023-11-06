@@ -4,7 +4,7 @@ from .....base.src.operators.base.OT_finish import OTExportDevice
 
 class OTExportSocketFS(OTBaseFS, OTExportDevice):
     """Tooltip"""
-    bl_idname = "operators.export_socket"
+    bl_idname = "fs_operators.export_socket"
     bl_label = "Export Socket"
     bl_options = {"REGISTER", "UNDO"}
 

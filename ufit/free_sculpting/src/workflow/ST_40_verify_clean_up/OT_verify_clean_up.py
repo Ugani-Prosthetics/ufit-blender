@@ -16,7 +16,7 @@ class OTHighlightNonManifoldFS(OTBaseFS, OTHighlightNonManifold):
 
 class OTFillNonManifoldFS(OTBaseFS, OTFillNonManifold):
     """Tooltip"""
-    bl_idname = "operators.fill_non_manifold"
+    bl_idname = "fs_operators.fill_non_manifold"
     bl_label = "Fix Non Manifold"
     bl_options = {"REGISTER", "UNDO"}
 
@@ -27,7 +27,7 @@ class OTFillNonManifoldFS(OTBaseFS, OTFillNonManifold):
 
 class OTDeleteNonManifoldFS(OTBaseFS, OTDeleteNonManifold):
     """Tooltip"""
-    bl_idname = "operators.delete_non_manifold"
+    bl_idname = "fs_operators.delete_non_manifold"
     bl_label = "Delete Non Manifold"
     bl_options = {"REGISTER", "UNDO"}
 
@@ -38,7 +38,7 @@ class OTDeleteNonManifoldFS(OTBaseFS, OTDeleteNonManifold):
 
 class OTApproveCleanUpFS(OTBaseFS, OTApproveCleanUp):
     """Tooltip"""
-    bl_idname = "operators.approve_clean_up"
+    bl_idname = "fs_operators.approve_clean_up"
     bl_label = "Approve Clean Up"
     bl_options = {"REGISTER", "UNDO"}
 

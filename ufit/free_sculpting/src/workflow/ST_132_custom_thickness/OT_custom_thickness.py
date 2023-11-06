@@ -4,7 +4,7 @@ from .....base.src.operators.base.OT_custom_thickness import OTCustomThickness, 
 
 class OTCustomThicknessFS(OTBaseFS, OTCustomThickness):
     """Tooltip"""
-    bl_idname = "operators.custom_thickness"
+    bl_idname = "fs_operators.custom_thickness"
     bl_label = "Apply Thickness"
     bl_options = {"REGISTER", "UNDO"}
 
@@ -15,7 +15,7 @@ class OTCustomThicknessFS(OTBaseFS, OTCustomThickness):
 
 class OTCustomThicknessDoneFS(OTBaseFS, OTCustomThicknessDone):
     """Tooltip"""
-    bl_idname = "operators.custom_thickness_done"
+    bl_idname = "fs_operators.custom_thickness_done"
     bl_label = "Next"
     bl_options = {"REGISTER", "UNDO"}
 

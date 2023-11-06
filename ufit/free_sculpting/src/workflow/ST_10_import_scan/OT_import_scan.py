@@ -4,7 +4,7 @@ from .....base.src.operators.base.OT_import_scan import OTImportScan
 
 class OTImportScanFS(OTBaseFS, OTImportScan):
     """Tooltip"""
-    bl_idname = "operators.import_scan"
+    bl_idname = "fs_operators.import_scan"
     bl_label = "Select Scan"
     bl_options = {"REGISTER", "UNDO"}
 

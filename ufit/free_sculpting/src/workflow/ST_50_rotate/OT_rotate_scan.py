@@ -4,7 +4,7 @@ from .....base.src.operators.base.OT_rotate import OTSaveRotation
 
 class OTSaveRotationFS(OTBaseFS, OTSaveRotation):
     """Tooltip"""
-    bl_idname = "operators.save_rotation"
+    bl_idname = "fs_operators.save_rotation"
     bl_label = "Save Rotation"
     bl_options = {"REGISTER", "UNDO"}
 

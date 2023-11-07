@@ -1,6 +1,7 @@
 import bpy
 from .utils.general import UFitPanel
 from ....base.src.operators.utils.user_interface import get_addon_version
+from ....config_ufit import logger
 
 
 class UIUFitLogo(UFitPanel, bpy.types.Panel):
@@ -15,7 +16,7 @@ class UIUFitLogo(UFitPanel, bpy.types.Panel):
         try:
             col.template_preview(bpy.data.textures['ufit_logo'])
         except Exception as e:
-            print(e)
+            logger.warning(e)
             pass  # do nothing
 
         ufit_version = get_addon_version('uFit')

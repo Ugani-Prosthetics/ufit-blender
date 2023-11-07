@@ -12,7 +12,6 @@ def configure_logging(enable_debug):
         logging.basicConfig(level=logging.INFO)
 
 
-
 def configure_full_debug(context, workspace, ufit_device, ufit_step):
     # avoid circular imports
     from .base.src.operators.core.start import start_from_existing
@@ -28,14 +27,21 @@ def configure_full_debug(context, workspace, ufit_device, ufit_step):
     # define the destination folder
     destination_folder = os.path.join(workspace, patient_folder)
 
-    # copy the content of the debug patient folder to the destination folder
+    # remove the destination folder if it exists
     if os.path.exists(destination_folder):
         try:
             shutil.rmtree(destination_folder)
-            shutil.copytree(debug_abs_path, destination_folder)
-            logger.debug(f"Created the destination folder: {destination_folder}")
         except Exception as e:
-            logger.warning(f"Error creating destination folder: {e}")
+            logger.warning(f"Error deleting destination folder: {e}")
+
+    # create the destination folder by copying the debug patient
+    try:
+        shutil.copytree(debug_abs_path, destination_folder)
+    except Exception as e:
+        logger.warning(f"Error creating destination folder: {e}")
+
+    # set the device type (required in start_from_existing)
+    context.scene.ufit_device_type = ufit_device
 
     if ufit_device == 'transtibial':
         start_from_existing(context, destination_folder, tt_path_consts, tt_ui_consts, debug_step=ufit_step)

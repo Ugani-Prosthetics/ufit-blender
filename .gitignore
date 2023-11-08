@@ -43,7 +43,10 @@ Thumbs.db
 *.flv
 *.mov
 *.wmv
+*.kra
 
 # ignore offline installation script
-# install_plugins_blender.sh
-# install_plugins_blender.bat
+install_plugins_blender.bat
+install_plugins_blender.sh
+
+

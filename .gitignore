@@ -49,4 +49,5 @@ Thumbs.db
 install_plugins_blender.bat
 install_plugins_blender.sh
 
-
+# ignore ufit.ini
+ufit/ufit.ini

@@ -39,7 +39,7 @@ tf_ui_consts = {
     # keys of workflow must be in the correct order!
     'workflow': {
         'start': {
-            'ui_name': 'Start Modeling'},
+            'ui_name': 'Start Transfemoral'},
         'import_scan': {
             'ui_name': 'Import Scan'},
         'indicate': {

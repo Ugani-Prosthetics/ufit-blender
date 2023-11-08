@@ -5,7 +5,7 @@ from ..OT_Base_TT import OTBaseTT
 class OTStartModelingTT(OTBaseTT, OTStartModeling):
     """Tooltip"""
     bl_idname = "tt_operators.start_modeling"
-    bl_label = "Start New"
+    bl_label = "Create New"
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context):
@@ -16,7 +16,7 @@ class OTStartModelingTT(OTBaseTT, OTStartModeling):
 class OTStartFromExistingTT(OTBaseTT, OTStartFromExisting):
     """Tooltip"""
     bl_idname = "tt_operators.start_from_existing"
-    bl_label = "Start From Existing"
+    bl_label = "Resume"
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context):

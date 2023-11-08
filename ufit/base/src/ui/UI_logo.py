@@ -24,6 +24,12 @@ class UIUFitLogo(UFitPanel, bpy.types.Panel):
             row.alignment = 'CENTER'
             row.label(text=f'Version: {ufit_version}')
 
+        device_type = bpy.context.scene.bl_rna.properties['ufit_device_type'].enum_items[context.scene.ufit_device_type].name
+        if context.scene.ufit_active_step not in ['platform_login', 'device_type']:
+            row = layout.row()
+            row.alignment = 'CENTER'
+            row.label(text=f'{device_type}', icon='HAND')
+
     @classmethod
     def poll(cls, context):
         return True

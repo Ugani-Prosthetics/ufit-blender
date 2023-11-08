@@ -218,10 +218,12 @@ def add_checkpoint(context, step, path_consts, ui_consts, sub_steps):
 
 
 def rollback_to_checkpoint(context, path_consts, ui_consts):
+    # determine rollback before adding checkpoint
+    cp_rollback = str(context.scene.ufit_checkpoints)  # make a deepcopy
+
     # add the current step so that the file will be removed
     add_checkpoint(context, context.scene.ufit_active_step, path_consts, ui_consts, context.scene.ufit_substep)
 
-    cp_rollback = context.scene.ufit_checkpoints
     for cp in context.scene.ufit_checkpoint_collection:
         if cp.name == cp_rollback:
             step = str(cp.step)  # make a copy as cp is lost when loading file

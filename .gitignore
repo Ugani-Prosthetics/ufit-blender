@@ -45,5 +45,5 @@ Thumbs.db
 *.wmv
 
 # ignore offline installation script
-install_plugins_blender.sh
-*.kra
+# install_plugins_blender.sh
+# install_plugins_blender.bat

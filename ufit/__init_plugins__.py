@@ -5,9 +5,10 @@ import configparser
 import bpy
 from bpy.app.handlers import persistent
 from .config_ufit import configure_logging, configure_full_debug, logger
+from .base.src import base_globals
 from .base.src.operators.utils import user_interface
 from .base.src.operators.utils.general import set_ufit_logo
-from .base.src.operators.utils.authenticate import platform_authenticate, is_authenticated
+from .base.src.operators.utils.authenticate import platform_authenticate, is_authenticated, set_ufit_authetication_vars
 
 bl_info = {
     "name": "uFit",
@@ -76,7 +77,11 @@ def init_ufit():
     set_ufit_logo()
     bpy.context.scene.unit_settings.length_unit = 'CENTIMETERS'
     user_interface.set_outliner_restriction('show_restrict_column_select', True)
-    platform_authenticate(bpy.context)
+
+    if not base_globals.debug_enabled:
+        platform_authenticate(bpy.context)
+    else:
+        set_ufit_authetication_vars(bpy.context)
 
     # jump to device_type step if authenticated OR last_authenticated is less than 10 days ago
     if bpy.context.scene.ufit_active_step == 'platform_login':

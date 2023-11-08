@@ -5,6 +5,11 @@ import shutil
 
 def configure_logging(enable_debug):
     if enable_debug:
+        # avoid circular imports
+        from .base.src import base_globals
+        base_globals.debug_enabled = True
+
+    if enable_debug:
         logging.basicConfig(level=logging.DEBUG)
         # You can configure other logging options for debugging here
     else:
@@ -13,6 +18,9 @@ def configure_logging(enable_debug):
 
 
 def configure_full_debug(context, workspace, ufit_device, ufit_step):
+    # base_globals.debug_enabled = True
+    configure_logging(enable_debug=True)
+
     # avoid circular imports
     from .base.src.operators.core.start import start_from_existing
     from .transtibial.src.transtibial_constants import tt_path_consts, tt_ui_consts

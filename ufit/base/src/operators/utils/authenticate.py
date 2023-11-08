@@ -62,11 +62,11 @@ def platform_authenticate(context):
         login_res = start_session(url=url_connect, data=data_connect, headers=base_globals.headers)
 
         if login_res["session"]:
-            logger.debug('authentication successful')
+            logger.info('uFit authentication successful')
             base_globals.platform_session = login_res['session']
         else:
             base_globals.platform_session = None
-            logger.debug('authentication unsuccessful')
+            logger.info('uFit authentication unsuccessful')
     except Exception as e:
         pass
         # raise Exception(f'Make sure you have internet connection when using the uFit plugin')

@@ -6,6 +6,7 @@ import time
 import requests
 import hashlib
 import os
+from .....config_ufit import logger
 
 
 class We:
@@ -17,7 +18,7 @@ class We:
         example usage:\n
         wetransfer = we()\n
         metadata = wetransfer.upload('path/to/file')\n
-        print(metadata['shortened_url'])\n
+        logger.info(metadata['shortened_url'])\n
         wetransfer.download(metadata['shortened_url'])\n
         """
         self.__session = requests.Session()
@@ -26,7 +27,7 @@ class We:
     def upload(self, path: str, display_name: str = '', message: str = ''):
         """Returns a json containing the metadata and the link to the uploaded file/folder"""
 
-        print("Uploading", os.path.basename(path))
+        logger.info("Uploading", os.path.basename(path))
         if display_name == '':
             display_name = os.path.basename(path)
         files, type = self.__get_files(path)
@@ -50,8 +51,7 @@ class We:
             download_path = os.path.join(
                 os.getcwd(), metadata['display_name'].split('.')[0]+'.'+ext)
 
-        print(
-            f'Downloading {metadata["display_name"]} [{metadata["size"]/(1024*1014)} MB]')
+        logger.info(f'Downloading {metadata["display_name"]} [{metadata["size"]/(1024*1014)} MB]')
 
         with open(download_path, 'wb') as f:
             f.write(self.__session.get(ddl).content)
@@ -115,7 +115,7 @@ class We:
                 if os.path.isfile(os.path.join(path, file)):
                     files.append({'name': file, 'size': os.path.getsize(os.path.join(
                         path, file)), 'item_type': 'file'})
-            print("Total number of files:", len(files))
+            logger.debug("Total number of files:", len(files))
             return files, 'folder'
         else:
             raise Exception('Path is not a file or directory')
@@ -194,7 +194,7 @@ class We:
 
         s3_urls = self.__blocks(blocks_payload, auth_bearer)  # url md5 blockid
 
-        # print(s3_urls)
+        # logger.debug(s3_urls)
 
         self.__upload_chunks(files_path, s3_urls)
 
@@ -208,7 +208,7 @@ class We:
 
         items = []
         i = 0
-        # print(file_name_bcount)
+        # logger.debug(file_name_bcount)
         for file_name, count in file_name_bcount:
             item = {
                 'path': file_name,
@@ -225,10 +225,10 @@ class We:
         json_data = {
             'items': items
         }
-        # print(json.dumps(json_data, indent=2))
+        # logger.debug(json.dumps(json_data, indent=2))
         
         response = self.__session.post(self.endpoints['storm.create_batch_url'], headers=headers, json=json_data)
-        # print(response.status_code)
+        # logger.debug(response.status_code)
 
     def __preflight(self, items, auth_bearer: str):
         headers = {
@@ -239,7 +239,7 @@ class We:
             'items': items
         }
 
-        # print(json.dumps(json_data, indent=2))
+        # logger.debug(json.dumps(json_data, indent=2))
         response = self.__session.post(self.endpoints['storm.preflight_batch_url'], json=json_data, headers=headers)
 
         if response.status_code == 200:
@@ -281,7 +281,7 @@ class We:
                     if response.status_code != 200:
                         raise Exception(
                             'Error on upload_chunks\n', response.text)
-            print(f'Uploaded {os.path.basename(file_path)}')
+            logger.debug(f'Uploaded {os.path.basename(file_path)}')
         return True
 
     def __finalize_chunks_upload(self, transfer_id: str):

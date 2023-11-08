@@ -4,6 +4,7 @@ import math
 import addon_utils
 from bl_ui.space_toolsystem_common import ToolSelectPanelHelper
 from bl_ui.space_toolsystem_toolbar import VIEW3D_PT_tools_active, ToolDef, _defs_sculpt
+from .....config_ufit import logger
 
 
 def enable_addon(addon_module_name):
@@ -47,7 +48,7 @@ def set_input_preference(pref_name, pref_value):
         # Set the value of the specified property
         setattr(input_prefs, pref_name, pref_value)
     else:
-        print(f"Input preference '{pref_name}' does not exist.")
+        logger.debug(f"Input preference '{pref_name}' does not exist.")
 
 
 def set_outliner_restriction(restr_name, restr_val):
@@ -60,7 +61,7 @@ def set_outliner_restriction(restr_name, restr_val):
             if hasattr(space, restr_name):
                 setattr(space, restr_name, restr_val)
             else:
-                print(f"Ouliner restriction '{restr_name}' does not exist.")
+                logger.debug(f"Ouliner restriction '{restr_name}' does not exist.")
 
             break
 

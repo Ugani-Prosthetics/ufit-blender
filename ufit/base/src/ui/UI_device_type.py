@@ -12,7 +12,7 @@ class UIDeviceType(UFitPanel, bpy.types.Panel):
         col = layout.row().column()
 
         row = layout.row(align=True)
-        row.prop(context.scene, "ufit_device_type", expand=True)
+        row.prop(context.scene, "ufit_device_type", text="")
 
         row1 = layout.row()
         row1.operator("ufit_operators.device_type", text="Next")

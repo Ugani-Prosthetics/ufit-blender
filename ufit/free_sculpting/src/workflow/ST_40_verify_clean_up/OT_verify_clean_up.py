@@ -5,7 +5,7 @@ from .....base.src.operators.base.OT_clean_up import (OTApproveCleanUp, OTHighli
 
 class OTHighlightNonManifoldFS(OTBaseFS, OTHighlightNonManifold):
     """Tooltip"""
-    bl_idname = "operators.highlight_non_manifold"
+    bl_idname = "fs_operators.highlight_non_manifold"
     bl_label = "Highlight Non Manifold"
     bl_options = {"REGISTER", "UNDO"}
 

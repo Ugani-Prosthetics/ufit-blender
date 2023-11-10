@@ -1,10 +1,14 @@
+import os
 import sys
 from datetime import datetime
+import configparser
 import bpy
 from bpy.app.handlers import persistent
+from .config_ufit import configure_logging, configure_full_debug, logger
+from .base.src import base_globals
 from .base.src.operators.utils import user_interface
 from .base.src.operators.utils.general import set_ufit_logo
-from .base.src.operators.utils.authenticate import platform_authenticate, is_authenticated
+from .base.src.operators.utils.authenticate import platform_authenticate, is_authenticated, set_ufit_authetication_vars
 
 bl_info = {
     "name": "uFit",
@@ -26,15 +30,41 @@ for mod in modulesNames:
     modules_full_names[mod] = ('{}.{}'.format(__name__, mod))
 
 
+def read_ini():
+    # Get the current script's directory
+    current_dir = os.path.abspath(os.path.dirname(__file__))
+    config_file_path = os.path.join(current_dir, 'ufit.ini')
+
+    # Create a ConfigParser object and read the ini file
+    config = configparser.ConfigParser()
+    config.read(config_file_path)
+
+    return config
+
+
+def load_ufit_config():
+    config = read_ini()
+    full_debug_mode = config.getboolean('full_debug', 'full_debug_mode')
+
+    # configure full debug mode
+    if full_debug_mode:
+        configure_full_debug(
+            context=bpy.context,
+            workspace=config.get('full_debug', 'workspace'),
+            ufit_device=config.get('full_debug', 'ufit_device'),
+            ufit_step=config.get('full_debug', 'ufit_step')
+        )
+
+
 def reload_modules():
     import importlib
 
     for current_module_full_name in modules_full_names.values():
         if current_module_full_name in sys.modules.keys():
-            print(f'reloading module now: {current_module_full_name}')
+            logger.debug(f'reloading module now: {current_module_full_name}')
             importlib.reload(sys.modules[current_module_full_name])
         else:
-            print(f'importing module now: {current_module_full_name}')
+            logger.debug(f'importing module now: {current_module_full_name}')
             globals()[current_module_full_name] = importlib.import_module(current_module_full_name)
             setattr(globals()[current_module_full_name], 'modulesNames', modules_full_names)
 
@@ -48,7 +78,11 @@ def init_ufit():
     set_ufit_logo()
     bpy.context.scene.unit_settings.length_unit = 'CENTIMETERS'
     user_interface.set_outliner_restriction('show_restrict_column_select', True)
-    platform_authenticate(bpy.context)
+
+    if not base_globals.debug_enabled:
+        platform_authenticate(bpy.context)
+    else:
+        set_ufit_authetication_vars(bpy.context)
 
     # jump to device_type step if authenticated OR last_authenticated is less than 10 days ago
     if bpy.context.scene.ufit_active_step == 'platform_login':
@@ -64,21 +98,29 @@ def init_ufit():
         if is_authenticated() or \
                 (days_diff <= 10 and bpy.context.scene.ufit_user and bpy.context.scene.ufit_password):  # make sure authentication happens every 10 days
             bpy.context.scene.ufit_active_step = 'device_type'
+            load_ufit_config()
 
 
-@persistent
-def handler_blender_loaded(scene):
-    init_ufit()
+# @persistent
+# def handler_blender_loaded(scene):
+#     init_ufit()
 
 
 def register():
     user_interface.enable_addon('mesh_looptools')
     user_interface.enable_addon('object_print3d_utils')
+    user_interface.enable_addon('io_scene_obj')
     user_interface.set_theme_vertex_size(1)
     user_interface.set_input_preference('use_rotate_around_active', True)
     user_interface.set_input_preference('use_zoom_to_mouse', True)
     user_interface.set_input_preference('use_auto_perspective', False)
 
+    # configure logging (should be done here due to authentication logging)
+    config = read_ini()
+    enable_debug = config.getboolean('debug', 'enable_debug')
+    configure_logging(enable_debug)
+
+    # reload modules
     reload_modules()
     for current_module_name in modules_full_names.values():
         if current_module_name in sys.modules:

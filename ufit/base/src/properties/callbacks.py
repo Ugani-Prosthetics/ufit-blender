@@ -34,6 +34,9 @@ def checkpoint_items(self, context):
         item = (name, name, name)
         enum_items.append(item)
 
+    # reverse the list so that the last item appears first
+    enum_items.reverse()
+
     return enum_items
 
 

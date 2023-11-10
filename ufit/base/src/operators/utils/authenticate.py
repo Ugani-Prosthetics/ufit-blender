@@ -2,6 +2,7 @@ import bpy
 import json
 import requests
 from ....src import base_globals
+from .....config_ufit import logger
 
 
 def set_ufit_authetication_vars(context):
@@ -61,11 +62,11 @@ def platform_authenticate(context):
         login_res = start_session(url=url_connect, data=data_connect, headers=base_globals.headers)
 
         if login_res["session"]:
-            print('authentication successful')
+            logger.info('uFit authentication successful')
             base_globals.platform_session = login_res['session']
         else:
             base_globals.platform_session = None
-            print('authentication unsuccessful')
+            logger.info('uFit authentication unsuccessful')
     except Exception as e:
         pass
         # raise Exception(f'Make sure you have internet connection when using the uFit plugin')

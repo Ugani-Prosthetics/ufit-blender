@@ -6,6 +6,7 @@ import webbrowser
 from .wetransfertool import We
 from ..utils.sorting import natural_sort
 from ..utils.user_interface import get_addon_version
+from .....config_ufit import logger
 
 
 def create_report_zip(context):
@@ -64,7 +65,7 @@ def report_problem(context):
             wetransfer_link = wetransfer_upload(report_zip_file)
             break
         except Exception as e:
-            print(e)
+            logger.warning(e)
             pass
         time.sleep(2)
 

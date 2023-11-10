@@ -24,9 +24,10 @@ def start_modeling(context):
     context.scene.ufit_full_screen = True
 
 
-def start_from_existing(context, file_path_obj, path_consts, ui_consts):
+def start_from_existing(context, file_path_obj, path_consts, ui_consts, debug_step=None):
     modeling_folder = os.path.dirname(file_path_obj)
     checkpoints_dir = os.path.join(modeling_folder, "checkpoints")
+
     if os.path.isdir(checkpoints_dir):
         if context.scene.ufit_device_type not in modeling_folder:
             raise Exception(f"The chosen device type does not match the folder name")
@@ -42,10 +43,14 @@ def start_from_existing(context, file_path_obj, path_consts, ui_consts):
             for file in checkpoints_files:
                 if file.startswith('ST_'):
                     wf_step = get_workflow_step(step, path_consts)
-                    if wf_step and wf_step in file and not 'blend1' in file:
+                    if wf_step \
+                            and wf_step in file \
+                            and 'blend1' not in file \
+                            and (not debug_step or step == debug_step):
                         latest_checkpoint = os.path.join(checkpoints_dir, file)
                         active_step = step
                         break
+
             # also break out of big for loop
             if latest_checkpoint and active_step:
                 break
@@ -57,7 +62,7 @@ def start_from_existing(context, file_path_obj, path_consts, ui_consts):
 
             return None
 
-    raise Exception(f"No checkpoint folder found. Please use 'Start New' for this scan.")
+    raise Exception(f"No checkpoint folder found. Please use 'Create New' for this scan.")
 
 
 #################################
@@ -104,7 +109,7 @@ def init_modeling_folders(context, filepath):
         return obj_filepath
 
     else:
-        raise Exception(f"Found checkpoints folder. You can't use 'Start New' in this location.")
+        raise Exception(f"Found checkpoints folder. You can't use 'Create New' in this location.")
 
 
 def import_zip(context, filepath):

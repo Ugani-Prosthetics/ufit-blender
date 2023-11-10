@@ -14,6 +14,8 @@ class OTBase(bpy.types.Operator):
         checkpoint = operator_consts.get('checkpoint')
         next_step = operator_consts.get('next_step')
 
+        print(f'next step: {next_step}')
+
         # reset the error message
         context.scene.ufit_error_message = ""
 

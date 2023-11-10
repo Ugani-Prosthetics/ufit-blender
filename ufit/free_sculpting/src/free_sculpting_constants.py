@@ -1,8 +1,8 @@
 from ...base.src.operators.core.prepare import (
     prep_move_scan, prep_clean_up, prep_verify_clean_up, prep_rotate)
 from ...base.src.operators.core.sculpt import (
-    prep_push_pull_smooth, minimal_prep_push_pull_smooth, create_thickness, minimal_prep_free_sculpt,
-    prep_custom_thickness, minimal_prep_custom_thickness)
+    prep_push_pull_smooth, minimal_prep_push_pull_smooth, prep_cutout, prep_cutout_prep, prep_scaling,
+    minimal_prep_free_sculpt, prep_custom_thickness, minimal_prep_custom_thickness)
 from ...base.src.operators.core.finish import prep_export
 
 
@@ -17,21 +17,16 @@ fs_path_consts = {
 
 fs_ui_consts = {
     'persistent': {},
-    'modal': {
-        'highlight_circumferences': {
-            'ui_name': 'Circumferences',
-            'help_text': 'The highlighted circumferences correspond to the measurements you find in the menu. '
-                         'You can always activate or deactivate this step to follow-up the measurements.'},
-    },
+    'modal': {},
     # keys of workflow must be in the correct order!
     'workflow': {
         'start': {
-            'ui_name': 'Start Modeling'},
+            'ui_name': 'Start Free Modeling'},
         'import_scan': {
             'ui_name': 'Import Scan'},
         'indicate': {
             'ui_name': 'Indicate',
-            'help_text': 'Indicate carefully the point. The point will later be used for alignment.'},
+            'help_text': 'Indicate a relevant point that will be used for alignment in the next steps.'},
         'clean_up': {
             'ui_name': 'Clean Up',
             'help_text': 'Hold Left-Click and move mouse to select the relevant area of the scan. '
@@ -48,6 +43,21 @@ fs_ui_consts = {
             'help_text': 'For guided sculpting, hold Left-Click and move mouse to highlight an area. '
                          'Use CTRL-Click to remove highlighted area. '
                          'Once the area is highlighted, use the options in the menu to perform an action'},
+        'cutout_prep': {
+            'ui_name': 'Prepare Cutout',
+            'help_text': 'Indicate the cutout line by adding many points. '
+                         'Deselect a point by clicking it again while holding CTRL.'},
+        'cutout': {
+            'ui_name': 'Cutout Corrections',
+            'technical_name': 'cutout',
+            'help_text': 'Make corrections to the cutout curve by selecting a point using Left-Click, '
+                         'press G, move mouse to the destination and Left-Click again.'},
+        'scale': {
+            'ui_name': 'Scaling',
+            'help_text': 'Scale the scan in mm or % to increase or decrease its size.'},
+        'verify_scaling': {
+            'ui_name': 'Verify Scaling',
+            'help_text': 'Verify the scaling is what you expected.'},
         'thickness': {
             'ui_name': 'Base Thickness',
             'help_text': 'Choose the base 3D printing thickness in mm.'},
@@ -185,7 +195,6 @@ fs_operator_consts = {
             'exec_save': True,
         },
     },
-
     'push_pull_region': {
         'checkpoint': {
             'name': 'push_pull_smooth',
@@ -223,9 +232,61 @@ fs_operator_consts = {
         },
     },
     'push_pull_smooth_done': {
+        'checkpoint': None,
+        'next_step': {
+            'name': 'cutout_prep',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'FLAT',
+                'color_type': 'TEXTURE'
+            },
+            'prep_func': prep_cutout_prep,
+            'exec_save': True
+        },
+    },
+    'cutout_prep': {
         'checkpoint': {
-            'name': 'push_pull_smooth',  # also add a checkpoint once done
-            'sub_steps': True
+            'name': 'cutout_prep',
+            'sub_steps': False
+        },
+        'next_step': {
+            'name': 'cutout',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'FLAT',
+                'color_type': 'TEXTURE'
+            },
+            'prep_func': prep_cutout,
+            'exec_save': True
+        },
+    },
+    'cutout': {
+        'checkpoint': {
+            'name': 'cutout',
+            'sub_steps': False
+        },
+        'next_step': {
+            'name': 'scale',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'STUDIO',
+                'color_type': 'VERTEX'
+            },
+            'prep_func': prep_scaling,
+            'exec_save': True
+        },
+    },
+    'scale': {
+        'checkpoint': {
+            'name': 'scale',
+            'sub_steps': False
+        },
+        'next_step': None,  # replaced by custom main_func
+    },
+    'verify_scaling': {
+        'checkpoint': {
+            'name': 'verify_scaling',
+            'sub_steps': False
         },
         'next_step': {
             'name': 'thickness',
@@ -234,9 +295,9 @@ fs_operator_consts = {
                 'light': 'STUDIO',
                 'color_type': 'MATERIAL'
             },
-            'prep_func': create_thickness,
+            'prep_func': None,
             'exec_save': True
-        },
+        }
     },
     'thickness': {
         'checkpoint': {

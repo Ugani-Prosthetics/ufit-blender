@@ -91,7 +91,7 @@ def export_device(context):
 
     if context.scene.ufit_socket_or_milling == 'socket':
         # export stl of device to checkpoints folder
-        socket_name = f'{data_name}_finished_socket_{ts}.stl'
+        socket_name = f'finished_{context.scene.ufit_device_type}_{ts}.stl'
         filepath_socket = f'{context.scene.ufit_folder_modeling}/{socket_name}'
         bpy.ops.export_mesh.stl(filepath=filepath_socket, check_existing=True, filter_glob='*.stl',
                                 use_selection=True, global_scale=1.0, use_scene_unit=False, ascii=False,
@@ -101,7 +101,7 @@ def export_device(context):
         if context.scene.ufit_total_contact_socket:
             ufit_inner_obj = bpy.data.objects['uFit_Inner']
             general.activate_object(context, ufit_inner_obj, mode='OBJECT')
-            inner_part_name = f'{data_name}_finished_inner_part_{ts}.stl'
+            inner_part_name = f'finished_{context.scene.ufit_device_type}_inner_part_{ts}.stl'
             filepath_inner_part = f'{context.scene.ufit_folder_modeling}/{inner_part_name}'
             bpy.ops.export_mesh.stl(filepath=filepath_inner_part, check_existing=True, filter_glob='*.stl',
                                     use_selection=True, global_scale=1.0, use_scene_unit=False, ascii=False,
@@ -109,7 +109,7 @@ def export_device(context):
 
     else:
         # export stl of device to checkpoints folder
-        milling_name = f'{data_name}_finished_milling_model_{ts}.stl'
+        milling_name = f'finished_milling_{context.scene.ufit_device_type}_{ts}.stl'
         filepath_milling = f'{context.scene.ufit_folder_modeling}/{milling_name}'
         bpy.ops.export_mesh.stl(filepath=filepath_milling, check_existing=True, filter_glob='*.stl',
                                 use_selection=True, global_scale=1.0, use_scene_unit=False, ascii=False,

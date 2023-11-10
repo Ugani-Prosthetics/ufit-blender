@@ -86,7 +86,6 @@ def register():
                                                         ("transtibial", "Transtibial", "", 1),
                                                         ("transfemoral", "Transfemoral", "", 2),
                                                         ("free_sculpting", "Free", "", 3),
-
                                                     ])
 
     # settings

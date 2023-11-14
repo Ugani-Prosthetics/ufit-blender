@@ -6,6 +6,12 @@ from ..utils import annotations, general, user_interface
 # Move to center
 #########################################
 def prep_move_scan(context):
+    # set ufit object
+    ufit_obj = bpy.data.objects['uFit']
+
+    # disable auto_smooth
+    ufit_obj.data.use_auto_smooth = False
+
     # switch to annotation tool
     user_interface.activate_new_grease_pencil(context, name='Selections', layer_name='Knee')
 

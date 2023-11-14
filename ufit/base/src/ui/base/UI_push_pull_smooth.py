@@ -19,8 +19,14 @@ class UIPushPullRegions(UFitPanel, bpy.types.Panel):
         # disable colors / preview extrusions
         row1 = layout.row()
         row1.alignment = 'LEFT'
-        row1.label(text="Color Enable: ")
+        row1.label(text="Scan Colors: ")
         row1.prop(scene, 'ufit_enable_colors', text='')
+
+        # highlight all
+        row1 = layout.row()
+        row1.alignment = 'LEFT'
+        row1.label(text="Highlight Entire Object: ")
+        row1.prop(scene, 'ufit_vertex_color_all', text='')
 
         # separator
         layout.row().separator()

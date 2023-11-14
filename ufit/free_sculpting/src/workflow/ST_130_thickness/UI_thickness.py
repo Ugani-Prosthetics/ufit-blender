@@ -8,10 +8,10 @@ class UIThicknessFS(UIThickness):
 
     def draw(self, context):
         self.draw_base(context,
-                       ot_thickness="fs_operators.thickness")
+                       ot_thickness="fs_operators.thickness",
+                       include_voronoi=True)
 
     @classmethod
     def poll(cls, context):
         return (context.scene.ufit_active_step == 'thickness'
-                and not context.scene.ufit_circums_highlighted
                 and context.scene.ufit_device_type == 'free_sculpting')

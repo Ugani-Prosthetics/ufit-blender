@@ -18,6 +18,7 @@ from .ST_70_push_pull_smooth.OT_push_pull_smooth import (
 )
 from .ST_90_cutout_prep.OT_cutout_prep import OTCutoutPlaneFS
 from .ST_100_cutout.OT_cutout import OTCutoutFS
+from .ST_105_new_cutout.OT_new_cutout import OTNewCutoutFS, OTCutoutDoneFS
 from .ST_110_scale.OT_liner_scaling import OTLinerScaleFS
 from .ST_120_verify_scaling.OT_verify_scaling import OTApproveScalingFS
 from .ST_130_thickness.OT_thickness import OTThicknessFS
@@ -43,6 +44,8 @@ def register():
     bpy.utils.register_class(OTPushPullSmoothDoneFS)
     bpy.utils.register_class(OTCutoutPlaneFS)
     bpy.utils.register_class(OTCutoutFS)
+    bpy.utils.register_class(OTNewCutoutFS)
+    bpy.utils.register_class(OTCutoutDoneFS)
     bpy.utils.register_class(OTLinerScaleFS)
     bpy.utils.register_class(OTApproveScalingFS)
     bpy.utils.register_class(OTThicknessFS)
@@ -69,6 +72,8 @@ def unregister():
     bpy.utils.unregister_class(OTPushPullSmoothDoneFS)
     bpy.utils.unregister_class(OTCutoutPlaneFS)
     bpy.utils.unregister_class(OTCutoutFS)
+    bpy.utils.unregister_class(OTNewCutoutFS)
+    bpy.utils.unregister_class(OTCutoutDoneFS)
     bpy.utils.unregister_class(OTLinerScaleFS)
     bpy.utils.unregister_class(OTApproveScalingFS)
     bpy.utils.unregister_class(OTThicknessFS)

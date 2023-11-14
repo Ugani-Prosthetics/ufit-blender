@@ -13,5 +13,4 @@ class UIExportSocketFS(UIExportDevice):
     @classmethod
     def poll(cls, context):
         return (context.scene.ufit_active_step == 'export'
-                and not context.scene.ufit_circums_highlighted
                 and context.scene.ufit_device_type == 'free_sculpting')

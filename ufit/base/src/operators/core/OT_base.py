@@ -14,8 +14,6 @@ class OTBase(bpy.types.Operator):
         checkpoint = operator_consts.get('checkpoint')
         next_step = operator_consts.get('next_step')
 
-        print(f'next step: {next_step}')
-
         # reset the error message
         context.scene.ufit_error_message = ""
 
@@ -30,12 +28,16 @@ class OTBase(bpy.types.Operator):
             # move to next step
             if next_step:
                 if not next_step.get('conditions'):
-                    prep_func = next_step.get('prep_func')
                     default_state = next_step.get('default_state')
+                    reset_substep = next_step.get('reset_substep')
+                    prep_func = next_step.get('prep_func')
 
                     if default_state:
                         return_to_default_state(context,
                                                 **default_state)
+
+                    if reset_substep:
+                        context.scene.ufit_substep = 0
 
                     if prep_func:
                         prep_func(context)
@@ -50,12 +52,16 @@ class OTBase(bpy.types.Operator):
                     for step in next_step.get('conditions'):
                         condition_func = step.get('condition_func')
                         if condition_func(context):
-                            prep_func = step.get('prep_func')
                             default_state = step.get('default_state')
+                            reset_substep = step.get('reset_substep')
+                            prep_func = step.get('prep_func')
 
                             if default_state:
                                 return_to_default_state(context,
                                                         **default_state)
+
+                            if reset_substep:
+                                context.scene.ufit_substep = 0
 
                             if prep_func:
                                 prep_func(context)

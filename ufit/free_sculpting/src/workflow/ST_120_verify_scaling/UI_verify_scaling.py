@@ -13,5 +13,4 @@ class UIVerifyScalingFS(UIVerifyScaling):
     @classmethod
     def poll(cls, context):
         return (context.scene.ufit_active_step == 'verify_scaling'
-                and not context.scene.ufit_circums_highlighted
                 and context.scene.ufit_device_type == 'free_sculpting')

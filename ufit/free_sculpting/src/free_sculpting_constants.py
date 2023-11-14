@@ -1,9 +1,18 @@
 from ...base.src.operators.core.prepare import (
     prep_move_scan, prep_clean_up, prep_verify_clean_up, prep_rotate)
 from ...base.src.operators.core.sculpt import (
-    prep_push_pull_smooth, minimal_prep_push_pull_smooth, prep_cutout, prep_cutout_prep, prep_scaling,
-    minimal_prep_free_sculpt, prep_custom_thickness, minimal_prep_custom_thickness)
+    prep_push_pull_smooth, minimal_prep_push_pull_smooth, prep_cutout, minimal_prep_cutout_prep, prep_cutout_prep,
+    prep_scaling, prep_verify_scaling, minimal_prep_free_sculpt, prep_thickness, prep_custom_thickness,
+    minimal_prep_custom_thickness)
 from ...base.src.operators.core.finish import prep_export
+
+
+def scale_condition(context):
+    return context.scene.ufit_liner_scaling != 0
+
+
+def no_scale_condition(context):
+    return context.scene.ufit_liner_scaling == 0
 
 
 fs_path_consts = {
@@ -48,10 +57,15 @@ fs_ui_consts = {
             'help_text': 'Indicate the cutout line by adding many points. '
                          'Deselect a point by clicking it again while holding CTRL.'},
         'cutout': {
-            'ui_name': 'Cutout Corrections',
+            'ui_name': 'Cutout',
             'technical_name': 'cutout',
             'help_text': 'Make corrections to the cutout curve by selecting a point using Left-Click, '
                          'press G, move mouse to the destination and Left-Click again.'},
+        'new_cutout': {
+            'ui_name': 'Another Cutout or Continue?',
+            'technical_name': 'new_cutout',
+            'help_text': 'Click the button Another Cutout if you would you like to perform another cutout. '
+                         'Click Next to continue to the next step.'},
         'scale': {
             'ui_name': 'Scaling',
             'help_text': 'Scale the scan in mm or % to increase or decrease its size.'},
@@ -79,6 +93,7 @@ fs_operator_consts = {
         'next_step': {
             'name': 'import_scan',
             'default_state': None,
+            'reset_substep': True,
             'prep_func': None,
             'exec_save': False
         },
@@ -96,6 +111,7 @@ fs_operator_consts = {
                 'light': 'FLAT',
                 'color_type': 'TEXTURE'
             },
+            'reset_substep': True,
             'prep_func': prep_move_scan,
             'exec_save': True
         },
@@ -113,6 +129,7 @@ fs_operator_consts = {
                 'light': 'FLAT',
                 'color_type': 'TEXTURE'
             },
+            'reset_substep': True,
             'prep_func': prep_clean_up,
             'exec_save': True
         },
@@ -129,6 +146,7 @@ fs_operator_consts = {
                 'light': 'FLAT',
                 'color_type': 'TEXTURE'
             },
+            'reset_substep': True,
             'prep_func': prep_verify_clean_up,
             'exec_save': True
         },
@@ -145,6 +163,7 @@ fs_operator_consts = {
         'next_step': {
             'name': 'verify_clean_up',
             'default_state': None,
+            'reset_substep': False,
             'prep_func': None,
             'exec_save': True
         },
@@ -157,6 +176,7 @@ fs_operator_consts = {
         'next_step': {
             'name': 'verify_clean_up',
             'default_state': None,
+            'reset_substep': False,
             'prep_func': None,
             'exec_save': True
         },
@@ -175,6 +195,7 @@ fs_operator_consts = {
                 'overlay_axes': (1, 1, 1),
                 'overlay_text': True
             },
+            'reset_substep': True,
             'prep_func': prep_rotate,
             'exec_save': True
         },
@@ -191,6 +212,7 @@ fs_operator_consts = {
                 'light': 'FLAT',
                 'color_type': 'TEXTURE'
             },
+            'reset_substep': True,
             'prep_func': prep_push_pull_smooth,
             'exec_save': True,
         },
@@ -203,6 +225,7 @@ fs_operator_consts = {
         'next_step': {
             'name': 'push_pull_smooth',
             'default_state': None,
+            'reset_substep': False,
             'prep_func': minimal_prep_push_pull_smooth,
             'exec_save': True
         },
@@ -215,6 +238,7 @@ fs_operator_consts = {
         'next_step': {
             'name': 'push_pull_smooth',
             'default_state': None,
+            'reset_substep': False,
             'prep_func': minimal_prep_push_pull_smooth,
             'exec_save': True
         },
@@ -227,6 +251,7 @@ fs_operator_consts = {
         'next_step': {
             'name': 'push_pull_smooth',
             'default_state': None,
+            'reset_substep': False,
             'prep_func': minimal_prep_free_sculpt,
             'exec_save': True
         },
@@ -238,24 +263,26 @@ fs_operator_consts = {
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'FLAT',
-                'color_type': 'TEXTURE'
+                'color_type': 'VERTEX'
             },
+            'reset_substep': True,
             'prep_func': prep_cutout_prep,
             'exec_save': True
         },
     },
     'cutout_prep': {
         'checkpoint': {
-            'name': 'cutout_prep',
-            'sub_steps': False
+            'name': 'cutout',
+            'sub_steps': True
         },
         'next_step': {
             'name': 'cutout',
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'FLAT',
-                'color_type': 'TEXTURE'
+                'color_type': 'VERTEX'
             },
+            'reset_substep': False,
             'prep_func': prep_cutout,
             'exec_save': True
         },
@@ -263,7 +290,39 @@ fs_operator_consts = {
     'cutout': {
         'checkpoint': {
             'name': 'cutout',
-            'sub_steps': False
+            'sub_steps': True
+        },
+        # 'next_step': None,
+        'next_step': {
+            'name': 'new_cutout',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'STUDIO',
+                'color_type': 'VERTEX'
+            },
+            'reset_substep': False,
+            'prep_func': None,
+            'exec_save': True
+        },
+    },
+    'new_cutout': {
+        'checkpoint': None,
+        'next_step': {
+            'name': 'cutout_prep',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'FLAT',
+                'color_type': 'VERTEX'
+            },
+            'reset_substep': False,
+            'prep_func': minimal_prep_cutout_prep,
+            'exec_save': True
+        },
+    },
+    'cutout_done': {
+        'checkpoint': {
+            'name': 'cutout',
+            'sub_steps': True
         },
         'next_step': {
             'name': 'scale',
@@ -272,6 +331,7 @@ fs_operator_consts = {
                 'light': 'STUDIO',
                 'color_type': 'VERTEX'
             },
+            'reset_substep': True,
             'prep_func': prep_scaling,
             'exec_save': True
         },
@@ -281,7 +341,35 @@ fs_operator_consts = {
             'name': 'scale',
             'sub_steps': False
         },
-        'next_step': None,  # replaced by custom main_func
+        # 'next_step': None,  # replaced by custom main_func
+        'next_step': {
+            'conditions': [
+                {
+                    'condition_func': scale_condition,
+                    'name': 'verify_scaling',
+                    'default_state': {
+                        'object_name': 'uFit',
+                        'light': 'STUDIO',
+                        'color_type': 'RANDOM'
+                    },
+                    'reset_substep': True,
+                    'prep_func': prep_verify_scaling,
+                    'exec_save': True
+                },
+                {
+                    'condition_func': no_scale_condition,
+                    'name': 'thickness',
+                    'default_state': {
+                        'object_name': 'uFit',
+                        'light': 'STUDIO',
+                        'color_type': 'MATERIAL'
+                    },
+                    'reset_substep': True,
+                    'prep_func': prep_thickness,
+                    'exec_save': True
+                }
+            ]
+        }
     },
     'verify_scaling': {
         'checkpoint': {
@@ -295,7 +383,8 @@ fs_operator_consts = {
                 'light': 'STUDIO',
                 'color_type': 'MATERIAL'
             },
-            'prep_func': None,
+            'reset_substep': True,
+            'prep_func': prep_thickness,
             'exec_save': True
         }
     },
@@ -304,6 +393,7 @@ fs_operator_consts = {
             'name': 'thickness',
             'sub_steps': False
         },
+        # 'next_step': None,
         'next_step': {
             'name': 'custom_thickness',
             'default_state': {
@@ -311,6 +401,7 @@ fs_operator_consts = {
                 'light': 'STUDIO',
                 'color_type': 'MATERIAL'
             },
+            'reset_substep': True,
             'prep_func': prep_custom_thickness,
             'exec_save': True
         },
@@ -323,6 +414,7 @@ fs_operator_consts = {
         'next_step': {
             'name': 'custom_thickness',
             'default_state': None,
+            'reset_substep': False,
             'prep_func': minimal_prep_custom_thickness,
             'exec_save': True
         },
@@ -339,6 +431,7 @@ fs_operator_consts = {
                 'light': 'STUDIO',
                 'color_type': 'RANDOM'
             },
+            'reset_substep': True,
             'prep_func': prep_export,
             'exec_save': True
         },
@@ -355,6 +448,7 @@ fs_operator_consts = {
                 'light': 'STUDIO',
                 'color_type': 'RANDOM'
             },
+            'reset_substep': True,
             'prep_func': None,
             'exec_save': True
         },
@@ -364,6 +458,7 @@ fs_operator_consts = {
         'next_step': {
             'name': 'start',
             'default_state': None,
+            'reset_substep': True,
             'prep_func': None,
             'exec_save': False
         },

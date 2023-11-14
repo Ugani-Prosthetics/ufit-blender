@@ -16,5 +16,4 @@ class UIPushPullRegionsFS(UIPushPullRegions):
     @classmethod
     def poll(cls, context):
         return (context.scene.ufit_active_step == 'push_pull_smooth'
-                and not context.scene.ufit_circums_highlighted
                 and context.scene.ufit_device_type == 'free_sculpting')

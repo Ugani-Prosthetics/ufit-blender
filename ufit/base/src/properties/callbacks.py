@@ -2,8 +2,9 @@ import os
 import bpy
 import math
 import bpy.utils.previews
-from ..operators.utils import general, user_interface
+from ..operators.utils import general, user_interface, color_attributes
 from ..operators.core import checkpoints
+from ..operators.core.sculpt import color_attr_select
 
 
 # We can store multiple preview collections here,
@@ -63,6 +64,14 @@ def update_colors_enable(self, context):
         user_interface.set_shading_solid_mode(light='STUDIO', color_type='MATERIAL')
 
 
+def update_vertex_color_all(self, context):
+    ufit_obj = bpy.data.objects['uFit']
+    if self.ufit_vertex_color_all:
+        color_attributes.reset_color_attribute(ufit_obj, color_attr_select, color=(0.0325735, 0.78, 0.0565021, 1))
+    else:
+        color_attributes.reset_color_attribute(ufit_obj, color_attr_select, color=(1, 1, 1, 1))
+
+
 def sculpt_mode_update(self, context):
     if self.ufit_sculpt_mode == 'guided':
         bpy.ops.object.mode_set(mode='VERTEX_PAINT')
@@ -108,11 +117,44 @@ def mean_tilt_update(self, context):
     bpy.ops.curve.select_all(action='DESELECT')
 
 
+def thickness_voronoi_update(self, context):
+    ufit_obj = bpy.data.objects['uFit']
+    general.remove_all_modifiers(ufit_obj)
+    if self.ufit_thickness_voronoi == 'normal':
+        # add a solididfy modifier on uFit
+        solidify_mod = ufit_obj.modifiers.new(name="Solidify", type="SOLIDIFY")
+        solidify_mod.offset = 1
+        solidify_mod.use_even_offset = True
+        solidify_mod.thickness = context.scene.ufit_print_thickness / 1000  # one mm of thickness
+    elif self.ufit_thickness_voronoi == 'voronoi':
+        general.add_voronoi_to_obj(ufit_obj)
+        context.scene.ufit_voronoi_number = 'low'
+
+
+def voronoi_number_update(self, context):
+    ufit_obj = bpy.data.objects['uFit']
+
+    num_faces = len(ufit_obj.data.polygons)
+    lowest_ratio = 100/num_faces/2
+
+    if self.ufit_voronoi_number == 'very_low':
+        ufit_obj.modifiers['Decimate'].ratio = lowest_ratio
+    elif self.ufit_voronoi_number == 'low':
+        ufit_obj.modifiers['Decimate'].ratio = lowest_ratio*2
+    elif self.ufit_voronoi_number == 'medium':
+        ufit_obj.modifiers['Decimate'].ratio = lowest_ratio*4
+    elif self.ufit_voronoi_number == 'high':
+        ufit_obj.modifiers['Decimate'].ratio = lowest_ratio*8
+    elif self.ufit_voronoi_number == 'very_high':
+        ufit_obj.modifiers['Decimate'].ratio = lowest_ratio*16
+
+
 def flare_tool_update(self, context):
     # (re)select vertices from cutout edge
     # when the user switches tool, it can be used as a reset to reselect the edge
     ufit_obj = bpy.data.objects['uFit']
-    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=['cutout_edge'])
+    vgs = general.get_all_cutuout_edges(context)
+    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     user_interface.set_active_tool(self.ufit_flare_tool)
 

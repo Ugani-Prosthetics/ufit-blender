@@ -4,6 +4,7 @@ from .OT_steps_checkpoints import OTPreviousStep, OTCheckpointRollback
 from .OT_gizmo import OTuFitGizmo
 from .OT_errors import OTReportProblem
 from .OT_device_type import OTDeviceType
+from .OT_restart import OTRestart
 
 
 def register():
@@ -13,6 +14,7 @@ def register():
     bpy.utils.register_class(OTuFitGizmo)
     bpy.utils.register_class(OTReportProblem)
     bpy.utils.register_class(OTDeviceType)
+    bpy.utils.register_class(OTRestart)
 
 
 def unregister():
@@ -22,3 +24,4 @@ def unregister():
     bpy.utils.unregister_class(OTuFitGizmo)
     bpy.utils.unregister_class(OTReportProblem)
     bpy.utils.unregister_class(OTDeviceType)
+    bpy.utils.unregister_class(OTRestart)

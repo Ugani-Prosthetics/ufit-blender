@@ -77,4 +77,13 @@ base_operator_consts = {
         'checkpoint': None,
         'next_step': None
     },
+    'restart': {
+        'checkpoint': None,
+        'next_step': {
+            'name': 'device_type',
+            'default_state': None,
+            'prep_func': None,
+            'exec_save': False
+        },
+    },
 }

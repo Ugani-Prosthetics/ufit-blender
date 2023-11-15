@@ -1,9 +1,9 @@
 import bpy
 
+
 #######################################
 # Shader Nodes
 #######################################
-
 def set_push_pull_smooth_shader_nodes(ufit_obj, color_attr_name):
     if ufit_obj.data.materials:
         material = ufit_obj.data.materials[ufit_obj.active_material_index]

@@ -177,7 +177,7 @@ def save_rotation(context):
     ufit_obj = bpy.data.objects['uFit']
 
     # make sure the ufit object is selected
-    general.apply_transform(ufit_obj, use_location=True, use_rotation=True, use_scale=True)
+    bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
 
 
 #################################

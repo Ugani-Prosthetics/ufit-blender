@@ -343,6 +343,9 @@ def create_cutout_line(context):
     ufit_obj = bpy.data.objects['uFit']
     ufit_cutout_obj = bpy.data.objects['uFit_Cutout']
 
+    # turn off xray
+    context.scene.ufit_x_ray = False
+
     # activate ufit_cutout_obj
     general.activate_object(context, ufit_cutout_obj, mode='EDIT')
 
@@ -485,8 +488,6 @@ def perform_cutout(context):
 
 
 def cutout(context):
-    # if context.scene.ufit_device_type in ['transtibial', 'transfemoral']:
-    #     lift_ufit_non_manifold_top(context)
     create_cutout_line(context)
     perform_cutout(context)
 

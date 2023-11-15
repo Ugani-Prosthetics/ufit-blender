@@ -173,11 +173,32 @@ def prep_rotate(context):
     user_interface.set_active_tool('builtin.rotate')
 
 
+def mirror(context):
+    ufit_obj = bpy.data.objects['uFit']
+
+    # mirror using x-axis direction
+    bpy.ops.transform.mirror(
+        orient_type='GLOBAL',
+        orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)),
+        orient_matrix_type='GLOBAL',
+        constraint_axis=(True, False, False)
+    )
+
+    bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+
+    # mirroring flips the normals
+    general.activate_object(context, ufit_obj, 'EDIT')
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.mesh.flip_normals()
+
+    general.activate_object(context, ufit_obj, 'OBJECT')
+
+
 def save_rotation(context):
     ufit_obj = bpy.data.objects['uFit']
 
     # make sure the ufit object is selected
-    bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+    general.apply_transform(ufit_obj, use_location=True, use_rotation=True, use_scale=True)
 
 
 #################################

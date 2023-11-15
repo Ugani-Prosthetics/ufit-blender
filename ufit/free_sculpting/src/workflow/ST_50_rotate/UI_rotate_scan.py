@@ -8,7 +8,8 @@ class UIRotateFS(UIRotate):
 
     def draw(self, context):
         self.draw_base(context,
-                       ot_save_rotation="fs_operators.save_rotation")
+                       ot_save_rotation="fs_operators.save_rotation",
+                       ot_mirror="fs_operators.mirror")
 
     @classmethod
     def poll(cls, context):

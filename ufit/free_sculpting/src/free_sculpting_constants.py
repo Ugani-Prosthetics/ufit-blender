@@ -200,6 +200,10 @@ fs_operator_consts = {
             'exec_save': True
         },
     },
+    'mirror': {
+        'checkpoint': None,
+        'next_step': None
+    },
     'rotate': {
         'checkpoint': {
             'name': 'rotate',

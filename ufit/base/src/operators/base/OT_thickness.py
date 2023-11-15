@@ -1,5 +1,5 @@
 from .....base.src.operators.core.OT_base import OTBase
-from .....base.src.operators.core.sculpt import create_thickness
+from .....base.src.operators.core.sculpt import create_printing_thickness
 
 
 class OTThickness(OTBase):
@@ -13,7 +13,7 @@ class OTThickness(OTBase):
             return True
 
     def main_func(self, context):
-        create_thickness(context)
+        create_printing_thickness(context)
 
 
 class OTApproveThickness(OTBase):

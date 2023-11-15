@@ -22,6 +22,7 @@ modulesNames = [
     'base',
     'transtibial',
     'transfemoral',
+    'free_sculpting',
 ]
 
 modules_full_names = {}

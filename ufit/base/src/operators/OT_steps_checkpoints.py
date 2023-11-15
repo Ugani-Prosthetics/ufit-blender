@@ -3,6 +3,7 @@ from .core.OT_base import OTBase
 from ....base.src.operators.core.checkpoints import rollback_to_checkpoint, previous_step
 from ....transtibial.src.transtibial_constants import tt_path_consts, tt_ui_consts
 from ....transfemoral.src.transfemoral_constants import tf_path_consts, tf_ui_consts
+from ....free_sculpting.src.free_sculpting_constants import fs_path_consts, fs_ui_consts
 
 
 class OTCheckpointRollback(OTBase):
@@ -26,6 +27,8 @@ class OTCheckpointRollback(OTBase):
                 rollback_to_checkpoint(context, tt_path_consts, tt_ui_consts)
             elif context.scene.ufit_device_type == 'transfemoral':
                 rollback_to_checkpoint(context, tf_path_consts, tf_ui_consts)
+            elif context.scene.ufit_device_type == 'free_sculpting':
+                rollback_to_checkpoint(context, fs_path_consts, fs_ui_consts)
             else:
                 self.report({'ERROR'}, f'Could not find a module with name {context.scene.ufit_device_type}')
 
@@ -54,6 +57,8 @@ class OTPreviousStep(OTBase):
                 previous_step(context, tt_path_consts, tt_ui_consts)
             elif context.scene.ufit_device_type == 'transfemoral':
                 previous_step(context, tf_path_consts, tf_ui_consts)
+            elif context.scene.ufit_device_type == 'free_sculpting':
+                previous_step(context, fs_path_consts, fs_ui_consts)
             else:
                 self.report({'ERROR'}, f'Could not find a module with name {context.scene.ufit_device_type}')
 
@@ -82,6 +87,8 @@ class OTNextStep(OTBase):
                 previous_step(context, tt_path_consts, tt_ui_consts)
             elif context.scene.ufit_device_type == 'transfemoral':
                 previous_step(context, tf_path_consts, tf_ui_consts)
+            elif context.scene.ufit_device_type == 'free_sculpting':
+                previous_step(context, fs_path_consts, fs_ui_consts)
             else:
                 self.report({'ERROR'}, f'Could not find a module with name {context.scene.ufit_device_type}')
 

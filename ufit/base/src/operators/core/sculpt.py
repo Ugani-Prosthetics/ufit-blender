@@ -95,7 +95,8 @@ def minimal_prep_push_pull_smooth(context):
     general.activate_object(context, ufit_obj, mode='VERTEX_PAINT')
 
     # reset color attribute to all white vertices
-    color_attributes.reset_color_attribute(ufit_obj, color_attr_select, color=(1, 1, 1, 1))
+    context.scene.ufit_vertex_color_all = False
+    # color_attributes.reset_color_attribute(ufit_obj, color_attr_select, color=(1, 1, 1, 1))
 
 
 # called after remeasuring
@@ -268,28 +269,14 @@ def pull_bottom(context, extrusion):
     bpy.context.scene.tool_settings.use_proportional_edit = False
 
 
+def pull_bottom_done(context):
+    # turn of the xray
+    context.scene.ufit_x_ray = False
+
+
 #################################
 # Prepare Cutout
 #################################
-def prep_cutout_prep(context):
-    # create ufit measure and original objects
-    ufit_obj = bpy.data.objects['uFit']
-    ufit_original = general.duplicate_obj(ufit_obj, 'uFit_Original', context.collection, data=True, actions=False)
-    ufit_measure = general.duplicate_obj(ufit_obj, 'uFit_Measure', context.collection, data=True, actions=False)
-
-    # hide the UFitMeasure object
-    ufit_original.hide_set(True)
-    ufit_measure.hide_set(True)
-
-    # transformation orientation global + activate vertex snapping
-    context.scene.transform_orientation_slots[0].type = 'GLOBAL'
-    bpy.context.scene.tool_settings.use_snap = True
-    bpy.context.scene.tool_settings.snap_elements = {'FACE_NEAREST'}
-
-    # switch to annotation tool
-    user_interface.activate_new_grease_pencil(context, name='Selections', layer_name='Cutout')
-
-
 def lift_ufit_non_manifold_top(context):
     ufit_obj = bpy.data.objects['uFit']
     non_manifold_areas = general.create_non_manifold_vertex_groups(context, ufit_obj, max_verts=None)
@@ -310,7 +297,38 @@ def lift_ufit_non_manifold_top(context):
         bpy.context.scene.tool_settings.use_snap = False
 
         # move the verts x cm up
+        context.scene.transform_orientation_slots[0].type = 'GLOBAL'
         bpy.ops.transform.translate(value=(0, 0, 0.05))
+
+
+def prep_cutout_prep(context):
+    # create ufit measure and original objects
+    ufit_obj = bpy.data.objects['uFit']
+    ufit_original = general.duplicate_obj(ufit_obj, 'uFit_Original', context.collection, data=True, actions=False)
+    ufit_measure = general.duplicate_obj(ufit_obj, 'uFit_Measure', context.collection, data=True, actions=False)
+
+    # hide the UFitMeasure object
+    ufit_original.hide_set(True)
+    ufit_measure.hide_set(True)
+
+    if context.scene.ufit_device_type in ('transfemoral'):
+        lift_ufit_non_manifold_top(context)
+
+    # remesh the uFit object so you quads
+    color_attributes.remesh_with_texture_to_color_attr(context, ufit_obj, 'scan_colors')
+
+    # transformation orientation global + activate vertex snapping
+    context.scene.transform_orientation_slots[0].type = 'GLOBAL'
+    bpy.context.scene.tool_settings.use_snap = True
+    bpy.context.scene.tool_settings.snap_elements = {'FACE_NEAREST'}
+
+    # switch to annotation tool
+    user_interface.activate_new_grease_pencil(context, name='Selections', layer_name='Cutout')
+
+
+def minimal_prep_cutout_prep(context):
+    # switch to annotation tool
+    user_interface.activate_new_grease_pencil(context, name='Selections', layer_name='Cutout')
 
 
 def create_cutout_path(context):
@@ -407,8 +425,9 @@ def create_cutout_line(context):
     # make the ufit object the active object
     general.activate_object(context, ufit_obj, mode='OBJECT')
 
-    # remesh the ufit object so you have quads
-    color_attributes.remesh_with_texture_to_color_attr(context, ufit_obj, 'scan_colors')
+    # remesh the ufit object so you have quads (happens before for other devices)
+    # if context.scene.ufit_device_type in ('transtibial', 'transfemoral'):
+    #     color_attributes.remesh_with_texture_to_color_attr(context, ufit_obj, 'scan_colors')
 
     # join the ufit_cutout and ufit object
     selected_objects = [ufit_obj, ufit_cutout_obj]
@@ -467,16 +486,25 @@ def perform_cutout(context):
                                  iterations='10',
                                  regular=True)
 
-    # the cutout edge is selected. Invert selection and smooth all the rest
-    bpy.ops.mesh.select_all(action='INVERT')
-    bpy.ops.mesh.vertices_smooth(factor=1.0, repeat=3)
-    bpy.ops.mesh.select_all(action='INVERT')
-
     # split the object by the looped edge
     bpy.ops.mesh.edge_split(type='VERT')
 
     # create vertex group (for next step)
-    general.create_new_vertex_group_for_selected(context, ufit_obj, 'cutout_edge', mode='EDIT')
+    edge_num = int(context.scene.ufit_number_of_cutouts)
+    general.create_new_vertex_group_for_selected(context, ufit_obj, f'cutout_edge_{edge_num}', mode='EDIT')
+    context.scene.ufit_number_of_cutouts += 1
+
+    # select all cutout edges
+    vgs = general.get_all_cutuout_edges(context)
+    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
+
+    # Invert selection and smooth all the rest to avoid weird normals on scaling
+    bpy.ops.mesh.select_all(action='INVERT')
+    bpy.ops.mesh.vertices_smooth(factor=1.0, repeat=3)
+    bpy.ops.mesh.select_all(action='INVERT')
+
+    # select again the created cutout edge
+    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=[f'cutout_edge_{edge_num}'])
 
     # keep the object with the lowest average z coordinate
     selected_edges = general.get_selected_edges(context)
@@ -486,14 +514,21 @@ def perform_cutout(context):
                                         object_index=ufit_obj.pass_index,
                                         index=selected_edges[0])
 
-        # Calculate the average z-index
-        avg_z_part1 = get_avg_z(ufit_obj)
+        num_verts_part1 = len(general.get_selected_vertices(context))
         bpy.ops.mesh.select_all(action='INVERT')
-        avg_z_part2 = get_avg_z(ufit_obj)
+        num_verts_part2 = len(general.get_selected_vertices(context))
 
-        # keep the part with lowest avg z
-        if avg_z_part1 > avg_z_part2:
+        if num_verts_part2 > num_verts_part1:
             bpy.ops.mesh.select_all(action='INVERT')
+
+        # # Calculate the average z-index
+        # avg_z_part1 = get_avg_z(ufit_obj)
+        # bpy.ops.mesh.select_all(action='INVERT')
+        # avg_z_part2 = get_avg_z(ufit_obj)
+        #
+        # # keep the part with lowest avg z
+        # if avg_z_part1 > avg_z_part2:
+        #     bpy.ops.mesh.select_all(action='INVERT')
 
         # make sure the edge itself is not selected and delete
         general.deselect_edges_by_idx(context, selected_edges)
@@ -511,7 +546,8 @@ def perform_cutout(context):
 
 
 def cutout(context):
-    lift_ufit_non_manifold_top(context)
+    # if context.scene.ufit_device_type in ['transtibial', 'transfemoral']:
+    #     lift_ufit_non_manifold_top(context)
     create_cutout_line(context)
     perform_cutout(context)
 
@@ -591,7 +627,8 @@ def create_milling_model(context):
         flare_done(context)  # deactivate proportional editing
 
     # select cutout edge
-    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=['cutout_edge'])
+    vgs = general.get_all_cutuout_edges(context)
+    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # use the standard duplicate operator (Shift + D)
     bpy.ops.mesh.duplicate_move()
@@ -619,7 +656,8 @@ def create_milling_model(context):
     general.create_new_vertex_group_for_selected(context, ufit_obj, 'milling_model_edge', mode='EDIT')
 
     # select again the vertices from cutout_edge group (contains the original + copied vertices)
-    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=['cutout_edge'])
+    vgs = general.get_all_cutuout_edges(context)
+    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # connect vertices via bridge edge loops
     bpy.ops.mesh.bridge_edge_loops()
@@ -639,7 +677,11 @@ def create_milling_model(context):
 #########################################
 # Thickness
 #########################################
-def create_thickness(context):
+def prep_thickness(context):
+    context.scene.ufit_thickness_voronoi = 'normal'
+
+
+def create_printing_thickness(context):
     # set obj params
     ufit_obj = bpy.data.objects['uFit']
 
@@ -674,12 +716,8 @@ def create_thickness(context):
     bpy.ops.mesh.select_all(action='DESELECT')  # deselect all vertices
 
     # activate the vertex group
-    ufit_mesh = ufit_obj.data
-    vertex_group = ufit_obj.vertex_groups.get('cutout_edge')
-    if vertex_group is not None:
-        # iterate over the vertices of the object and check if they have the vertex group assigned to them
-        vertex_indices = [v.index for v in ufit_mesh.vertices if vertex_group.index in [g.group for g in v.groups]]
-        general.select_verts_by_idx(ufit_obj, vertex_indices)
+    vgs = general.get_all_cutuout_edges(context)
+    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # remove wrongly selected edges (very exceptional)
     general.deselect_non_loop_edges(ufit_obj)
@@ -719,7 +757,8 @@ def minimal_prep_custom_thickness(context):
 
 
 def create_custom_thickness(context, extrusion):
-    push_pull_region(context, extrusion, exclude_vertex_groups=['cutout_edge'])
+    vgs = general.get_all_cutuout_edges(context)
+    push_pull_region(context, extrusion, exclude_vertex_groups=vgs)
 
 
 def custom_thickness_done(context):
@@ -740,7 +779,8 @@ def prep_flare(context):
     bpy.context.scene.tool_settings.use_proportional_edit = True
 
     # switch to edit mode and select vertices from cutout edge
-    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=['cutout_edge'])
+    vgs = general.get_all_cutuout_edges(context)
+    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # move cursor to the middle of the selection
     bpy.ops.view3d.snap_cursor_to_selected()
@@ -760,7 +800,8 @@ def flare(context):
     ufit_obj = bpy.data.objects['uFit']
 
     # make sure the vertices from the cutout edge are selected
-    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=['cutout_edge'])
+    vgs = general.get_all_cutuout_edges(context)
+    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # calculate the flare percentage
     flare_perc = 1 + context.scene.ufit_flare_percentage/100

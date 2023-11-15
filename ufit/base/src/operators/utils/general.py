@@ -6,6 +6,7 @@ import numpy as np
 from mathutils import Vector, Matrix, kdtree
 from . import user_interface
 from .....base.src.base_constants import base_path_consts
+from .....config_ufit import logger
 
 
 def poll_object_object_mode(context, object_name):
@@ -1121,3 +1122,78 @@ def create_non_manifold_vertex_groups(context, obj, max_verts=None):
         vertex_group.add(list(non_manifold_areas[nma]), 1, 'REPLACE')
 
     return non_manifold_areas
+
+
+def remove_all_modifiers(obj):
+    """
+    Removes all modifiers from the given Blender object.
+
+    Parameters:
+        obj (bpy.types.Object): The Blender object from which to remove modifiers.
+    """
+    if obj:
+        # Iterate through all modifiers and remove them
+        for modifier in reversed(obj.modifiers):
+            obj.modifiers.remove(modifier)
+        logger.debug("All modifiers removed from the object.")
+    else:
+        logger.warning("No object provided.")
+
+
+def apply_all_modifiers(context, obj):
+    """
+    Applies all modifiers on the given Blender object.
+
+    Parameters:
+        context (bpy.types.Context): The Blender context.
+        obj (bpy.types.Object): The Blender object to which modifiers will be applied.
+    """
+    # Switch to Object Mode before applying modifiers
+    activate_object(context, obj, mode='OBJECT')
+    override = {"object": obj, "active_object": obj}
+
+    # Apply all modifiers
+    for modifier in obj.modifiers:
+        bpy.ops.object.modifier_apply(override, modifier=modifier.name)
+
+    # Update the object
+    bpy.context.view_layer.update()
+
+
+def add_voronoi_to_obj(obj, decimate_ratio=0.005, wireframe_thickness=0.0042, wireframe_offset=1,
+                       subdivision_levels_viewport=3, subdivision_levels_render=1):
+    """
+    Adds Decimate, Wireframe, and Subdivision modifiers to the given Blender object.
+
+    Parameters:
+        obj (bpy.types.Object): The Blender object to which modifiers will be added.
+        decimate_ratio (float): The decimate modifier ratio.
+        wireframe_thickness (float): The wireframe modifier thickness.
+        wireframe_offset (float): The wireframe modifier offset.
+        subdivision_levels_viewport (int): The subdivision modifier levels for viewport.
+        subdivision_levels_render (int): The subdivision modifier levels for rendering.
+    """
+    # Add Decimate Modifier
+    decimate_modifier = obj.modifiers.new(name="Decimate", type='DECIMATE')
+    decimate_modifier.ratio = decimate_ratio
+
+    # Add Wireframe Modifier
+    wireframe_modifier = obj.modifiers.new(name="Wireframe", type='WIREFRAME')
+    wireframe_modifier.thickness = wireframe_thickness
+    wireframe_modifier.use_boundary = True
+    wireframe_modifier.use_even_offset = True
+    wireframe_modifier.offset = wireframe_offset
+
+    # Add Subdivision Modifier
+    subdivision_modifier = obj.modifiers.new(name="Subdivision", type='SUBSURF')
+    subdivision_modifier.levels = subdivision_levels_viewport
+    subdivision_modifier.render_levels = subdivision_levels_render
+
+
+def get_all_cutuout_edges(context):
+    # select all cutout edges
+    vgs = []
+    for i in range(context.scene.ufit_number_of_cutouts):
+        vgs.append(f'cutout_edge_{i}')
+
+    return vgs

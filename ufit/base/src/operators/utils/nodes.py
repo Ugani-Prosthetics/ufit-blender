@@ -124,6 +124,7 @@ def set_voronoi_geometry_nodes(ufit_obj, color_attr_name):
         set_position_node_one = node_tree.nodes.new(type="GeometryNodeSetPosition")
 
         extrude_mesh_node = node_tree.nodes.new(type="GeometryNodeExtrudeMesh")
+        extrude_mesh_node.name = 'ufit_extrude_node'
         extrude_mesh_node.inputs[3].default_value = 0.004  # thickness
         extrude_mesh_node.inputs[4].default_value = False  # individual
 
@@ -136,6 +137,7 @@ def set_voronoi_geometry_nodes(ufit_obj, color_attr_name):
         position_node_two = node_tree.nodes.new(type="GeometryNodeInputPosition")
 
         blur_attribute_two = node_tree.nodes.new(type="GeometryNodeBlurAttribute")
+        blur_attribute_two.name = 'ufit_smooth_node'
         blur_attribute_two.data_type = 'FLOAT_VECTOR'
         blur_attribute_two.inputs[4].default_value = 5
         blur_attribute_two.inputs[5].default_value = 0.5

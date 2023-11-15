@@ -136,7 +136,7 @@ def register():
                                                     items=[
                                                         ("transtibial", "Transtibial", "", 1),
                                                         ("transfemoral", "Transfemoral", "", 2),
-                                                        ("free_sculpting", "Free", "", 3),
+                                                        ("free_sculpting", "Free Sculpting", "", 3),
                                                     ])
 
     # settings

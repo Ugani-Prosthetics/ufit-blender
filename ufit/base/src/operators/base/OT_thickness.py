@@ -8,8 +8,7 @@ class OTThickness(OTBase):
         active_object = context.active_object
         if active_object is not None \
                 and active_object.type == 'MESH' \
-                and active_object.name == 'uFit' \
-                and active_object.mode == 'OBJECT':
+                and active_object.name == 'uFit':
             return True
 
     def main_func(self, context):

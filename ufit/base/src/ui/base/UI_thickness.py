@@ -18,12 +18,18 @@ class UIThickness(UFitPanel, bpy.types.Panel):
                 box0_row0 = box0.row()
                 box0_row0.prop(ufit_obj.modifiers['Solidify'], 'thickness')
             elif context.scene.ufit_thickness_voronoi == 'voronoi':
+                node_tree = bpy.data.node_groups['Voronoi Nodes']
+
                 box0 = layout.box()
                 box0_row0 = box0.row()
-                box0_row0.prop(scene, 'ufit_voronoi_number', text='Holes #')
-
                 box0_row1 = box0.row()
-                box0_row1.prop(ufit_obj.modifiers['Wireframe'], 'thickness')
+                box0_row2 = box0.row()
+                box0_row0.prop(scene, 'ufit_voronoi_size', text='Size')
+                box0_row1.prop(node_tree.nodes['ufit_voronoi_node'].inputs[2], 'default_value', text='Quantity')
+                box0_row2.prop(node_tree.nodes['ufit_voronoi_node'].inputs[5], 'default_value', text='Randomness')
+
+                # box0_row1 = box0.row()
+                # box0_row1.prop(ufit_obj.modifiers['Wireframe'], 'thickness')
 
         else:
             box0 = layout.box()

@@ -2,7 +2,7 @@ import os
 import bpy
 import math
 import bpy.utils.previews
-from ..operators.utils import general, user_interface, color_attributes
+from ..operators.utils import general, user_interface, color_attributes, nodes
 from ..operators.core import checkpoints
 from ..operators.core.sculpt import color_attr_select
 
@@ -121,32 +121,35 @@ def thickness_voronoi_update(self, context):
     ufit_obj = bpy.data.objects['uFit']
     general.remove_all_modifiers(ufit_obj)
     if self.ufit_thickness_voronoi == 'normal':
+        general.activate_object(context, ufit_obj, mode='OBJECT')
         # add a solididfy modifier on uFit
         solidify_mod = ufit_obj.modifiers.new(name="Solidify", type="SOLIDIFY")
         solidify_mod.offset = 1
-        solidify_mod.use_even_offset = True
+        solidify_mod.use_even_offset = False  # DO NOT USE EVEN OFFSET
         solidify_mod.thickness = context.scene.ufit_print_thickness / 1000  # one mm of thickness
     elif self.ufit_thickness_voronoi == 'voronoi':
-        general.add_voronoi_to_obj(ufit_obj)
-        context.scene.ufit_voronoi_number = 'low'
+        nodes.set_voronoi_geometry_nodes(ufit_obj, color_attr_select)
+        general.activate_object(context, ufit_obj, mode='VERTEX_PAINT')
+        # general.add_voronoi_to_obj(ufit_obj)
+        # context.scene.ufit_voronoi_size = 'low'
 
 
-def voronoi_number_update(self, context):
-    ufit_obj = bpy.data.objects['uFit']
+def voronoi_size_update(self, context):
+    node_tree = bpy.data.node_groups['Voronoi Nodes']
+    compare_node = node_tree.nodes['ufit_compare_node']
 
-    num_faces = len(ufit_obj.data.polygons)
-    lowest_ratio = 100/num_faces/2
-
-    if self.ufit_voronoi_number == 'very_low':
-        ufit_obj.modifiers['Decimate'].ratio = lowest_ratio
-    elif self.ufit_voronoi_number == 'low':
-        ufit_obj.modifiers['Decimate'].ratio = lowest_ratio*2
-    elif self.ufit_voronoi_number == 'medium':
-        ufit_obj.modifiers['Decimate'].ratio = lowest_ratio*4
-    elif self.ufit_voronoi_number == 'high':
-        ufit_obj.modifiers['Decimate'].ratio = lowest_ratio*8
-    elif self.ufit_voronoi_number == 'very_high':
-        ufit_obj.modifiers['Decimate'].ratio = lowest_ratio*16
+    if self.ufit_voronoi_size == 'very_small':
+        compare_node.inputs[1].default_value = 0.3
+    elif self.ufit_voronoi_size == 'small':
+        compare_node.inputs[1].default_value = 0.25
+    elif self.ufit_voronoi_size == 'medium':
+        compare_node.inputs[1].default_value = 0.2
+    elif self.ufit_voronoi_size == 'big':
+        compare_node.inputs[1].default_value = 0.15
+    elif self.ufit_voronoi_size == 'very_big':
+        compare_node.inputs[1].default_value = 0.1
+    elif self.ufit_voronoi_size == 'empty':
+        compare_node.inputs[1].default_value = 0
 
 
 def flare_tool_update(self, context):

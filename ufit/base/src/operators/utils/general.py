@@ -1160,8 +1160,8 @@ def apply_all_modifiers(context, obj):
     bpy.context.view_layer.update()
 
 
-def add_voronoi_to_obj(obj, decimate_ratio=0.005, wireframe_thickness=0.0042, wireframe_offset=1,
-                       subdivision_levels_viewport=3, subdivision_levels_render=1):
+def add_voronoi_modifiers_to_obj(obj, decimate_ratio=0.005, wireframe_thickness=0.0042, wireframe_offset=1,
+                                 subdivision_levels_viewport=3, subdivision_levels_render=1):
     """
     Adds Decimate, Wireframe, and Subdivision modifiers to the given Blender object.
 
@@ -1181,7 +1181,7 @@ def add_voronoi_to_obj(obj, decimate_ratio=0.005, wireframe_thickness=0.0042, wi
     wireframe_modifier = obj.modifiers.new(name="Wireframe", type='WIREFRAME')
     wireframe_modifier.thickness = wireframe_thickness
     wireframe_modifier.use_boundary = True
-    wireframe_modifier.use_even_offset = True
+    wireframe_modifier.use_even_offset = False
     wireframe_modifier.offset = wireframe_offset
 
     # Add Subdivision Modifier

@@ -3,7 +3,7 @@ import bmesh
 import math
 from mathutils import Vector
 import numpy as np
-from ..utils import annotations, color_attributes, general, user_interface
+from ..utils import annotations, color_attributes, general, user_interface, nodes
 
 color_attr_select = 'area_selection'
 
@@ -11,73 +11,12 @@ color_attr_select = 'area_selection'
 #################################
 # Push/Pull/Smooth
 #################################
-def set_push_pull_smooth_shader_nodes(ufit_obj, color_attr_name):
-    if ufit_obj.data.materials:
-        material = ufit_obj.data.materials[ufit_obj.active_material_index]
-
-        # check if there was a colored scan loaded
-        node_tex_image = None
-        node_output_mat = None
-        node_bsdf_princ = None
-        if len(material.node_tree.nodes) == 3:
-            for node in material.node_tree.nodes:
-                if node.type == 'TEX_IMAGE':
-                    node_tex_image = node
-                if node.type == 'OUTPUT_MATERIAL':
-                    node_output_mat = node
-                if node.type == 'BSDF_PRINCIPLED':
-                    node_bsdf_princ = node
-
-            if node_tex_image and node_output_mat and node_bsdf_princ:
-                # Add new nodes
-                node_rgb = material.node_tree.nodes.new('ShaderNodeRGB')
-                node_color_attr = material.node_tree.nodes.new('ShaderNodeVertexColor')
-                node_color_invert = material.node_tree.nodes.new('ShaderNodeInvert')
-                node_separate_color = material.node_tree.nodes.new('ShaderNodeSeparateColor')
-                node_mix = material.node_tree.nodes.new('ShaderNodeMix')
-
-                # set variables of new nodes
-                node_color_attr.layer_name = color_attr_name
-                node_separate_color.mode = 'RGB'
-                node_mix.data_type = 'RGBA'
-                node_mix.blend_type = 'BURN'
-                node_mix.clamp_result = True
-                node_mix.clamp_factor = False
-                node_rgb.outputs['Color'].default_value = (0.0, 1.0, 0.0, 1.0)  # selection in green
-
-                # make node links
-                material.node_tree.links.new(
-                    node_color_attr.outputs['Color'],
-                    node_color_invert.inputs['Color']
-                )
-                material.node_tree.links.new(
-                    node_color_invert.outputs['Color'],
-                    node_separate_color.inputs['Color']
-                )
-                material.node_tree.links.new(
-                    node_separate_color.outputs['Red'],
-                    node_mix.inputs['Factor']
-                )
-                material.node_tree.links.new(
-                    node_tex_image.outputs['Color'],
-                    node_mix.inputs[6]  # multiple 'A' inputs, we need to select type RGBA which is at index 6
-                )
-                material.node_tree.links.new(
-                    node_rgb.outputs['Color'],
-                    node_mix.inputs[7]  # multiple 'B' inputs, we need to select type RGBA which is at index 7
-                )
-                material.node_tree.links.new(
-                    node_mix.outputs[2],  # multiple 'Result' output, we need to select type RGBA which is at index 2
-                    node_bsdf_princ.inputs['Base Color']
-                )
-
-
 def prep_push_pull_smooth(context):
     ufit_obj = bpy.data.objects['uFit']
 
     # add area selection color attribute and add shader nodes
     color_attributes.add_new_color_attr(ufit_obj, name=color_attr_select, color=(1, 1, 1, 1))
-    set_push_pull_smooth_shader_nodes(ufit_obj, color_attr_name=color_attr_select)
+    nodes.set_push_pull_smooth_shader_nodes(ufit_obj, color_attr_name=color_attr_select)
 
     # activate vertex paint mode
     user_interface.set_shading_material_preview_mode()
@@ -592,7 +531,13 @@ def scale(context):
         mm_scaling(context, ufit_obj, context.scene.ufit_liner_scaling / 1000)  # mm
         mm_scaling(context, ufit_measure, context.scene.ufit_liner_scaling / 1000)  # mm
 
-    ufit_measure.hide_set(True)  # must be visible for scaling
+    # smooth to avoid weird normals due to scaling (avoid smoothning of cutout edge)
+    vgs = general.get_all_cutuout_edges(context)
+    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
+    bpy.ops.mesh.select_all(action='INVERT')
+    bpy.ops.mesh.vertices_smooth(factor=0.5, repeat=10)
+
+    ufit_measure.hide_set(True)  # make invisible again
 
 
 #########################################
@@ -678,7 +623,17 @@ def create_milling_model(context):
 # Thickness
 #########################################
 def prep_thickness(context):
+    ufit_obj = bpy.data.objects['uFit']
+
+    # trigger the callback to set default values
     context.scene.ufit_thickness_voronoi = 'normal'
+
+    # create color attribute
+    color_attributes.add_new_color_attr(ufit_obj, name=color_attr_select, color=(1, 1, 1, 1))
+    bpy.data.brushes["Draw"].color = (1, 0, 0)  # Red
+
+    # activate color attribute
+    color_attributes.activate_color_attribute(ufit_obj, color_attr_select)
 
 
 def create_printing_thickness(context):

@@ -85,7 +85,7 @@ ufit_scene_properties = [
     # thickness
     'ufit_print_thickness',
     'ufit_thickness_voronoi',
-    'ufit_voronoi_number',
+    'ufit_voronoi_size',
 
     # flare
     'ufit_flare_tool',
@@ -267,15 +267,16 @@ def register():
                                                               ("voronoi", "Voronoi", "", 2),
                                                           ],
                                                           update=callbacks.thickness_voronoi_update)
-    bpy.types.Scene.ufit_voronoi_number = EnumProperty(name="Number of Holdes", default=1,
-                                                       items=[
-                                                           ("very_low", "Very Low", "", 1),
-                                                           ("low", "Low", "", 2),
-                                                           ("medium", "Medium", "", 3),
-                                                           ("high", "High", "", 4),
-                                                           ("very_high", "Very High", "", 5),
-                                                       ],
-                                                       update=callbacks.voronoi_number_update)
+    bpy.types.Scene.ufit_voronoi_size = EnumProperty(name="Size", default=3,
+                                                     items=[
+                                                         ("very_small", "Very Small", "", 1),
+                                                         ("small", "Small", "", 2),
+                                                         ("medium", "Medium", "", 3),
+                                                         ("big", "Big", "", 4),
+                                                         ("very_big", "Very Big", "", 5),
+                                                         ("empty", "Empty Space", "", 6),
+                                                     ],
+                                                     update=callbacks.voronoi_size_update)
 
     # flare
     bpy.types.Scene.ufit_flare_tool = EnumProperty(name="Mode", default=2,
@@ -403,7 +404,7 @@ def unregister():
     # thickness
     del bpy.types.Scene.ufit_print_thickness
     del bpy.types.Scene.ufit_thickness_voronoi
-    del bpy.types.Scene.ufit_voronoi_number
+    del bpy.types.Scene.ufit_voronoi_size
 
     # Flare
     del bpy.types.Scene.ufit_flare_tool

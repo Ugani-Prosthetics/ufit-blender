@@ -130,4 +130,4 @@ def restart_ufit(context, custom_scene_props):
     scene_props_to_reset = list(set(ufit_scene_properties).union(custom_scene_props) - set(exclude_props))
     general.reset_ufit_properties(context, scene_props=scene_props_to_reset)
 
-    general.delete_scene(context)
+    bpy.ops.wm.read_homefile()

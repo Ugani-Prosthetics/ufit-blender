@@ -31,6 +31,11 @@ class UIUFitLogo(UFitPanel, bpy.types.Panel):
             row.alignment = 'CENTER'
             row.label(text=f'{device_type}', icon='HAND')
 
+        if context.scene.ufit_active_step not in ['platform_login', 'device_type']:
+            row = layout.row()
+            row.alignment = 'CENTER'
+            row.operator("ufit_operators.restart", text="Restart")
+
     @classmethod
     def poll(cls, context):
         return True

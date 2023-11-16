@@ -484,7 +484,8 @@ def unsubdivide_mesh(obj, iterations=1):
 def reset_ufit_properties(context, scene_props):
     # todo: add other types of props (e.g. object props)
     for prop in scene_props:
-        context.scene.property_unset(prop)
+        if hasattr(context.scene, prop):
+            context.scene.property_unset(prop)
 
 
 def get_scene_enum_item(context, prop, prop_str):

@@ -10,7 +10,6 @@ from bpy.props import (
 )
 from . import callbacks
 
-
 ufit_scene_properties = [
     'ufit_full_screen',
     'ufit_quad_view',
@@ -42,6 +41,9 @@ ufit_scene_properties = [
     'ufit_smooth_factor',
     'ufit_push_pull_circular',
     'ufit_extrude_amount',
+    'ufit_cutout_style',
+    'ufit_plane_operation',
+    'ufit_mean_tilt',
     'ufit_socket_or_milling',
     'ufit_milling_flare',
     'ufit_milling_margin',
@@ -111,7 +113,8 @@ def register():
     # checkpoints
     bpy.utils.register_class(CheckpointPG)
     bpy.types.Scene.ufit_checkpoints = EnumProperty(items=callbacks.checkpoint_items)  # gets checkpoints dynamically
-    bpy.types.Scene.ufit_checkpoint_collection = CollectionProperty(type=CheckpointPG)  # a collection of CheckpointPG items
+    bpy.types.Scene.ufit_checkpoint_collection = CollectionProperty(
+        type=CheckpointPG)  # a collection of CheckpointPG items
 
     # assistance
     bpy.types.Scene.ufit_assistance_previews_dir = StringProperty(name="Assistance Folder Path")
@@ -135,8 +138,10 @@ def register():
     # circumferences
     max_num_circumferences = 15
     bpy.types.Scene.ufit_circum_z_ixs = FloatVectorProperty(name='Circumferences Heights', size=max_num_circumferences)
-    bpy.types.Scene.ufit_init_circumferences = FloatVectorProperty(name='Init. Circumferences', size=max_num_circumferences)
-    bpy.types.Scene.ufit_sculpt_circumferences = FloatVectorProperty(name='Sculpt. Circumferences', size=max_num_circumferences)
+    bpy.types.Scene.ufit_init_circumferences = FloatVectorProperty(name='Init. Circumferences',
+                                                                   size=max_num_circumferences)
+    bpy.types.Scene.ufit_sculpt_circumferences = FloatVectorProperty(name='Sculpt. Circumferences',
+                                                                     size=max_num_circumferences)
     bpy.types.Scene.ufit_circumferences = FloatVectorProperty(name='Circumferences', size=max_num_circumferences)
     bpy.types.Scene.ufit_circums_highlighted = BoolProperty(name='Circumferences Highlighted', default=False)
     bpy.types.Scene.ufit_circums_distance = EnumProperty(name="Distance", default=2,
@@ -185,18 +190,20 @@ def register():
     bpy.types.Scene.ufit_show_original = BoolProperty(name="Show Original", default=True,
                                                       update=callbacks.show_original_update)
 
-    # socket or milling
-    bpy.types.Scene.ufit_socket_or_milling = EnumProperty(name="Socket or Milling?", default=1,
-                                                        items=[
-                                                            ("socket", "Socket", "", 1),
-                                                            ("milling", "Milling", "", 2),
-                                                        ])
-    bpy.types.Scene.ufit_milling_flare = BoolProperty(name="Milling Flare", default=True)
-    bpy.types.Scene.ufit_milling_margin = FloatProperty(name="Milling Margin", min=1.0, max=10.0, step=10,
-                                                        default=3.0)
-
-
     # cutout
+    bpy.types.Scene.ufit_cutout_style = EnumProperty(name="Cutout Style", default=1,
+                                                     items=[
+                                                         ("free", "Free", "", 1),
+                                                         ("straight", "Straight", "", 2),
+                                                     ],
+                                                     update=callbacks.cutout_style_update)
+    bpy.types.Scene.ufit_plane_operation = EnumProperty(name="Plane Operation", default=1,
+                                                        items=[
+                                                            ("move", "Move", "", 1),
+                                                            ("rotate", "Rotate", "", 2),
+                                                            ("scale", "Scale", "", 3),
+                                                        ],
+                                                        update=callbacks.plane_operation_update)
     bpy.types.Scene.ufit_mean_tilt = EnumProperty(name="Tilt", default=3,
                                                   items=[
                                                       ("0", "0°", "", 1),
@@ -205,6 +212,16 @@ def register():
                                                       ("135", "135°", "", 4),
                                                   ],
                                                   update=callbacks.mean_tilt_update)
+
+    # socket or milling
+    bpy.types.Scene.ufit_socket_or_milling = EnumProperty(name="Socket or Milling?", default=1,
+                                                          items=[
+                                                              ("socket", "Socket", "", 1),
+                                                              ("milling", "Milling", "", 2),
+                                                          ])
+    bpy.types.Scene.ufit_milling_flare = BoolProperty(name="Milling Flare", default=True)
+    bpy.types.Scene.ufit_milling_margin = FloatProperty(name="Milling Margin", min=1.0, max=10.0, step=10,
+                                                        default=3.0)
 
     # Thickness
     bpy.types.Scene.ufit_print_thickness = FloatProperty(name="Thickness", min=0.0, max=10.0, step=10,
@@ -311,6 +328,11 @@ def unregister():
     del bpy.types.Scene.ufit_enable_colors
     del bpy.types.Scene.ufit_push_pull_circular
     del bpy.types.Scene.ufit_extrude_amount
+
+    # cutout
+    del bpy.types.Scene.ufit_cutout_style
+    del bpy.types.Scene.ufit_plane_operation
+    del bpy.types.Scene.ufit_mean_tilt
 
     # socket or milling
     del bpy.types.Scene.ufit_socket_or_milling

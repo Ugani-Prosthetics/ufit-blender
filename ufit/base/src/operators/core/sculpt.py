@@ -272,12 +272,27 @@ def pull_bottom(context, extrusion):
 # Prepare Cutout
 #################################
 def prep_cutout_prep(context):
-    # create ufit measure and original objects
     ufit_obj = bpy.data.objects['uFit']
     ufit_original = general.duplicate_obj(ufit_obj, 'uFit_Original', context.collection, data=True, actions=False)
     ufit_measure = general.duplicate_obj(ufit_obj, 'uFit_Measure', context.collection, data=True, actions=False)
 
+    bpy.ops.object.origin_set(type="GEOMETRY_ORIGIN")
+
+    # add straight cutout plane
+    bpy.ops.mesh.primitive_plane_add(size=0.5, enter_editmode=False, align='WORLD',
+                                     location=(0, 0, 0), scale=(1, 1, 1))
+    bpy.ops.object.origin_set(type="ORIGIN_CURSOR")
+
+    # rename plane to cutter
+    cut_obj = bpy.context.active_object
+    cut_obj.name = "uFit_Cutout"
+
+    # lock to y direction movement
+    cut_obj.lock_location[0] = True
+    cut_obj.lock_location[1] = True
+
     # hide the UFitMeasure object
+    cut_obj.hide_set(True)
     ufit_original.hide_set(True)
     ufit_measure.hide_set(True)
 
@@ -288,6 +303,10 @@ def prep_cutout_prep(context):
 
     # switch to annotation tool
     user_interface.activate_new_grease_pencil(context, name='Selections', layer_name='Cutout')
+
+    # activate ufit
+    general.activate_object(context, ufit_obj, mode='OBJECT')
+
 
 
 def lift_ufit_non_manifold_top(context):
@@ -333,52 +352,57 @@ def create_cutout_path(context):
 
 
 def create_cutout_plane(context):
-    ufit_cutout_ob = create_cutout_path(context)
-    general.activate_object(context, ufit_cutout_ob, mode='EDIT')
+    if context.scene.ufit_cutout_style == 'free':
+        ufit_cutout_ob = create_cutout_path(context)
+        general.activate_object(context, ufit_cutout_ob, mode='EDIT')
 
-    # close the curve
-    bpy.ops.curve.select_all(action='SELECT')
-    bpy.ops.curve.cyclic_toggle()
+        # close the curve
+        bpy.ops.curve.select_all(action='SELECT')
+        bpy.ops.curve.cyclic_toggle()
 
-    bpy.context.object.data.dimensions = '3D'
+        bpy.context.object.data.dimensions = '3D'
 
-    # tilt local z-axis x degrees
-    bpy.ops.curve.tilt_clear()  # first clear the tilt
-    bpy.ops.transform.tilt(value=math.radians(int(bpy.context.scene.bl_rna.properties['ufit_mean_tilt'].default)),
-                           mirror=False,
-                           use_proportional_edit=False,
-                           proportional_edit_falloff='SMOOTH',
-                           proportional_size=1,
-                           use_proportional_connected=False,
-                           use_proportional_projected=False)
+        # tilt local z-axis x degrees
+        bpy.ops.curve.tilt_clear()  # first clear the tilt
+        bpy.ops.transform.tilt(value=math.radians(int(bpy.context.scene.bl_rna.properties['ufit_mean_tilt'].default)),
+                               mirror=False,
+                               use_proportional_edit=False,
+                               proportional_edit_falloff='SMOOTH',
+                               proportional_size=1,
+                               use_proportional_connected=False,
+                               use_proportional_projected=False)
 
-    # Z_UP not working in all cases
-    bpy.context.object.data.twist_mode = 'Z_UP'
+        # Z_UP not working in all cases
+        bpy.context.object.data.twist_mode = 'Z_UP'
 
-    # extrude the curve x cm everywhere
-    bpy.context.object.data.extrude = 0.01
+        # extrude the curve x cm everywhere
+        bpy.context.object.data.extrude = 0.01
 
-    # smoothen the curve
-    bpy.context.object.data.twist_smooth = 100
+        # smoothen the curve
+        bpy.context.object.data.twist_smooth = 100
 
-    # deselect all
-    bpy.ops.curve.select_all(action='DESELECT')
+        # deselect all
+        bpy.ops.curve.select_all(action='DESELECT')
 
-    # cleanup annotations
-    user_interface.cleanup_grease_pencil(context)
+        # cleanup annotations
+        user_interface.cleanup_grease_pencil(context)
 
 
 #################################
 # Cutout
 #################################
 def prep_cutout(context):
-    cutout_obj = bpy.data.objects['uFit_Cutout']
+    if context.scene.ufit_cutout_style == 'free':
+        cutout_obj = bpy.data.objects['uFit_Cutout']
 
-    # make the cutout object selectable
-    cutout_obj.hide_select = False
+        # make the cutout object selectable
+        cutout_obj.hide_select = True
 
-    # go to edit mode
-    general.activate_object(context, cutout_obj, mode='EDIT')
+        # go to edit mode
+        general.activate_object(context, cutout_obj, mode='EDIT')
+    elif context.scene.ufit_cutout_style == 'straight':
+        pass
+
 
 
 def create_cutout_line(context):
@@ -389,12 +413,18 @@ def create_cutout_line(context):
     # activate ufit_cutout_obj
     general.activate_object(context, ufit_cutout_obj, mode='EDIT')
 
-    # increase the smoothness of the cutout plane
-    bpy.context.object.data.twist_smooth = 500
+    if context.scene.ufit_cutout_style == "free":
+        # increase the smoothness of the cutout plane
+        bpy.context.object.data.twist_smooth = 500
 
-    # convert curve to mesh
-    general.activate_object(context, ufit_cutout_obj, mode='OBJECT')
-    bpy.ops.object.convert(target='MESH')
+        # convert curve to mesh
+        general.activate_object(context, ufit_cutout_obj, mode='OBJECT')
+        bpy.ops.object.convert(target='MESH')
+    elif context.scene.ufit_cutout_style == "straight":
+        # increase the number of vertices for accurate cut
+        bpy.ops.mesh.select_all(action='SELECT')
+        bpy.ops.mesh.subdivide(number_cuts=500)
+        general.activate_object(context, ufit_cutout_obj, mode='OBJECT')
 
     # apply scaling, rotation and location
     bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
@@ -512,6 +542,11 @@ def perform_cutout(context):
 
 def cutout(context):
     lift_ufit_non_manifold_top(context)
+    create_cutout_line(context)
+    perform_cutout(context)
+
+
+def cutout_straight(context):
     create_cutout_line(context)
     perform_cutout(context)
 

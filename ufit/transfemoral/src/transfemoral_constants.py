@@ -9,6 +9,14 @@ from ...base.src.operators.core.alignment import (
 from ...base.src.operators.core.finish import prep_export
 
 
+def cutout_style_free_condition(context):
+    return context.scene.ufit_cutout_style == "free"
+
+
+def cutout_style_straight_condition(context):
+    return context.scene.ufit_cutout_style == "straight"
+
+
 def socket_condition(context):
     return context.scene.ufit_socket_or_milling == "socket"
 
@@ -356,14 +364,30 @@ tf_operator_consts = {
             'sub_steps': False
         },
         'next_step': {
-            'name': 'cutout',
-            'default_state': {
-                'object_name': 'uFit',
-                'light': 'FLAT',
-                'color_type': 'TEXTURE'
-            },
-            'prep_func': prep_cutout,
-            'exec_save': True
+            'conditions': [
+                {
+                    'condition_func': cutout_style_free_condition,
+                    'name': 'cutout',
+                    'default_state': {
+                        'object_name': 'uFit',
+                        'light': 'FLAT',
+                        'color_type': 'TEXTURE'
+                    },
+                    'prep_func': prep_cutout,
+                    'exec_save': True
+                },
+                {
+                    'condition_func': cutout_style_straight_condition,
+                    'name': 'scale',
+                    'default_state': {
+                        'object_name': 'uFit',
+                        'light': 'STUDIO',
+                        'color_type': 'VERTEX'
+                    },
+                    'prep_func': prep_scaling,
+                    'exec_save': True
+                }
+            ]
         },
     },
     'cutout': {

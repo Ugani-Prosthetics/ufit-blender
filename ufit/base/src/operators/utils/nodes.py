@@ -68,7 +68,7 @@ def set_push_pull_smooth_shader_nodes(ufit_obj, color_attr_name):
 #######################################
 # Geometry Nodes
 #######################################
-def set_voronoi_geometry_nodes(ufit_obj, color_attr_name):
+def set_voronoi_geometry_nodes_one(ufit_obj, color_attr_name):
     # Check if "Voronoi Nodes" node tree already exists
     voronoi_node_tree_name = "Voronoi Nodes"
     if voronoi_node_tree_name not in bpy.data.node_groups:
@@ -169,6 +169,86 @@ def set_voronoi_geometry_nodes(ufit_obj, color_attr_name):
         node_tree.links.new(merge_by_dist_node.outputs['Geometry'], set_position_node_two.inputs['Geometry'])
 
         node_tree.links.new(set_position_node_two.outputs['Geometry'], out_node.inputs['Geometry'])
+
+    else:
+        geometry_modifier = ufit_obj.modifiers.new(name="Geometry Nodes", type='NODES')
+        geometry_modifier.node_group = bpy.data.node_groups[voronoi_node_tree_name]
+
+
+def set_voronoi_geometry_nodes_two(ufit_obj, color_attr_name):
+    # Check if "Voronoi Nodes" node tree already exists
+    voronoi_node_tree_name = "Voronoi Nodes"
+    if voronoi_node_tree_name not in bpy.data.node_groups:
+        # Create a new geometry nodes modifer (automatically creates a node_group with name "Geometry Nodes"
+        bpy.ops.node.new_geometry_nodes_modifier()
+
+        # Rename the new node tree to "Voronoi Nodes"
+        bpy.data.node_groups[-1].name = voronoi_node_tree_name
+
+        # Access the "Voronoi Nodes" geometry nodes tree
+        node_tree = bpy.data.node_groups[voronoi_node_tree_name]
+
+        in_node = node_tree.nodes["Group Input"]
+        out_node = node_tree.nodes["Group Output"]
+
+        named_attribute = node_tree.nodes.new(type="GeometryNodeInputNamedAttribute")
+        named_attribute.data_type = 'FLOAT_COLOR'
+        named_attribute.inputs[0].default_value = "area_selection"
+
+        equal_node = node_tree.nodes.new(type="FunctionNodeCompare")
+        equal_node.data_type = 'RGBA'
+        equal_node.operation = 'EQUAL'
+        equal_node.inputs[7].default_value = (1.0, 1.0, 1.0, 1.0)
+        equal_node.inputs[12].default_value = 0.1
+
+        dual_mesh_node = node_tree.nodes.new(type="GeometryNodeDualMesh")
+        dual_mesh_node.inputs[1].default_value = True  # keep boundaries
+
+        extrude_mesh_node_one = node_tree.nodes.new(type="GeometryNodeExtrudeMesh")
+        extrude_mesh_node_one.mode = 'FACES'
+        extrude_mesh_node_one.inputs[3].default_value = 0
+
+        scale_elements_node = node_tree.nodes.new(type="GeometryNodeScaleElements")
+        scale_elements_node.inputs[2].default_value = 0.7
+
+        # scale_elements_node = node_tree.nodes.new(type="GeometryNodeScaleElements")
+
+        delete_geometry_node = node_tree.nodes.new(type="GeometryNodeDeleteGeometry")
+        delete_geometry_node.domain = 'FACE'
+        delete_geometry_node.mode = 'ALL'
+
+        extrude_mesh_node_two = node_tree.nodes.new(type="GeometryNodeExtrudeMesh")
+        extrude_mesh_node_two.name = 'ufit_extrude_node'
+        extrude_mesh_node_two.inputs[3].default_value = 0.004  # thickness
+        extrude_mesh_node_two.inputs[4].default_value = False  # individual
+
+        flip_faces_node = node_tree.nodes.new(type="GeometryNodeFlipFaces")
+
+        join_geometry_node = node_tree.nodes.new(type="GeometryNodeJoinGeometry")
+
+        merge_by_dist_node = node_tree.nodes.new(type="GeometryNodeMergeByDistance")
+
+        subdivision_surface_node = node_tree.nodes.new(type="GeometryNodeSubdivisionSurface")
+        subdivision_surface_node.inputs[1].default_value = 1
+
+        shade_smooth_node = node_tree.nodes.new(type="GeometryNodeSetShadeSmooth")
+
+        node_tree.links.new(in_node.outputs['Geometry'], dual_mesh_node.inputs['Mesh'])
+        node_tree.links.new(named_attribute.outputs[2], equal_node.inputs[6])
+        node_tree.links.new(equal_node.outputs['Result'], extrude_mesh_node_one.inputs['Selection'])
+        node_tree.links.new(dual_mesh_node.outputs['Dual Mesh'], extrude_mesh_node_one.inputs['Mesh'])
+        node_tree.links.new(extrude_mesh_node_one.outputs['Mesh'], scale_elements_node.inputs['Geometry'])
+        node_tree.links.new(extrude_mesh_node_one.outputs['Top'], scale_elements_node.inputs['Selection'])
+        node_tree.links.new(extrude_mesh_node_one.outputs['Top'], delete_geometry_node.inputs['Selection'])
+        node_tree.links.new(scale_elements_node.outputs['Geometry'], delete_geometry_node.inputs['Geometry'])
+        node_tree.links.new(delete_geometry_node.outputs['Geometry'], extrude_mesh_node_two.inputs['Mesh'])
+        node_tree.links.new(delete_geometry_node.outputs['Geometry'], flip_faces_node.inputs['Mesh'])
+        node_tree.links.new(extrude_mesh_node_two.outputs['Mesh'], join_geometry_node.inputs['Geometry'])
+        node_tree.links.new(flip_faces_node.outputs['Mesh'], join_geometry_node.inputs['Geometry'])
+        node_tree.links.new(join_geometry_node.outputs['Geometry'], merge_by_dist_node.inputs['Geometry'])
+        node_tree.links.new(merge_by_dist_node.outputs['Geometry'], subdivision_surface_node.inputs['Mesh'])
+        node_tree.links.new(subdivision_surface_node.outputs['Mesh'], shade_smooth_node.inputs['Geometry'])
+        node_tree.links.new(shade_smooth_node.outputs['Geometry'], out_node.inputs['Geometry'])
 
     else:
         geometry_modifier = ufit_obj.modifiers.new(name="Geometry Nodes", type='NODES')

@@ -119,16 +119,22 @@ def mean_tilt_update(self, context):
 
 def thickness_voronoi_update(self, context):
     ufit_obj = bpy.data.objects['uFit']
+    general.activate_object(context, ufit_obj, mode='OBJECT')
+
     general.remove_all_modifiers(ufit_obj)
     if self.ufit_thickness_voronoi == 'normal':
-        general.activate_object(context, ufit_obj, mode='OBJECT')
+
         # add a solididfy modifier on uFit
         solidify_mod = ufit_obj.modifiers.new(name="Solidify", type="SOLIDIFY")
         solidify_mod.offset = 1
         solidify_mod.use_even_offset = False  # DO NOT USE EVEN OFFSET
         solidify_mod.thickness = context.scene.ufit_print_thickness / 1000  # one mm of thickness
     elif self.ufit_thickness_voronoi == 'voronoi':
-        nodes.set_voronoi_geometry_nodes(ufit_obj, color_attr_select)
+        decimate_mod = ufit_obj.modifiers.new(name="Decimate", type="DECIMATE")
+        decimate_mod.ratio = 0.1
+
+        nodes.set_voronoi_geometry_nodes_one(ufit_obj, color_attr_select)
+        # nodes.set_voronoi_geometry_nodes_two(ufit_obj, color_attr_select)
         general.activate_object(context, ufit_obj, mode='VERTEX_PAINT')
         # general.add_voronoi_to_obj(ufit_obj)
         # context.scene.ufit_voronoi_size = 'low'

@@ -3,7 +3,7 @@ import bmesh
 import math
 from mathutils import Vector
 import numpy as np
-from ..utils import annotations, color_attributes, general, user_interface
+from ..utils import annotations, color_attributes, general, user_interface, nodes
 
 color_attr_select = 'area_selection'
 
@@ -11,73 +11,12 @@ color_attr_select = 'area_selection'
 #################################
 # Push/Pull/Smooth
 #################################
-def set_push_pull_smooth_shader_nodes(ufit_obj, color_attr_name):
-    if ufit_obj.data.materials:
-        material = ufit_obj.data.materials[ufit_obj.active_material_index]
-
-        # check if there was a colored scan loaded
-        node_tex_image = None
-        node_output_mat = None
-        node_bsdf_princ = None
-        if len(material.node_tree.nodes) == 3:
-            for node in material.node_tree.nodes:
-                if node.type == 'TEX_IMAGE':
-                    node_tex_image = node
-                if node.type == 'OUTPUT_MATERIAL':
-                    node_output_mat = node
-                if node.type == 'BSDF_PRINCIPLED':
-                    node_bsdf_princ = node
-
-            if node_tex_image and node_output_mat and node_bsdf_princ:
-                # Add new nodes
-                node_rgb = material.node_tree.nodes.new('ShaderNodeRGB')
-                node_color_attr = material.node_tree.nodes.new('ShaderNodeVertexColor')
-                node_color_invert = material.node_tree.nodes.new('ShaderNodeInvert')
-                node_separate_color = material.node_tree.nodes.new('ShaderNodeSeparateColor')
-                node_mix = material.node_tree.nodes.new('ShaderNodeMix')
-
-                # set variables of new nodes
-                node_color_attr.layer_name = color_attr_name
-                node_separate_color.mode = 'RGB'
-                node_mix.data_type = 'RGBA'
-                node_mix.blend_type = 'BURN'
-                node_mix.clamp_result = True
-                node_mix.clamp_factor = False
-                node_rgb.outputs['Color'].default_value = (0.0, 1.0, 0.0, 1.0)  # selection in green
-
-                # make node links
-                material.node_tree.links.new(
-                    node_color_attr.outputs['Color'],
-                    node_color_invert.inputs['Color']
-                )
-                material.node_tree.links.new(
-                    node_color_invert.outputs['Color'],
-                    node_separate_color.inputs['Color']
-                )
-                material.node_tree.links.new(
-                    node_separate_color.outputs['Red'],
-                    node_mix.inputs['Factor']
-                )
-                material.node_tree.links.new(
-                    node_tex_image.outputs['Color'],
-                    node_mix.inputs[6]  # multiple 'A' inputs, we need to select type RGBA which is at index 6
-                )
-                material.node_tree.links.new(
-                    node_rgb.outputs['Color'],
-                    node_mix.inputs[7]  # multiple 'B' inputs, we need to select type RGBA which is at index 7
-                )
-                material.node_tree.links.new(
-                    node_mix.outputs[2],  # multiple 'Result' output, we need to select type RGBA which is at index 2
-                    node_bsdf_princ.inputs['Base Color']
-                )
-
-
 def prep_push_pull_smooth(context):
     ufit_obj = bpy.data.objects['uFit']
 
     # add area selection color attribute and add shader nodes
     color_attributes.add_new_color_attr(ufit_obj, name=color_attr_select, color=(1, 1, 1, 1))
-    set_push_pull_smooth_shader_nodes(ufit_obj, color_attr_name=color_attr_select)
+    nodes.set_push_pull_smooth_shader_nodes(ufit_obj, color_attr_name=color_attr_select)
 
     # activate vertex paint mode
     user_interface.set_shading_material_preview_mode()
@@ -95,7 +34,8 @@ def minimal_prep_push_pull_smooth(context):
     general.activate_object(context, ufit_obj, mode='VERTEX_PAINT')
 
     # reset color attribute to all white vertices
-    color_attributes.reset_color_attribute(ufit_obj, color_attr_select, color=(1, 1, 1, 1))
+    context.scene.ufit_vertex_color_all = False
+    # color_attributes.reset_color_attribute(ufit_obj, color_attr_select, color=(1, 1, 1, 1))
 
 
 # called after remeasuring
@@ -268,9 +208,38 @@ def pull_bottom(context, extrusion):
     bpy.context.scene.tool_settings.use_proportional_edit = False
 
 
+def pull_bottom_done(context):
+    # turn of the xray
+    context.scene.ufit_x_ray = False
+
+
 #################################
 # Prepare Cutout
 #################################
+def lift_ufit_non_manifold_top(context):
+    ufit_obj = bpy.data.objects['uFit']
+    non_manifold_areas = general.create_non_manifold_vertex_groups(context, ufit_obj, max_verts=None)
+
+    # get the non-manifold area with the biggest amount of vertices (big gap at top of socket)
+    max_nma = None
+    max_verts = 0
+    for nma, verts in non_manifold_areas.items():
+        if len(verts) > max_verts:
+            max_verts = len(verts)
+            max_nma = nma
+
+    if max_nma:
+        # highlight vertices from non-manifold area (vertex group)
+        general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=[max_nma])
+
+        # deactivate snapping to move verts up
+        bpy.context.scene.tool_settings.use_snap = False
+
+        # move the verts x cm up
+        context.scene.transform_orientation_slots[0].type = 'GLOBAL'
+        bpy.ops.transform.translate(value=(0, 0, 0.05))
+
+
 def prep_cutout_prep(context):
     ufit_obj = bpy.data.objects['uFit']
 
@@ -313,27 +282,9 @@ def prep_cutout_prep(context):
     general.activate_object(context, ufit_obj, mode='OBJECT')
 
 
-def lift_ufit_non_manifold_top(context):
-    ufit_obj = bpy.data.objects['uFit']
-    non_manifold_areas = general.create_non_manifold_vertex_groups(context, ufit_obj, max_verts=None)
-
-    # get the non-manifold area with the biggest amount of vertices (big gap at top of socket)
-    max_nma = None
-    max_verts = 0
-    for nma, verts in non_manifold_areas.items():
-        if len(verts) > max_verts:
-            max_verts = len(verts)
-            max_nma = nma
-
-    if max_nma:
-        # highlight vertices from non-manifold area (vertex group)
-        general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=[max_nma])
-
-        # deactivate snapping to move verts up
-        bpy.context.scene.tool_settings.use_snap = False
-
-        # move the verts x cm up
-        bpy.ops.transform.translate(value=(0, 0, 0.05))
+def minimal_prep_cutout_prep(context):
+    # switch to annotation tool
+    user_interface.activate_new_grease_pencil(context, name='Selections', layer_name='Cutout')
 
 
 def create_cutout_path(context):
@@ -414,6 +365,9 @@ def create_cutout_line(context):
     ufit_obj = bpy.data.objects['uFit']
     ufit_cutout_obj = bpy.data.objects['uFit_Cutout']
 
+    # turn off xray
+    context.scene.ufit_x_ray = False
+
     # activate ufit_cutout_obj
     general.activate_object(context, ufit_cutout_obj, mode='EDIT')
 
@@ -441,8 +395,9 @@ def create_cutout_line(context):
     # make the ufit object the active object
     general.activate_object(context, ufit_obj, mode='OBJECT')
 
-    # remesh the ufit object so you have quads
-    color_attributes.remesh_with_texture_to_color_attr(context, ufit_obj, 'scan_colors')
+    # remesh the ufit object so you have quads (happens before for other devices)
+    # if context.scene.ufit_device_type in ('transtibial', 'transfemoral'):
+    #     color_attributes.remesh_with_texture_to_color_attr(context, ufit_obj, 'scan_colors')
 
     # join the ufit_cutout and ufit object
     selected_objects = [ufit_obj, ufit_cutout_obj]
@@ -501,16 +456,25 @@ def perform_cutout(context):
                                  iterations='10',
                                  regular=True)
 
-    # the cutout edge is selected. Invert selection and smooth all the rest
-    bpy.ops.mesh.select_all(action='INVERT')
-    bpy.ops.mesh.vertices_smooth(factor=1.0, repeat=3)
-    bpy.ops.mesh.select_all(action='INVERT')
-
     # split the object by the looped edge
     bpy.ops.mesh.edge_split(type='VERT')
 
     # create vertex group (for next step)
-    general.create_new_vertex_group_for_selected(context, ufit_obj, 'cutout_edge', mode='EDIT')
+    edge_num = int(context.scene.ufit_number_of_cutouts)
+    general.create_new_vertex_group_for_selected(context, ufit_obj, f'cutout_edge_{edge_num}', mode='EDIT')
+    context.scene.ufit_number_of_cutouts += 1
+
+    # select all cutout edges
+    vgs = general.get_all_cutuout_edges(context)
+    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
+
+    # Invert selection and smooth all the rest to avoid weird normals on scaling
+    bpy.ops.mesh.select_all(action='INVERT')
+    bpy.ops.mesh.vertices_smooth(factor=1.0, repeat=3)
+    bpy.ops.mesh.select_all(action='INVERT')
+
+    # select again the created cutout edge
+    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=[f'cutout_edge_{edge_num}'])
 
     # keep the object with the lowest average z coordinate
     selected_edges = general.get_selected_edges(context)
@@ -520,14 +484,21 @@ def perform_cutout(context):
                                         object_index=ufit_obj.pass_index,
                                         index=selected_edges[0])
 
-        # Calculate the average z-index
-        avg_z_part1 = get_avg_z(ufit_obj)
+        num_verts_part1 = len(general.get_selected_vertices(context))
         bpy.ops.mesh.select_all(action='INVERT')
-        avg_z_part2 = get_avg_z(ufit_obj)
+        num_verts_part2 = len(general.get_selected_vertices(context))
 
-        # keep the part with lowest avg z
-        if avg_z_part1 > avg_z_part2:
+        if num_verts_part2 > num_verts_part1:
             bpy.ops.mesh.select_all(action='INVERT')
+
+        # # Calculate the average z-index
+        # avg_z_part1 = get_avg_z(ufit_obj)
+        # bpy.ops.mesh.select_all(action='INVERT')
+        # avg_z_part2 = get_avg_z(ufit_obj)
+        #
+        # # keep the part with lowest avg z
+        # if avg_z_part1 > avg_z_part2:
+        #     bpy.ops.mesh.select_all(action='INVERT')
 
         # make sure the edge itself is not selected and delete
         general.deselect_edges_by_idx(context, selected_edges)
@@ -545,7 +516,6 @@ def perform_cutout(context):
 
 
 def cutout(context):
-    lift_ufit_non_manifold_top(context)
     create_cutout_line(context)
     perform_cutout(context)
 
@@ -597,7 +567,13 @@ def scale(context):
         mm_scaling(context, ufit_obj, context.scene.ufit_liner_scaling / 1000)  # mm
         mm_scaling(context, ufit_measure, context.scene.ufit_liner_scaling / 1000)  # mm
 
-    ufit_measure.hide_set(True)  # must be visible for scaling
+    # smooth to avoid weird normals due to scaling (avoid smoothning of cutout edge)
+    vgs = general.get_all_cutuout_edges(context)
+    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
+    bpy.ops.mesh.select_all(action='INVERT')
+    bpy.ops.mesh.vertices_smooth(factor=0.5, repeat=10)
+
+    ufit_measure.hide_set(True)  # make invisible again
 
 
 #########################################
@@ -632,7 +608,8 @@ def create_milling_model(context):
         flare_done(context)  # deactivate proportional editing
 
     # select cutout edge
-    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=['cutout_edge'])
+    vgs = general.get_all_cutuout_edges(context)
+    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # use the standard duplicate operator (Shift + D)
     bpy.ops.mesh.duplicate_move()
@@ -660,7 +637,8 @@ def create_milling_model(context):
     general.create_new_vertex_group_for_selected(context, ufit_obj, 'milling_model_edge', mode='EDIT')
 
     # select again the vertices from cutout_edge group (contains the original + copied vertices)
-    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=['cutout_edge'])
+    vgs = general.get_all_cutuout_edges(context)
+    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # connect vertices via bridge edge loops
     bpy.ops.mesh.bridge_edge_loops()
@@ -680,7 +658,21 @@ def create_milling_model(context):
 #########################################
 # Thickness
 #########################################
-def create_thickness(context):
+def prep_thickness(context):
+    ufit_obj = bpy.data.objects['uFit']
+
+    # trigger the callback to set default values
+    context.scene.ufit_thickness_voronoi = 'normal'
+
+    # create color attribute
+    color_attributes.add_new_color_attr(ufit_obj, name=color_attr_select, color=(1, 1, 1, 1))
+    bpy.data.brushes["Draw"].color = (1, 0, 0)  # Red
+
+    # activate color attribute
+    color_attributes.activate_color_attribute(ufit_obj, color_attr_select)
+
+
+def create_printing_thickness(context):
     # set obj params
     ufit_obj = bpy.data.objects['uFit']
 
@@ -715,12 +707,8 @@ def create_thickness(context):
     bpy.ops.mesh.select_all(action='DESELECT')  # deselect all vertices
 
     # activate the vertex group
-    ufit_mesh = ufit_obj.data
-    vertex_group = ufit_obj.vertex_groups.get('cutout_edge')
-    if vertex_group is not None:
-        # iterate over the vertices of the object and check if they have the vertex group assigned to them
-        vertex_indices = [v.index for v in ufit_mesh.vertices if vertex_group.index in [g.group for g in v.groups]]
-        general.select_verts_by_idx(ufit_obj, vertex_indices)
+    vgs = general.get_all_cutuout_edges(context)
+    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # remove wrongly selected edges (very exceptional)
     general.deselect_non_loop_edges(ufit_obj)
@@ -760,7 +748,8 @@ def minimal_prep_custom_thickness(context):
 
 
 def create_custom_thickness(context, extrusion):
-    push_pull_region(context, extrusion, exclude_vertex_groups=['cutout_edge'])
+    vgs = general.get_all_cutuout_edges(context)
+    push_pull_region(context, extrusion, exclude_vertex_groups=vgs)
 
 
 def custom_thickness_done(context):
@@ -781,7 +770,8 @@ def prep_flare(context):
     bpy.context.scene.tool_settings.use_proportional_edit = True
 
     # switch to edit mode and select vertices from cutout edge
-    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=['cutout_edge'])
+    vgs = general.get_all_cutuout_edges(context)
+    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # move cursor to the middle of the selection
     bpy.ops.view3d.snap_cursor_to_selected()
@@ -801,7 +791,8 @@ def flare(context):
     ufit_obj = bpy.data.objects['uFit']
 
     # make sure the vertices from the cutout edge are selected
-    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=['cutout_edge'])
+    vgs = general.get_all_cutuout_edges(context)
+    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # calculate the flare percentage
     flare_perc = 1 + context.scene.ufit_flare_percentage/100

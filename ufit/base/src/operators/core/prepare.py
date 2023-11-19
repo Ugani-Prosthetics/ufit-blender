@@ -6,6 +6,12 @@ from ..utils import annotations, general, user_interface
 # Move to center
 #########################################
 def prep_move_scan(context):
+    # set ufit object
+    ufit_obj = bpy.data.objects['uFit']
+
+    # disable auto_smooth
+    ufit_obj.data.use_auto_smooth = False
+
     # switch to annotation tool
     user_interface.activate_new_grease_pencil(context, name='Selections', layer_name='Knee')
 
@@ -165,6 +171,27 @@ def prep_rotate(context):
 
     # activate rotation tool
     user_interface.set_active_tool('builtin.rotate')
+
+
+def mirror(context):
+    ufit_obj = bpy.data.objects['uFit']
+
+    # mirror using x-axis direction
+    bpy.ops.transform.mirror(
+        orient_type='GLOBAL',
+        orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)),
+        orient_matrix_type='GLOBAL',
+        constraint_axis=(True, False, False)
+    )
+
+    bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+
+    # mirroring flips the normals
+    general.activate_object(context, ufit_obj, 'EDIT')
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.mesh.flip_normals()
+
+    general.activate_object(context, ufit_obj, 'OBJECT')
 
 
 def save_rotation(context):

@@ -1,6 +1,6 @@
 from .....base.src.operators.core.OT_base import OTBase
 from .....base.src.operators.core.prepare import remeasure_circumferences
-from .....base.src.operators.core.sculpt import pull_bottom
+from .....base.src.operators.core.sculpt import pull_bottom, pull_bottom_done
 
 
 class OTPullBottom(OTBase):
@@ -35,4 +35,5 @@ class OTPullBottomDone(OTBase):
             return True
 
     def main_func(self, context):
+        pull_bottom_done(context)
         pass

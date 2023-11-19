@@ -10,53 +10,104 @@ from bpy.props import (
 )
 from . import callbacks
 
+
 ufit_scene_properties = [
+    # settings
     'ufit_full_screen',
     'ufit_quad_view',
     'ufit_orthographic_view',
     'ufit_device_type',
+
+    # progress
     'ufit_progress',
+
+    # files
     'ufit_scan_filename',
     'ufit_folder_modeling',
     'ufit_folder_checkpoints',
+
+    # steps
     'ufit_active_step',
     'ufit_substep',
+
+    # checkpoints
     'ufit_checkpoints',
     'ufit_checkpoint_collection',
+
+    # assistance
+    'ufit_assistance_previews_dir',
+    'ufit_assistance_previews',
     'ufit_help_text',
+
+    # error message
     'ufit_error_message',
+
+    # import scan
     'ufit_import_unit',
+
+    # clean up
     'ufit_non_manifold_highlighted',
+
+    # circumferences
     'ufit_circum_z_ixs',
     'ufit_init_circumferences',
     'ufit_sculpt_circumferences',
     'ufit_circumferences',
     'ufit_circums_highlighted',
     'ufit_circums_distance',
-    'ufit_scaling_unit',
-    'ufit_liner_scaling',
-    'ufit_show_prescale',
+
     'ufit_show_original',
     'ufit_enable_colors',
+
+    # sculpt
+    'ufit_sculpt_mode',
+    'ufit_sculpt_tool',
+    'ufit_vertex_color_all',
     'ufit_smooth_factor',
     'ufit_push_pull_circular',
     'ufit_extrude_amount',
+    'ufit_sculpt_brush',
+
+    # cutout
     'ufit_cutout_style',
     'ufit_plane_operation',
+    'ufit_number_of_cuts',
     'ufit_mean_tilt',
+
+    # scaling
+    'ufit_scaling_unit',
+    'ufit_liner_scaling',
+    'ufit_show_prescale',
+
+    # socket or milling
     'ufit_socket_or_milling',
     'ufit_milling_flare',
     'ufit_milling_margin',
+
+    # thickness
     'ufit_print_thickness',
+    'ufit_thickness_voronoi',
+    'ufit_voronoi_size',
+
+    # flare
     'ufit_flare_tool',
     'ufit_flare_height',
     'ufit_flare_percentage',
     'ufit_show_connector',
+
+    # alignment
     'ufit_x_ray',
     'ufit_anchor_point',
     'ufit_alignment_object',
     'ufit_alignment_tool',
     'ufit_connector_loc',
+
+    # transition
+    'ufit_try_perfect_print',
+    'ufit_total_contact_socket',
+
+    # export
+    'ufit_show_inner_part',
 ]
 
 
@@ -87,6 +138,7 @@ def register():
                                                     items=[
                                                         ("transtibial", "Transtibial", "", 1),
                                                         ("transfemoral", "Transfemoral", "", 2),
+                                                        ("free_sculpting", "Free Sculpting", "", 3),
                                                     ])
 
     # settings
@@ -113,8 +165,7 @@ def register():
     # checkpoints
     bpy.utils.register_class(CheckpointPG)
     bpy.types.Scene.ufit_checkpoints = EnumProperty(items=callbacks.checkpoint_items)  # gets checkpoints dynamically
-    bpy.types.Scene.ufit_checkpoint_collection = CollectionProperty(
-        type=CheckpointPG)  # a collection of CheckpointPG items
+    bpy.types.Scene.ufit_checkpoint_collection = CollectionProperty(type=CheckpointPG)  # a collection of CheckpointPG items
 
     # assistance
     bpy.types.Scene.ufit_assistance_previews_dir = StringProperty(name="Assistance Folder Path")
@@ -138,10 +189,8 @@ def register():
     # circumferences
     max_num_circumferences = 15
     bpy.types.Scene.ufit_circum_z_ixs = FloatVectorProperty(name='Circumferences Heights', size=max_num_circumferences)
-    bpy.types.Scene.ufit_init_circumferences = FloatVectorProperty(name='Init. Circumferences',
-                                                                   size=max_num_circumferences)
-    bpy.types.Scene.ufit_sculpt_circumferences = FloatVectorProperty(name='Sculpt. Circumferences',
-                                                                     size=max_num_circumferences)
+    bpy.types.Scene.ufit_init_circumferences = FloatVectorProperty(name='Init. Circumferences', size=max_num_circumferences)
+    bpy.types.Scene.ufit_sculpt_circumferences = FloatVectorProperty(name='Sculpt. Circumferences', size=max_num_circumferences)
     bpy.types.Scene.ufit_circumferences = FloatVectorProperty(name='Circumferences', size=max_num_circumferences)
     bpy.types.Scene.ufit_circums_highlighted = BoolProperty(name='Circumferences Highlighted', default=False)
     bpy.types.Scene.ufit_circums_distance = EnumProperty(name="Distance", default=2,
@@ -151,7 +200,7 @@ def register():
                                                              ("0.040", "4 cm", "", 3),
                                                          ])
 
-    # extrude/smooth regions
+    # sculpt
     bpy.types.Scene.ufit_sculpt_mode = EnumProperty(name="Mode", default=1,
                                                     items=[
                                                         ("guided", "Guided", "", 1),
@@ -163,9 +212,10 @@ def register():
                                                         ("push_pull", "Push/Pull", "", 1),
                                                         ("smooth", "Smooth", "", 2),
                                                     ])
-
     bpy.types.Scene.ufit_enable_colors = BoolProperty(name="Enable Colors", default=True,
                                                       update=callbacks.update_colors_enable)
+    bpy.types.Scene.ufit_vertex_color_all = BoolProperty(name="Highlight Whole Object", default=False,
+                                                         update=callbacks.update_vertex_color_all)
     bpy.types.Scene.ufit_smooth_factor = IntProperty(name="Factor", min=0, max=50, step=1, default=15)
     bpy.types.Scene.ufit_push_pull_circular = BoolProperty(name="Circular Push/Pull", default=True)
     bpy.types.Scene.ufit_extrude_amount = FloatProperty(name="Amount", min=0, max=100.0, step=50, default=3.5)
@@ -177,18 +227,6 @@ def register():
                                                          ("flatten_brush", "Flatten", "", 4),
                                                      ],
                                                      update=callbacks.sculpt_brush_update)
-
-    # Scaling
-    bpy.types.Scene.ufit_scaling_unit = EnumProperty(name="Scaling Unit", default=1,
-                                                     items=[
-                                                         ("millimeter", "mm", "", 1),
-                                                         ("percentage", "%", "", 2)
-                                                     ])
-    bpy.types.Scene.ufit_liner_scaling = FloatProperty(name="Scaling", min=-50.0, max=50.0, step=50, default=0)
-    bpy.types.Scene.ufit_show_prescale = BoolProperty(name="Show Pre-scaling", default=True,
-                                                      update=callbacks.show_prescale_update)
-    bpy.types.Scene.ufit_show_original = BoolProperty(name="Show Original", default=True,
-                                                      update=callbacks.show_original_update)
 
     # cutout
     bpy.types.Scene.ufit_cutout_style = EnumProperty(name="Cutout Style", default=1,
@@ -204,6 +242,8 @@ def register():
                                                             ("scale", "Scale", "", 3),
                                                         ],
                                                         update=callbacks.plane_operation_update)
+
+    bpy.types.Scene.ufit_number_of_cutouts = IntProperty(name="Number of Cutouts", default=0)
     bpy.types.Scene.ufit_mean_tilt = EnumProperty(name="Tilt", default=3,
                                                   items=[
                                                       ("0", "0°", "", 1),
@@ -212,6 +252,18 @@ def register():
                                                       ("135", "135°", "", 4),
                                                   ],
                                                   update=callbacks.mean_tilt_update)
+
+    # scaling
+    bpy.types.Scene.ufit_scaling_unit = EnumProperty(name="Scaling Unit", default=1,
+                                                     items=[
+                                                         ("millimeter", "mm", "", 1),
+                                                         ("percentage", "%", "", 2)
+                                                     ])
+    bpy.types.Scene.ufit_liner_scaling = FloatProperty(name="Scaling", min=-50.0, max=50.0, step=50, default=0)
+    bpy.types.Scene.ufit_show_prescale = BoolProperty(name="Show Pre-scaling", default=True,
+                                                      update=callbacks.show_prescale_update)
+    bpy.types.Scene.ufit_show_original = BoolProperty(name="Show Original", default=True,
+                                                      update=callbacks.show_original_update)
 
     # socket or milling
     bpy.types.Scene.ufit_socket_or_milling = EnumProperty(name="Socket or Milling?", default=1,
@@ -223,11 +275,26 @@ def register():
     bpy.types.Scene.ufit_milling_margin = FloatProperty(name="Milling Margin", min=1.0, max=10.0, step=10,
                                                         default=3.0)
 
-    # Thickness
-    bpy.types.Scene.ufit_print_thickness = FloatProperty(name="Thickness", min=0.0, max=10.0, step=10,
-                                                         default=4.2)
+    # thickness
+    bpy.types.Scene.ufit_print_thickness = FloatProperty(name="Thickness", min=0.0, max=10.0, step=10, default=4.2)
+    bpy.types.Scene.ufit_thickness_voronoi = EnumProperty(name="Thickness", default=1,
+                                                          items=[
+                                                              ("normal", "Normal", "", 1),
+                                                              ("voronoi", "Voronoi", "", 2),
+                                                          ],
+                                                          update=callbacks.thickness_voronoi_update)
+    bpy.types.Scene.ufit_voronoi_size = EnumProperty(name="Size", default=3,
+                                                     items=[
+                                                         ("very_small", "Very Small", "", 1),
+                                                         ("small", "Small", "", 2),
+                                                         ("medium", "Medium", "", 3),
+                                                         ("big", "Big", "", 4),
+                                                         ("very_big", "Very Big", "", 5),
+                                                         ("empty", "Empty Space", "", 6),
+                                                     ],
+                                                     update=callbacks.voronoi_size_update)
 
-    # Flare
+    # flare
     bpy.types.Scene.ufit_flare_tool = EnumProperty(name="Mode", default=2,
                                                    items=[
                                                        ("builtin.scale", "interactive", "", 1),
@@ -304,6 +371,8 @@ def unregister():
     del bpy.types.Scene.ufit_checkpoint_collection
 
     # assistance
+    del bpy.types.Scene.ufit_assistance_previews_dir
+    del bpy.types.Scene.ufit_assistance_previews
     del bpy.types.Scene.ufit_help_text
 
     # error message
@@ -324,15 +393,26 @@ def unregister():
     del bpy.types.Scene.ufit_circums_distance
 
     # extrude/smooth regions
+    del bpy.types.Scene.ufit_sculpt_mode
+    del bpy.types.Scene.ufit_sculpt_tool
+    del bpy.types.Scene.ufit_vertex_color_all
     del bpy.types.Scene.ufit_smooth_factor
     del bpy.types.Scene.ufit_enable_colors
     del bpy.types.Scene.ufit_push_pull_circular
     del bpy.types.Scene.ufit_extrude_amount
+    del bpy.types.Scene.ufit_sculpt_brush
 
     # cutout
     del bpy.types.Scene.ufit_cutout_style
     del bpy.types.Scene.ufit_plane_operation
+    del bpy.types.Scene.ufit_number_of_cuts
     del bpy.types.Scene.ufit_mean_tilt
+
+    # Scaling
+    del bpy.types.Scene.ufit_scaling_unit
+    del bpy.types.Scene.ufit_liner_scaling
+    del bpy.types.Scene.ufit_show_prescale
+    del bpy.types.Scene.ufit_show_original
 
     # socket or milling
     del bpy.types.Scene.ufit_socket_or_milling
@@ -341,12 +421,8 @@ def unregister():
 
     # thickness
     del bpy.types.Scene.ufit_print_thickness
-
-    # Scaling
-    del bpy.types.Scene.ufit_scaling_unit
-    del bpy.types.Scene.ufit_liner_scaling
-    del bpy.types.Scene.ufit_show_prescale
-    del bpy.types.Scene.ufit_show_original
+    del bpy.types.Scene.ufit_thickness_voronoi
+    del bpy.types.Scene.ufit_voronoi_size
 
     # Flare
     del bpy.types.Scene.ufit_flare_tool
@@ -363,3 +439,7 @@ def unregister():
 
     # transition
     del bpy.types.Scene.ufit_try_perfect_print
+    del bpy.types.Scene.ufit_total_contact_socket
+
+    # export
+    del bpy.types.Scene.ufit_show_inner_part

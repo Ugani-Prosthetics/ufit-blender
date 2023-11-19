@@ -31,3 +31,12 @@ class OTCutout(OTBase):
 
     def main_func(self, context):
         cutout(context)
+
+
+class OTNewCutout(OTBase):
+    @classmethod
+    def poll(cls, context):
+        return True
+
+    def main_func(self, context):
+        pass

@@ -25,6 +25,7 @@ def configure_full_debug(context, workspace, ufit_device, ufit_step):
     from .base.src.operators.core.start import start_from_existing
     from .transtibial.src.transtibial_constants import tt_path_consts, tt_ui_consts
     from .transfemoral.src.transfemoral_constants import tf_path_consts, tf_ui_consts
+    from .free_sculpting.src.free_sculpting_constants import fs_path_consts, fs_ui_consts
 
     # get the path to the debug patient folder
     current_dir = os.path.abspath(os.path.dirname(__file__))
@@ -55,6 +56,8 @@ def configure_full_debug(context, workspace, ufit_device, ufit_step):
         start_from_existing(context, destination_folder, tt_path_consts, tt_ui_consts, debug_step=ufit_step)
     elif ufit_device == 'transfemoral':
         start_from_existing(context, destination_folder, tf_path_consts, tf_ui_consts, debug_step=ufit_step)
+    elif ufit_device == 'free_sculpting':
+        start_from_existing(context, destination_folder, fs_path_consts, fs_ui_consts, debug_step=ufit_step)
 
 
 logger = logging.getLogger('ufit.logger')

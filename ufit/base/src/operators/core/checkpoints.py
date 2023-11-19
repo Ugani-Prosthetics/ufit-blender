@@ -191,9 +191,6 @@ def add_checkpoint(context, step, path_consts, ui_consts, sub_steps):
     workflow_step = get_workflow_step(step, path_consts)
     step_nr = get_workflow_step_nr(step, path_consts)
 
-    if not sub_steps:
-        context.scene.ufit_substep = 0
-
     if workflow_step:
         workflow = ui_consts['workflow']
 

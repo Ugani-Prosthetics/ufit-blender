@@ -1,4 +1,3 @@
-# prep functions
 from ...base.src.operators.core.prepare import (
     prep_move_scan, prep_clean_up, prep_verify_clean_up, prep_rotate, prep_circumferences)
 from ...base.src.operators.core.sculpt import (
@@ -125,6 +124,7 @@ tt_operator_consts = {
         'next_step': {
             'name': 'import_scan',
             'default_state': None,
+            'reset_substep': True,
             'prep_func': None,
             'exec_save': False
         },
@@ -142,6 +142,7 @@ tt_operator_consts = {
                 'light': 'FLAT',
                 'color_type': 'TEXTURE'
             },
+            'reset_substep': True,
             'prep_func': prep_move_scan,
             'exec_save': True
         },
@@ -159,6 +160,7 @@ tt_operator_consts = {
                 'light': 'FLAT',
                 'color_type': 'TEXTURE'
             },
+            'reset_substep': True,
             'prep_func': prep_clean_up,
             'exec_save': True
         },
@@ -175,6 +177,7 @@ tt_operator_consts = {
                 'light': 'FLAT',
                 'color_type': 'TEXTURE'
             },
+            'reset_substep': True,
             'prep_func': prep_verify_clean_up,
             'exec_save': True
         },
@@ -191,6 +194,7 @@ tt_operator_consts = {
         'next_step': {
             'name': 'verify_clean_up',
             'default_state': None,
+            'reset_substep': False,
             'prep_func': None,
             'exec_save': True
         },
@@ -203,6 +207,7 @@ tt_operator_consts = {
         'next_step': {
             'name': 'verify_clean_up',
             'default_state': None,
+            'reset_substep': False,
             'prep_func': None,
             'exec_save': True
         },
@@ -221,6 +226,7 @@ tt_operator_consts = {
                 'overlay_axes': (1, 1, 1),
                 'overlay_text': True
             },
+            'reset_substep': True,
             'prep_func': prep_rotate,
             'exec_save': True
         },
@@ -237,6 +243,7 @@ tt_operator_consts = {
                 'light': 'FLAT',
                 'color_type': 'TEXTURE',
             },
+            'reset_substep': True,
             'prep_func': prep_circumferences,
             'exec_save': True
         },
@@ -261,6 +268,7 @@ tt_operator_consts = {
                 'light': 'FLAT',
                 'color_type': 'TEXTURE'
             },
+            'reset_substep': True,
             'prep_func': prep_push_pull_smooth,
             'exec_save': True
         },
@@ -277,6 +285,7 @@ tt_operator_consts = {
         'next_step': {
             'name': 'push_pull_smooth',
             'default_state': None,
+            'reset_substep': False,
             'prep_func': minimal_prep_push_pull_smooth,
             'exec_save': True
         },
@@ -289,6 +298,7 @@ tt_operator_consts = {
         'next_step': {
             'name': 'push_pull_smooth',
             'default_state': None,
+            'reset_substep': False,
             'prep_func': minimal_prep_push_pull_smooth,
             'exec_save': True
         },
@@ -301,6 +311,7 @@ tt_operator_consts = {
         'next_step': {
             'name': 'push_pull_smooth',
             'default_state': None,
+            'reset_substep': False,
             'prep_func': minimal_prep_free_sculpt,
             'exec_save': True
         },
@@ -317,6 +328,7 @@ tt_operator_consts = {
                 'light': 'FLAT',
                 'color_type': 'TEXTURE'
             },
+            'reset_substep': True,
             'prep_func': prep_pull_bottom,
             'exec_save': True
         },
@@ -329,6 +341,7 @@ tt_operator_consts = {
         'next_step': {
             'name': 'pull_bottom',
             'default_state': None,
+            'reset_substep': False,
             'prep_func': minimal_prep_pull_bottom,
             'exec_save': True
         },
@@ -340,8 +353,9 @@ tt_operator_consts = {
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'FLAT',
-                'color_type': 'TEXTURE'
+                'color_type': 'VERTEX'
             },
+            'reset_substep': True,
             'prep_func': prep_cutout_prep,
             'exec_save': True
         },
@@ -361,6 +375,7 @@ tt_operator_consts = {
                         'light': 'FLAT',
                         'color_type': 'TEXTURE'
                     },
+                    'reset_substep': True,
                     'prep_func': prep_cutout,
                     'exec_save': True
                 },
@@ -372,6 +387,7 @@ tt_operator_consts = {
                         'light': 'STUDIO',
                         'color_type': 'VERTEX'
                     },
+                    'reset_substep': True,
                     'prep_func': prep_scaling,
                     'exec_save': True
                 }
@@ -390,6 +406,7 @@ tt_operator_consts = {
                 'light': 'STUDIO',
                 'color_type': 'VERTEX'
             },
+            'reset_substep': True,
             'prep_func': prep_scaling,
             'exec_save': True
         },
@@ -413,6 +430,7 @@ tt_operator_consts = {
                 'light': 'STUDIO',
                 'color_type': 'MATERIAL'
             },
+            'reset_substep': True,
             'prep_func': None,
             'exec_save': True
         }
@@ -432,6 +450,7 @@ tt_operator_consts = {
                         'light': 'STUDIO',
                         'color_type': 'MATERIAL'
                     },
+                    'reset_substep': True,
                     'prep_func': None,
                     'exec_save': True
                 },
@@ -443,6 +462,7 @@ tt_operator_consts = {
                         'light': 'STUDIO',
                         'color_type': 'MATERIAL'
                     },
+                    'reset_substep': True,
                     'prep_func': None,
                     'exec_save': True
                 }
@@ -461,6 +481,7 @@ tt_operator_consts = {
                 'light': 'STUDIO',
                 'color_type': 'RANDOM'
             },
+            'reset_substep': True,
             'prep_func': prep_export,
             'exec_save': True
         },
@@ -477,6 +498,7 @@ tt_operator_consts = {
                 'light': 'STUDIO',
                 'color_type': 'MATERIAL'
             },
+            'reset_substep': True,
             'prep_func': prep_custom_thickness,
             'exec_save': True
         },
@@ -489,6 +511,7 @@ tt_operator_consts = {
         'next_step': {
             'name': 'custom_thickness',
             'default_state': None,
+            'reset_substep': False,
             'prep_func': minimal_prep_custom_thickness,
             'exec_save': True
         },
@@ -505,6 +528,7 @@ tt_operator_consts = {
                 'light': 'STUDIO',
                 'color_type': 'MATERIAL'
             },
+            'reset_substep': True,
             'prep_func': prep_flare,
             'exec_save': True
         },
@@ -517,6 +541,7 @@ tt_operator_consts = {
         'next_step': {
             'name': 'flare',
             'default_state': None,
+            'reset_substep': False,
             'prep_func': None,
             'exec_save': True
         },
@@ -533,6 +558,7 @@ tt_operator_consts = {
                 'light': 'STUDIO',
                 'color_type': 'MATERIAL'
             },
+            'reset_substep': True,
             'prep_func': None,
             'exec_save': True
         },
@@ -549,6 +575,7 @@ tt_operator_consts = {
                 'light': 'FLAT',
                 'color_type': 'VERTEX'
             },
+            'reset_substep': True,
             'prep_func': prep_import_connector,
             'exec_save': True
         },
@@ -567,6 +594,7 @@ tt_operator_consts = {
                 'overlay_axes': (1, 1, 1),
                 'overlay_text': True
             },
+            'reset_substep': True,
             'prep_func': prep_alignment,
             'exec_save': True
         },
@@ -583,6 +611,7 @@ tt_operator_consts = {
                 'light': 'STUDIO',
                 'color_type': 'MATERIAL',
             },
+            'reset_substep': True,
             'prep_func': prep_transition_connector,
             'exec_save': True
         },
@@ -599,6 +628,7 @@ tt_operator_consts = {
                 'light': 'STUDIO',
                 'color_type': 'RANDOM'
             },
+            'reset_substep': True,
             'prep_func': prep_export,
             'exec_save': True
         },
@@ -615,6 +645,7 @@ tt_operator_consts = {
                 'light': 'STUDIO',
                 'color_type': 'RANDOM'
             },
+            'reset_substep': True,
             'prep_func': None,
             'exec_save': True
         },
@@ -624,6 +655,7 @@ tt_operator_consts = {
         'next_step': {
             'name': 'start',
             'default_state': None,
+            'reset_substep': True,
             'prep_func': None,
             'exec_save': False
         },

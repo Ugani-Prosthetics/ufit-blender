@@ -89,25 +89,40 @@ def sculpt_brush_update(self, context):
 
 
 def cutout_style_update(self, context):
-    # activate plane, unhide plane, switch annotate to move mode
     ufit_obj = bpy.data.objects['uFit']
     cut_obj = bpy.data.objects['uFit_Cutout']
 
     if self.ufit_cutout_style == 'free':
-        bpy.context.view_layer.objects.active = ufit_obj
+        # activate uFit
+        general.activate_object(context, ufit_obj, mode='OBJECT')
+
+        # hide the cutout object
         cut_obj.hide_set(True)
+
+        # set annotation tool
         bpy.ops.wm.tool_set_by_id(name='builtin.annotate')
 
+        # activate snapping
+        bpy.context.scene.tool_settings.use_snap = True
+
     elif self.ufit_cutout_style == 'straight':
-        # activate plane, unhide plane, switch annotate to move mode
-        # bpy.ops.outliner.item_activate(deselect_all=True)
+        # make uFit unselectable
         ufit_obj.select_set(False)
-        cut_obj.hide_set(False)
-        cut_obj.hide_select = False
         ufit_obj.hide_select = True
+
+        # unhide cutter object
+        cut_obj.hide_set(False)
         cut_obj.select_set(True)
-        bpy.ops.wm.tool_set_by_id(name='builtin.move')
-        bpy.context.view_layer.objects.active = cut_obj
+        cut_obj.hide_select = False
+
+        # activate the cutter object
+        general.activate_object(context, cut_obj, mode='OBJECT')
+
+        # set the ufit plane operation to move
+        context.scene.ufit_plane_operation = 'move'
+
+        # deactivate snapping
+        bpy.context.scene.tool_settings.use_snap = False
 
 
 def plane_operation_update(self, context):

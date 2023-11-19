@@ -273,19 +273,24 @@ def pull_bottom(context, extrusion):
 #################################
 def prep_cutout_prep(context):
     ufit_obj = bpy.data.objects['uFit']
-    ufit_original = general.duplicate_obj(ufit_obj, 'uFit_Original', context.collection, data=True, actions=False)
-    ufit_measure = general.duplicate_obj(ufit_obj, 'uFit_Measure', context.collection, data=True, actions=False)
 
-    bpy.ops.object.origin_set(type="GEOMETRY_ORIGIN")
+    # set the local object origin already to the center of mass
+    bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='MEDIAN')
 
     # add straight cutout plane
-    bpy.ops.mesh.primitive_plane_add(size=0.5, enter_editmode=False, align='WORLD',
-                                     location=(0, 0, 0), scale=(1, 1, 1))
-    bpy.ops.object.origin_set(type="ORIGIN_CURSOR")
+    bpy.ops.mesh.primitive_plane_add(size=0.35, enter_editmode=False, align='WORLD',
+                                     location=ufit_obj.location, scale=(1, 1, 1))
 
-    # rename plane to cutter
+    # rename plane
     cut_obj = bpy.context.active_object
     cut_obj.name = "uFit_Cutout"
+
+    # apply location
+    general.apply_transform(ufit_obj, use_location=True, use_rotation=True, use_scale=True)
+
+    # now duplicate ufit_obj
+    ufit_original = general.duplicate_obj(ufit_obj, 'uFit_Original', context.collection, data=True, actions=False)
+    ufit_measure = general.duplicate_obj(ufit_obj, 'uFit_Measure', context.collection, data=True, actions=False)
 
     # lock to y direction movement
     cut_obj.lock_location[0] = True
@@ -306,7 +311,6 @@ def prep_cutout_prep(context):
 
     # activate ufit
     general.activate_object(context, ufit_obj, mode='OBJECT')
-
 
 
 def lift_ufit_non_manifold_top(context):
@@ -333,6 +337,9 @@ def lift_ufit_non_manifold_top(context):
 
 
 def create_cutout_path(context):
+    if 'uFit_Cutout' in bpy.data.objects:
+        general.delete_obj_by_name_contains('uFit_Cutout')
+
     ufit_cutout_cu = bpy.data.curves.new("uFit_Cutout", "CURVE")
     ufit_cutout_ob = bpy.data.objects.new("uFit_Cutout", ufit_cutout_cu)
     polyline = ufit_cutout_cu.splines.new('NURBS')  # 'POLY''BEZIER''BSPLINE''CARDINAL''NURBS'
@@ -400,9 +407,6 @@ def prep_cutout(context):
 
         # go to edit mode
         general.activate_object(context, cutout_obj, mode='EDIT')
-    elif context.scene.ufit_cutout_style == 'straight':
-        pass
-
 
 
 def create_cutout_line(context):
@@ -423,7 +427,7 @@ def create_cutout_line(context):
     elif context.scene.ufit_cutout_style == "straight":
         # increase the number of vertices for accurate cut
         bpy.ops.mesh.select_all(action='SELECT')
-        bpy.ops.mesh.subdivide(number_cuts=500)
+        bpy.ops.mesh.subdivide(number_cuts=10)
         general.activate_object(context, ufit_cutout_obj, mode='OBJECT')
 
     # apply scaling, rotation and location
@@ -547,6 +551,8 @@ def cutout(context):
 
 
 def cutout_straight(context):
+    # cleanup annotations
+    user_interface.cleanup_grease_pencil(context)
     create_cutout_line(context)
     perform_cutout(context)
 

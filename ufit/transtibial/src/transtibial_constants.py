@@ -373,7 +373,7 @@ tt_operator_consts = {
                     'default_state': {
                         'object_name': 'uFit',
                         'light': 'FLAT',
-                        'color_type': 'TEXTURE'
+                        'color_type': 'VERTEX'
                     },
                     'reset_substep': True,
                     'prep_func': prep_cutout,

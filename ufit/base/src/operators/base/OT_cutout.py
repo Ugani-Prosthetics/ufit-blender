@@ -19,7 +19,6 @@ class OTCutoutPlane(OTBase):
             cutout_straight(context)
 
 
-
 class OTCutout(OTBase):
     @classmethod
     def poll(cls, context):

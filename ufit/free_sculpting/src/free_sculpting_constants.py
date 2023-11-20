@@ -2,7 +2,7 @@
 from ...base.src.operators.core.prepare import (
     prep_move_scan, prep_clean_up, prep_verify_clean_up, prep_rotate)
 from ...base.src.operators.core.sculpt import (
-    prep_push_pull_smooth, minimal_prep_push_pull_smooth, prep_cutout, minimal_prep_cutout_prep, prep_cutout_prep,
+    prep_push_pull_smooth, minimal_prep_push_pull_smooth, prep_cutout, minimal_prep_new_cutout, prep_cutout_prep,
     prep_scaling, prep_verify_scaling, minimal_prep_free_sculpt, prep_thickness, prep_custom_thickness,
     minimal_prep_custom_thickness)
 from ...base.src.operators.core.finish import prep_export
@@ -272,9 +272,10 @@ fs_operator_consts = {
     },
     'cutout_prep': {
         'checkpoint': {
-            'name': 'cutout',
+            'name': 'cutout_prep',
             'sub_steps': True
         },
+        # 'next_step': None,
         'next_step': {
             'conditions': [
                 {
@@ -332,7 +333,7 @@ fs_operator_consts = {
                 'color_type': 'VERTEX'
             },
             'reset_substep': False,
-            'prep_func': minimal_prep_cutout_prep,
+            'prep_func': minimal_prep_new_cutout,
             'exec_save': True
         },
     },

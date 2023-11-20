@@ -240,19 +240,35 @@ def lift_ufit_non_manifold_top(context):
         bpy.ops.transform.translate(value=(0, 0, 0.05))
 
 
-def prep_cutout_prep(context):
+def add_straight_cutout_plane(context):
     ufit_obj = bpy.data.objects['uFit']
 
     # set the local object origin already to the center of mass
     bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='MEDIAN')
 
     # add straight cutout plane
-    bpy.ops.mesh.primitive_plane_add(size=0.35, enter_editmode=False, align='WORLD',
-                                     location=ufit_obj.location, scale=(1, 1, 1))
+    bpy.ops.mesh.primitive_plane_add(size=0.35, location=ufit_obj.location)
+    bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='MEDIAN')
 
     # rename plane
-    cut_obj = bpy.context.active_object
+    cut_obj = context.active_object
     cut_obj.name = "uFit_Cutout"
+
+    # apply location
+    general.apply_transform(ufit_obj, use_location=True, use_rotation=True, use_scale=True)
+
+    # lock to z direction movement
+    # cut_obj.lock_location[0] = True
+    # cut_obj.lock_location[1] = True
+
+    # hide objects
+    cut_obj.hide_set(True)
+
+
+def prep_cutout_prep(context):
+    ufit_obj = bpy.data.objects['uFit']
+
+    add_straight_cutout_plane(context)
 
     # apply location
     general.apply_transform(ufit_obj, use_location=True, use_rotation=True, use_scale=True)
@@ -261,17 +277,18 @@ def prep_cutout_prep(context):
     ufit_original = general.duplicate_obj(ufit_obj, 'uFit_Original', context.collection, data=True, actions=False)
     ufit_measure = general.duplicate_obj(ufit_obj, 'uFit_Measure', context.collection, data=True, actions=False)
 
-    # lock to y direction movement
-    cut_obj.lock_location[0] = True
-    cut_obj.lock_location[1] = True
+    # remesh the uFit object so you have quads
+    if context.scene.ufit_device_type in ('transfemoral'):
+        lift_ufit_non_manifold_top(context)
+    color_attributes.remesh_with_texture_to_color_attr(context, ufit_obj, 'scan_colors')
 
-    # hide the UFitMeasure object
-    cut_obj.hide_set(True)
+    # hide objects
     ufit_original.hide_set(True)
     ufit_measure.hide_set(True)
 
     # transformation orientation global + activate vertex snapping
-    context.scene.transform_orientation_slots[0].type = 'GLOBAL'
+    context.scene.transform_orientation_slots[0].type = 'LOCAL'
+    context.scene.tool_settings.transform_pivot_point = 'INDIVIDUAL_ORIGINS'
     bpy.context.scene.tool_settings.use_snap = True
     bpy.context.scene.tool_settings.snap_elements = {'FACE_NEAREST'}
 
@@ -283,6 +300,15 @@ def prep_cutout_prep(context):
 
 
 def minimal_prep_cutout_prep(context):
+    # switch to annotation tool
+    user_interface.activate_new_grease_pencil(context, name='Selections', layer_name='Cutout')
+
+
+def minimal_prep_new_cutout(context):
+    add_straight_cutout_plane(context)
+
+    bpy.context.scene.tool_settings.use_snap = True
+
     # switch to annotation tool
     user_interface.activate_new_grease_pencil(context, name='Selections', layer_name='Cutout')
 
@@ -509,10 +535,10 @@ def perform_cutout(context):
         bpy.ops.mesh.remove_doubles()
 
         # dissolve geometry to remove weird normals
-        bpy.ops.mesh.dissolve_degenerate(threshold=0.00025)
+        bpy.ops.mesh.dissolve_degenerate(threshold=0.0001)  # make sure to use the same distance as remove_doubles
 
     else:
-        raise Exception('Please select the cutout line')
+        raise Exception('No cutout line found')
 
 
 def cutout(context):

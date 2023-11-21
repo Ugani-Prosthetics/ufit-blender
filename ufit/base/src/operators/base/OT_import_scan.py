@@ -8,7 +8,7 @@ class OTImportScan(OTBase, ImportHelper):
     filename_ext = '.zip'
 
     filter_glob: bpy.props.StringProperty(
-        default='*.zip',
+        default='*.zip;*.stl;*.obj',
         options={'HIDDEN'}
     )
 

@@ -88,18 +88,22 @@ def init_modeling_folders(context, filepath):
         # copy zip file to modeling folder
         shutil.copy2(filepath, f'{modeling_folder}/{file_name}')
 
+        if file_name.endswith(".obj") or file_name.endswith(".stl"):
+            obj_filepath = f'{modeling_folder}/{file_name}'  # not sure about the path
+            context.scene.ufit_scan_filename = file_name.split(".")[0]
+        else:
         # extract the zip file
-        zip_extract_folder = f'{modeling_folder}/{file_name.replace(".zip", "")}'
-        with zipfile.ZipFile(filepath, 'r') as zip_ref:
-            zip_ref.extractall(zip_extract_folder)
+            zip_extract_folder = f'{modeling_folder}/{file_name.replace(".zip", "")}'
+            with zipfile.ZipFile(filepath, 'r') as zip_ref:
+                zip_ref.extractall(zip_extract_folder)
 
         # store checkpoints folder and scan_filename
-        obj_filepath = None
-        for file in os.listdir(zip_extract_folder):
-            if file.endswith(".obj") or file.endswith(".stl"):
-                obj_filepath = f'{zip_extract_folder}/{file}'
-                context.scene.ufit_scan_filename = file.split(".")[0]
-                break
+            obj_filepath = None
+            for file in os.listdir(zip_extract_folder):
+                if file.endswith(".obj") or file.endswith(".stl"):
+                    obj_filepath = f'{zip_extract_folder}/{file}'
+                    context.scene.ufit_scan_filename = file.split(".")[0]
+                    break
 
         if not obj_filepath:
             raise Exception('Could not find an .obj or .stl file in scan folder')
@@ -117,7 +121,10 @@ def import_zip(context, filepath):
     delete_scene(context)
 
     # load the new object
-    bpy.ops.import_scene.obj(filepath=filepath)
+    if filepath.endswith(".obj"):
+        bpy.ops.import_scene.obj(filepath=filepath)
+    elif filepath.endswith(".stl"):
+        bpy.ops.import_scene.stl(filepath=filepath)
 
     # rename the object
     obj_scan = bpy.context.selected_objects[0]

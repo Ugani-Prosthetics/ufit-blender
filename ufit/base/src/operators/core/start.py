@@ -86,22 +86,33 @@ def init_modeling_folders(context, filepath):
         context.scene.ufit_folder_checkpoints = f'{modeling_folder}/checkpoints'
 
         # copy zip file to modeling folder
-        shutil.copy2(filepath, f'{modeling_folder}/{file_name}')
+        # shutil.copy2(filepath, f'{modeling_folder}/{file_name}')
+        obj_filepath = None
 
         if file_name.endswith(".obj") or file_name.endswith(".stl"):
-            obj_filepath = f'{modeling_folder}/{file_name}'  # not sure about the path
-            context.scene.ufit_scan_filename = file_name.split(".")[0]
-        else:
-        # extract the zip file
-            zip_extract_folder = f'{modeling_folder}/{file_name.replace(".zip", "")}'
-            with zipfile.ZipFile(filepath, 'r') as zip_ref:
-                zip_ref.extractall(zip_extract_folder)
 
-        # store checkpoints folder and scan_filename
-            obj_filepath = None
-            for file in os.listdir(zip_extract_folder):
+            png_file = next((os.path.join(file_folder, file) for file in os.listdir(file_folder) if file
+                            .endswith(".png")), None)
+            mtl_file = next((os.path.join(file_folder, file) for file in os.listdir(file_folder) if file
+                            .endswith(".mtl")), None)
+            if png_file and mtl_file:
+                shutil.copy2(filepath, f'{modeling_folder}')
+                shutil.copy2(png_file, f'{modeling_folder}')
+                shutil.copy2(mtl_file, f'{modeling_folder}')
+                obj_filepath = f'{modeling_folder}/{file_name}'  # not sure about the path
+                context.scene.ufit_scan_filename = file_name.split(".")[0]
+            else:
+                raise Exception(f" STl /PNG files are missing")
+
+        else:
+            # extract the zip file
+            with zipfile.ZipFile(filepath, 'r') as zip_ref:
+                zip_ref.extractall(modeling_folder)
+
+            # store checkpoints folder and scan_filename
+            for file in os.listdir(modeling_folder):
                 if file.endswith(".obj") or file.endswith(".stl"):
-                    obj_filepath = f'{zip_extract_folder}/{file}'
+                    obj_filepath = f'{modeling_folder}/{file}'
                     context.scene.ufit_scan_filename = file.split(".")[0]
                     break
 
@@ -109,7 +120,6 @@ def init_modeling_folders(context, filepath):
             raise Exception('Could not find an .obj or .stl file in scan folder')
 
         clear_checkpoints(context)
-
         return obj_filepath
 
     else:

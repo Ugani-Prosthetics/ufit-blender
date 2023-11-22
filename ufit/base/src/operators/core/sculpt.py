@@ -25,6 +25,9 @@ def prep_push_pull_smooth(context):
     bpy.data.brushes["Draw"].color = (0, 1, 0)  # green
     bpy.data.brushes["Draw"].secondary_color = (1, 1, 1)  # white
 
+    # set the falloff to max
+    bpy.ops.brush.curve_preset(shape='MAX')
+
 
 # called after remeasuring
 def minimal_prep_push_pull_smooth(context):
@@ -627,7 +630,7 @@ def prep_thickness(context):
     ufit_obj = bpy.data.objects['uFit']
 
     # trigger the callback to set default values
-    context.scene.ufit_thickness_voronoi = 'normal'
+    context.scene.ufit_thickness_type = 'normal'
 
     # create color attribute
     color_attributes.add_new_color_attr(ufit_obj, name=color_attr_select, color=(1, 1, 1, 1))
@@ -635,6 +638,14 @@ def prep_thickness(context):
 
     # activate color attribute
     color_attributes.activate_color_attribute(ufit_obj, color_attr_select)
+
+    # select all vertices within x distance of a border
+    cutout_edge_vgs = [vg.name for vg in ufit_obj.vertex_groups if vg.name.startswith('cutout_edge_')]
+    general.select_vertices_from_vertex_groups(context, ufit_obj, cutout_edge_vgs)
+    general.select_vertices_within_distance_of_selected(ufit_obj, max_distance=0.015)
+
+    # color the selected vertices (switches back to object mode)
+    color_attributes.color_selected_vertices(context, ufit_obj, 'area_selection', color=Vector((1, 0, 0, 1)))
 
 
 def create_printing_thickness(context):

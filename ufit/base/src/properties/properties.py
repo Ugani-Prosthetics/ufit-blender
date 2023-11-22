@@ -84,7 +84,7 @@ ufit_scene_properties = [
 
     # thickness
     'ufit_print_thickness',
-    'ufit_thickness_voronoi',
+    'ufit_thickness_type',
     'ufit_voronoi_size',
 
     # flare
@@ -261,12 +261,14 @@ def register():
 
     # thickness
     bpy.types.Scene.ufit_print_thickness = FloatProperty(name="Thickness", min=0.0, max=10.0, step=10, default=4.2)
-    bpy.types.Scene.ufit_thickness_voronoi = EnumProperty(name="Thickness", default=1,
-                                                          items=[
-                                                              ("normal", "Normal", "", 1),
-                                                              ("voronoi", "Voronoi", "", 2),
-                                                          ],
-                                                          update=callbacks.thickness_voronoi_update)
+    bpy.types.Scene.ufit_thickness_type = EnumProperty(name="Thickness", default=1,
+                                                       items=[
+                                                           ("normal", "Normal", "", 1),
+                                                           ("draw", "Draw", "", 2),
+                                                           ("voronoi_one", "Voronoi 1", "", 3),
+                                                           ("voronoi_two", "Voronoi 2", "", 4),
+                                                       ],
+                                                       update=callbacks.thickness_type_update)
     bpy.types.Scene.ufit_voronoi_size = EnumProperty(name="Size", default=3,
                                                      items=[
                                                          ("very_small", "Very Small", "", 1),
@@ -403,7 +405,7 @@ def unregister():
 
     # thickness
     del bpy.types.Scene.ufit_print_thickness
-    del bpy.types.Scene.ufit_thickness_voronoi
+    del bpy.types.Scene.ufit_thickness_type
     del bpy.types.Scene.ufit_voronoi_size
 
     # Flare

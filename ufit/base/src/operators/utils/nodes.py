@@ -69,16 +69,16 @@ def set_push_pull_smooth_shader_nodes(ufit_obj, color_attr_name):
 # Geometry Nodes
 #######################################
 def set_voronoi_geometry_nodes_one(ufit_obj, color_attr_name):
-    # Check if "Voronoi Nodes" node tree already exists
-    voronoi_node_tree_name = "Voronoi Nodes"
+    # Check if "Voronoi Nodes One" node tree already exists
+    voronoi_node_tree_name = "Voronoi Nodes One"
     if voronoi_node_tree_name not in bpy.data.node_groups:
         # Create a new geometry nodes modifer (automatically creates a node_group with name "Geometry Nodes"
         bpy.ops.node.new_geometry_nodes_modifier()
 
-        # Rename the new node tree to "Voronoi Nodes"
-        bpy.data.node_groups[-1].name = voronoi_node_tree_name
+        # Rename the new node tree to "Voronoi Nodes One"
+        bpy.data.node_groups[0].name = voronoi_node_tree_name
 
-        # Access the "Voronoi Nodes" geometry nodes tree
+        # Access the "Voronoi Nodes One" geometry nodes tree
         node_tree = bpy.data.node_groups[voronoi_node_tree_name]
 
         in_node = node_tree.nodes["Group Input"]
@@ -176,16 +176,16 @@ def set_voronoi_geometry_nodes_one(ufit_obj, color_attr_name):
 
 
 def set_voronoi_geometry_nodes_two(ufit_obj, color_attr_name):
-    # Check if "Voronoi Nodes" node tree already exists
-    voronoi_node_tree_name = "Voronoi Nodes"
+    # Check if "Voronoi Nodes Two" node tree already exists
+    voronoi_node_tree_name = "Voronoi Nodes Two"
     if voronoi_node_tree_name not in bpy.data.node_groups:
         # Create a new geometry nodes modifer (automatically creates a node_group with name "Geometry Nodes"
         bpy.ops.node.new_geometry_nodes_modifier()
 
-        # Rename the new node tree to "Voronoi Nodes"
-        bpy.data.node_groups[-1].name = voronoi_node_tree_name
+        # Rename the new node tree to "Voronoi Nodes Two"
+        bpy.data.node_groups[0].name = voronoi_node_tree_name
 
-        # Access the "Voronoi Nodes" geometry nodes tree
+        # Access the "Voronoi Nodes Two" geometry nodes tree
         node_tree = bpy.data.node_groups[voronoi_node_tree_name]
 
         in_node = node_tree.nodes["Group Input"]

@@ -18,27 +18,18 @@ class UIStartModeling(UFitPanel, bpy.types.Panel):
 
 
 class UIImportScan(UFitPanel, bpy.types.Panel):
-    def draw_base(self, context, ot_import_scan, ot_generate_socket=None):
+    def draw_base(self, context, ot_import_scan):
         scene = context.scene
         layout = self.layout
 
-        if context.scene.device_type == 'transfemoral':
+        row1 = layout.row()
+        row1.prop(scene, 'ufit_import_unit', expand=True)
 
+        row2 = layout.row()
+        row2.operator(ot_import_scan)
 
-        if context.scene.socket_generation == 'by_scan':
-            row1 = layout.row()
-            row1.prop(scene, 'ufit_import_unit', expand=True)
-
-            row2 = layout.row()
-            row2.operator(ot_import_scan)
-
-            nav_box = layout.box().row()
-            nav_box.operator("ufit_operators.prev_step", text="Back")
-
-        elif context.scene.socket_generation == 'by_numbers':
-            row1 = layout.row()
-            row1.prop(scene, 'tf_socket_length', expand=True)
-
+        nav_box = layout.box().row()
+        nav_box.operator("ufit_operators.prev_step", text="Back")
 
 
 

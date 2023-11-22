@@ -69,10 +69,10 @@ def clean_up(context):
     bpy.ops.mesh.select_all(action='SELECT')
 
     # remove edges with no length and faces with no area
-    bpy.ops.mesh.dissolve_degenerate()
+    bpy.ops.mesh.dissolve_degenerate(threshold=0.0001)  # make sure to use the same distance as remove_doubles
 
     # merge by distance to only keep relevant vertices
-    bpy.ops.mesh.remove_doubles(threshold=0.001)
+    bpy.ops.mesh.remove_doubles(threshold=0.0001)
 
     # some extra clean up
     bpy.ops.mesh.delete_loose()

@@ -243,29 +243,63 @@ def lift_ufit_non_manifold_top(context):
         bpy.ops.transform.translate(value=(0, 0, 0.05))
 
 
-def prep_cutout_prep(context):
-    # create ufit measure and original objects
+def add_straight_cutout_plane(context):
     ufit_obj = bpy.data.objects['uFit']
+
+    # set the local object origin already to the center of mass
+    bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='MEDIAN')
+
+    # add straight cutout plane
+    bpy.ops.mesh.primitive_plane_add(size=0.35, location=ufit_obj.location)
+    bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='MEDIAN')
+
+    # rename plane
+    cut_obj = context.active_object
+    cut_obj.name = "uFit_Cutout"
+
+    # apply location
+    general.apply_transform(ufit_obj, use_location=True, use_rotation=True, use_scale=True)
+
+    # lock to z direction movement
+    # cut_obj.lock_location[0] = True
+    # cut_obj.lock_location[1] = True
+
+    # hide objects
+    cut_obj.hide_set(True)
+
+
+def prep_cutout_prep(context):
+    ufit_obj = bpy.data.objects['uFit']
+
+    add_straight_cutout_plane(context)
+
+    # apply location
+    general.apply_transform(ufit_obj, use_location=True, use_rotation=True, use_scale=True)
+
+    # now duplicate ufit_obj
     ufit_original = general.duplicate_obj(ufit_obj, 'uFit_Original', context.collection, data=True, actions=False)
     ufit_measure = general.duplicate_obj(ufit_obj, 'uFit_Measure', context.collection, data=True, actions=False)
 
-    # hide the UFitMeasure object
+    # remesh the uFit object so you have quads
+    if context.scene.ufit_device_type in ('transfemoral'):
+        lift_ufit_non_manifold_top(context)
+    color_attributes.remesh_with_texture_to_color_attr(context, ufit_obj, 'scan_colors')
+
+    # hide objects
     ufit_original.hide_set(True)
     ufit_measure.hide_set(True)
 
-    if context.scene.ufit_device_type in ('transfemoral'):
-        lift_ufit_non_manifold_top(context)
-
-    # remesh the uFit object so you quads
-    color_attributes.remesh_with_texture_to_color_attr(context, ufit_obj, 'scan_colors')
-
     # transformation orientation global + activate vertex snapping
-    context.scene.transform_orientation_slots[0].type = 'GLOBAL'
+    context.scene.transform_orientation_slots[0].type = 'LOCAL'
+    context.scene.tool_settings.transform_pivot_point = 'INDIVIDUAL_ORIGINS'
     bpy.context.scene.tool_settings.use_snap = True
     bpy.context.scene.tool_settings.snap_elements = {'FACE_NEAREST'}
 
     # switch to annotation tool
     user_interface.activate_new_grease_pencil(context, name='Selections', layer_name='Cutout')
+
+    # activate ufit
+    general.activate_object(context, ufit_obj, mode='OBJECT')
 
 
 def minimal_prep_cutout_prep(context):
@@ -273,7 +307,19 @@ def minimal_prep_cutout_prep(context):
     user_interface.activate_new_grease_pencil(context, name='Selections', layer_name='Cutout')
 
 
+def minimal_prep_new_cutout(context):
+    add_straight_cutout_plane(context)
+
+    bpy.context.scene.tool_settings.use_snap = True
+
+    # switch to annotation tool
+    user_interface.activate_new_grease_pencil(context, name='Selections', layer_name='Cutout')
+
+
 def create_cutout_path(context):
+    if 'uFit_Cutout' in bpy.data.objects:
+        general.delete_obj_by_name_contains('uFit_Cutout')
+
     ufit_cutout_cu = bpy.data.curves.new("uFit_Cutout", "CURVE")
     ufit_cutout_ob = bpy.data.objects.new("uFit_Cutout", ufit_cutout_cu)
     polyline = ufit_cutout_cu.splines.new('NURBS')  # 'POLY''BEZIER''BSPLINE''CARDINAL''NURBS'
@@ -293,52 +339,54 @@ def create_cutout_path(context):
 
 
 def create_cutout_plane(context):
-    ufit_cutout_ob = create_cutout_path(context)
-    general.activate_object(context, ufit_cutout_ob, mode='EDIT')
+    if context.scene.ufit_cutout_style == 'free':
+        ufit_cutout_ob = create_cutout_path(context)
+        general.activate_object(context, ufit_cutout_ob, mode='EDIT')
 
-    # close the curve
-    bpy.ops.curve.select_all(action='SELECT')
-    bpy.ops.curve.cyclic_toggle()
+        # close the curve
+        bpy.ops.curve.select_all(action='SELECT')
+        bpy.ops.curve.cyclic_toggle()
 
-    bpy.context.object.data.dimensions = '3D'
+        bpy.context.object.data.dimensions = '3D'
 
-    # tilt local z-axis x degrees
-    bpy.ops.curve.tilt_clear()  # first clear the tilt
-    bpy.ops.transform.tilt(value=math.radians(int(bpy.context.scene.bl_rna.properties['ufit_mean_tilt'].default)),
-                           mirror=False,
-                           use_proportional_edit=False,
-                           proportional_edit_falloff='SMOOTH',
-                           proportional_size=1,
-                           use_proportional_connected=False,
-                           use_proportional_projected=False)
+        # tilt local z-axis x degrees
+        bpy.ops.curve.tilt_clear()  # first clear the tilt
+        bpy.ops.transform.tilt(value=math.radians(int(bpy.context.scene.bl_rna.properties['ufit_mean_tilt'].default)),
+                               mirror=False,
+                               use_proportional_edit=False,
+                               proportional_edit_falloff='SMOOTH',
+                               proportional_size=1,
+                               use_proportional_connected=False,
+                               use_proportional_projected=False)
 
-    # Z_UP not working in all cases
-    bpy.context.object.data.twist_mode = 'Z_UP'
+        # Z_UP not working in all cases
+        bpy.context.object.data.twist_mode = 'Z_UP'
 
-    # extrude the curve x cm everywhere
-    bpy.context.object.data.extrude = 0.01
+        # extrude the curve x cm everywhere
+        bpy.context.object.data.extrude = 0.01
 
-    # smoothen the curve
-    bpy.context.object.data.twist_smooth = 100
+        # smoothen the curve
+        bpy.context.object.data.twist_smooth = 100
 
-    # deselect all
-    bpy.ops.curve.select_all(action='DESELECT')
+        # deselect all
+        bpy.ops.curve.select_all(action='DESELECT')
 
-    # cleanup annotations
-    user_interface.cleanup_grease_pencil(context)
+        # cleanup annotations
+        user_interface.cleanup_grease_pencil(context)
 
 
 #################################
 # Cutout
 #################################
 def prep_cutout(context):
-    cutout_obj = bpy.data.objects['uFit_Cutout']
+    if context.scene.ufit_cutout_style == 'free':
+        cutout_obj = bpy.data.objects['uFit_Cutout']
 
-    # make the cutout object selectable
-    cutout_obj.hide_select = False
+        # make the cutout object selectable
+        cutout_obj.hide_select = True
 
-    # go to edit mode
-    general.activate_object(context, cutout_obj, mode='EDIT')
+        # go to edit mode
+        general.activate_object(context, cutout_obj, mode='EDIT')
 
 
 def create_cutout_line(context):
@@ -352,12 +400,18 @@ def create_cutout_line(context):
     # activate ufit_cutout_obj
     general.activate_object(context, ufit_cutout_obj, mode='EDIT')
 
-    # increase the smoothness of the cutout plane
-    bpy.context.object.data.twist_smooth = 500
+    if context.scene.ufit_cutout_style == "free":
+        # increase the smoothness of the cutout plane
+        bpy.context.object.data.twist_smooth = 500
 
-    # convert curve to mesh
-    general.activate_object(context, ufit_cutout_obj, mode='OBJECT')
-    bpy.ops.object.convert(target='MESH')
+        # convert curve to mesh
+        general.activate_object(context, ufit_cutout_obj, mode='OBJECT')
+        bpy.ops.object.convert(target='MESH')
+    elif context.scene.ufit_cutout_style == "straight":
+        # increase the number of vertices for accurate cut
+        bpy.ops.mesh.select_all(action='SELECT')
+        bpy.ops.mesh.subdivide(number_cuts=10)
+        general.activate_object(context, ufit_cutout_obj, mode='OBJECT')
 
     # apply scaling, rotation and location
     bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
@@ -484,13 +538,20 @@ def perform_cutout(context):
         bpy.ops.mesh.remove_doubles()
 
         # dissolve geometry to remove weird normals
-        bpy.ops.mesh.dissolve_degenerate(threshold=0.00025)
+        bpy.ops.mesh.dissolve_degenerate(threshold=0.0001)  # make sure to use the same distance as remove_doubles
 
     else:
-        raise Exception('Please select the cutout line')
+        raise Exception('No cutout line found')
 
 
 def cutout(context):
+    create_cutout_line(context)
+    perform_cutout(context)
+
+
+def cutout_straight(context):
+    # cleanup annotations
+    user_interface.cleanup_grease_pencil(context)
     create_cutout_line(context)
     perform_cutout(context)
 

@@ -1,18 +1,14 @@
+# prep functions
 from ...base.src.operators.core.prepare import (
     prep_move_scan, prep_clean_up, prep_verify_clean_up, prep_rotate)
 from ...base.src.operators.core.sculpt import (
-    prep_push_pull_smooth, minimal_prep_push_pull_smooth, prep_cutout, minimal_prep_cutout_prep, prep_cutout_prep,
+    prep_push_pull_smooth, minimal_prep_push_pull_smooth, prep_cutout, minimal_prep_new_cutout, prep_cutout_prep,
     prep_scaling, prep_verify_scaling, minimal_prep_free_sculpt, prep_thickness, prep_custom_thickness,
     minimal_prep_custom_thickness)
 from ...base.src.operators.core.finish import prep_export
 
-
-def scale_condition(context):
-    return context.scene.ufit_liner_scaling != 0
-
-
-def no_scale_condition(context):
-    return context.scene.ufit_liner_scaling == 0
+# conditions
+from ...base.src.properties import conditions
 
 
 fs_path_consts = {
@@ -276,19 +272,37 @@ fs_operator_consts = {
     },
     'cutout_prep': {
         'checkpoint': {
-            'name': 'cutout',
+            'name': 'cutout_prep',
             'sub_steps': True
         },
+        # 'next_step': None,
         'next_step': {
-            'name': 'cutout',
-            'default_state': {
-                'object_name': 'uFit',
-                'light': 'FLAT',
-                'color_type': 'VERTEX'
-            },
-            'reset_substep': False,
-            'prep_func': prep_cutout,
-            'exec_save': True
+            'conditions': [
+                {
+                    'condition_func': conditions.cutout_style_free_condition,
+                    'name': 'cutout',
+                    'default_state': {
+                        'object_name': 'uFit',
+                        'light': 'FLAT',
+                        'color_type': 'TEXTURE'
+                    },
+                    'reset_substep': False,
+                    'prep_func': prep_cutout,
+                    'exec_save': True
+                },
+                {
+                    'condition_func': conditions.cutout_style_straight_condition,
+                    'name': 'new_cutout',
+                    'default_state': {
+                        'object_name': 'uFit',
+                        'light': 'STUDIO',
+                        'color_type': 'VERTEX'
+                    },
+                    'reset_substep': False,
+                    'prep_func': prep_scaling,
+                    'exec_save': True
+                }
+            ]
         },
     },
     'cutout': {
@@ -319,7 +333,7 @@ fs_operator_consts = {
                 'color_type': 'VERTEX'
             },
             'reset_substep': False,
-            'prep_func': minimal_prep_cutout_prep,
+            'prep_func': minimal_prep_new_cutout,
             'exec_save': True
         },
     },
@@ -349,7 +363,7 @@ fs_operator_consts = {
         'next_step': {
             'conditions': [
                 {
-                    'condition_func': scale_condition,
+                    'condition_func': conditions.scale_condition,
                     'name': 'verify_scaling',
                     'default_state': {
                         'object_name': 'uFit',
@@ -361,7 +375,7 @@ fs_operator_consts = {
                     'exec_save': True
                 },
                 {
-                    'condition_func': no_scale_condition,
+                    'condition_func': conditions.no_scale_condition,
                     'name': 'thickness',
                     'default_state': {
                         'object_name': 'uFit',

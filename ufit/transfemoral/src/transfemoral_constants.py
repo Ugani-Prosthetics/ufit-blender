@@ -8,13 +8,8 @@ from ...base.src.operators.core.alignment import (
     prep_import_connector, prep_alignment, prep_transition_connector)
 from ...base.src.operators.core.finish import prep_export
 
-
-def socket_condition(context):
-    return context.scene.ufit_socket_or_milling == "socket"
-
-
-def milling_condition(context):
-    return context.scene.ufit_socket_or_milling == "milling"
+# conditions
+from ...base.src.properties import conditions
 
 
 tf_path_consts = {
@@ -371,15 +366,32 @@ tf_operator_consts = {
             'sub_steps': False
         },
         'next_step': {
-            'name': 'cutout',
-            'default_state': {
-                'object_name': 'uFit',
-                'light': 'FLAT',
-                'color_type': 'VERTEX'
-            },
-            'reset_substep': True,
-            'prep_func': prep_cutout,
-            'exec_save': True
+            'conditions': [
+                {
+                    'condition_func': conditions.cutout_style_free_condition,
+                    'name': 'cutout',
+                    'default_state': {
+                        'object_name': 'uFit',
+                        'light': 'FLAT',
+                        'color_type': 'VERTEX'
+                    },
+                    'reset_substep': True,
+                    'prep_func': prep_cutout,
+                    'exec_save': True
+                },
+                {
+                    'condition_func': conditions.cutout_style_straight_condition,
+                    'name': 'scale',
+                    'default_state': {
+                        'object_name': 'uFit',
+                        'light': 'STUDIO',
+                        'color_type': 'VERTEX'
+                    },
+                    'reset_substep': True,
+                    'prep_func': prep_scaling,
+                    'exec_save': True
+                }
+            ]
         },
     },
     'cutout': {
@@ -431,7 +443,7 @@ tf_operator_consts = {
         'next_step': {
             'conditions': [
                 {
-                    'condition_func': socket_condition,
+                    'condition_func': conditions.socket_condition,
                     'name': 'thickness',
                     'default_state': {
                         'object_name': 'uFit',
@@ -443,7 +455,7 @@ tf_operator_consts = {
                     'exec_save': True
                 },
                 {
-                    'condition_func': milling_condition,
+                    'condition_func': conditions.milling_condition,
                     'name': 'milling_model',
                     'default_state': {
                         'object_name': 'uFit',

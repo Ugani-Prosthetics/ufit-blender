@@ -97,6 +97,54 @@ def sculpt_brush_update(self, context):
         bpy.data.brushes["Flatten/Contrast"].direction = 'FLATTEN'
 
 
+def cutout_style_update(self, context):
+    ufit_obj = bpy.data.objects['uFit']
+    cut_obj = bpy.data.objects['uFit_Cutout']
+
+    if self.ufit_cutout_style == 'free':
+        # activate uFit
+        general.activate_object(context, ufit_obj, mode='OBJECT')
+
+        # hide the cutout object
+        cut_obj.hide_set(True)
+
+        # set annotation tool
+        bpy.ops.wm.tool_set_by_id(name='builtin.annotate')
+
+        # activate snapping
+        bpy.context.scene.tool_settings.use_snap = True
+
+    elif self.ufit_cutout_style == 'straight':
+        # make uFit unselectable
+        ufit_obj.select_set(False)
+        ufit_obj.hide_select = True
+
+        # unhide cutter object
+        cut_obj.hide_set(False)
+        cut_obj.select_set(True)
+        cut_obj.hide_select = False
+
+        # activate the cutter object
+        general.activate_object(context, cut_obj, mode='OBJECT')
+
+        # set the ufit plane operation to move
+        context.scene.ufit_plane_operation = 'move'
+
+        # deactivate snapping
+        bpy.context.scene.tool_settings.use_snap = False
+
+
+def plane_operation_update(self, context):
+    if bpy.context.scene.ufit_plane_operation == 'move':
+        bpy.ops.wm.tool_set_by_id(name="builtin.move")
+
+    elif bpy.context.scene.ufit_plane_operation == 'rotate':
+        bpy.ops.wm.tool_set_by_id(name="builtin.rotate")
+
+    elif bpy.context.scene.ufit_plane_operation == 'scale':
+        bpy.ops.wm.tool_set_by_id(name="builtin.scale")
+
+
 def mean_tilt_update(self, context):
     tilt = int(self.ufit_mean_tilt)
 

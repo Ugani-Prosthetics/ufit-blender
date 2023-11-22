@@ -89,7 +89,7 @@ def init_modeling_folders(context, filepath):
         # shutil.copy2(filepath, f'{modeling_folder}/{file_name}')
         obj_filepath = None
 
-        if file_name.endswith(".obj") or file_name.endswith(".stl"):
+        if file_name.endswith(".obj"):
 
             png_file = next((os.path.join(file_folder, file) for file in os.listdir(file_folder) if file
                             .endswith(".png")), None)
@@ -102,7 +102,11 @@ def init_modeling_folders(context, filepath):
                 obj_filepath = f'{modeling_folder}/{file_name}'  # not sure about the path
                 context.scene.ufit_scan_filename = file_name.split(".")[0]
             else:
-                raise Exception(f" STl /PNG files are missing")
+                raise Exception(f" MTL /PNG files are missing")
+        elif file_name.endswith(".stl"):
+            shutil.copy2(filepath, f'{modeling_folder}')
+            obj_filepath = f'{modeling_folder}/{file_name}'
+            context.scene.ufit_scan_filename = file_name.split(".")[0]
 
         else:
             # extract the zip file
@@ -126,16 +130,14 @@ def init_modeling_folders(context, filepath):
         raise Exception(f"Found checkpoints folder. You can't use 'Create New' in this location.")
 
 
-def import_zip(context, filepath):
+def import_3d_file(context, filepath):
     # delete everything from the scene
     delete_scene(context)
-
     # load the new object
     if filepath.endswith(".obj"):
         bpy.ops.import_scene.obj(filepath=filepath)
     elif filepath.endswith(".stl"):
-        bpy.ops.import_scene.stl(filepath=filepath)
-
+        bpy.ops.import_mesh.stl(filepath=filepath)
     # rename the object
     obj_scan = bpy.context.selected_objects[0]
     obj_scan.name = 'uFit'

@@ -1,7 +1,7 @@
 import bpy
 from bpy_extras.io_utils import ImportHelper
 from .....base.src.operators.core.OT_base import OTBase
-from .....base.src.operators.core.start import init_modeling_folders, import_zip
+from .....base.src.operators.core.start import init_modeling_folders, import_3d_file
 
 
 class OTImportScan(OTBase, ImportHelper):
@@ -20,5 +20,5 @@ class OTImportScan(OTBase, ImportHelper):
     def main_func(self, context):
         # execute func
         obj_filepath = init_modeling_folders(context, self.filepath)
-        import_zip(context, obj_filepath)
+        import_3d_file(context, obj_filepath)
 

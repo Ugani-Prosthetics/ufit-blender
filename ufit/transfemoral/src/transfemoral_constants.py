@@ -231,7 +231,9 @@ tf_operator_consts = {
                 'light': 'FLAT',
                 'color_type': 'TEXTURE',
                 'overlay_axes': (1, 1, 1),
-                'overlay_text': True
+                'overlay_text': True,
+                'ufit_quad_view': True,
+                'transform_pivot_point': True
             },
             'prep_func': prep_rotate,
             'exec_save': True
@@ -327,7 +329,8 @@ tf_operator_consts = {
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'FLAT',
-                'color_type': 'TEXTURE'
+                'color_type': 'TEXTURE',
+                'ufit_orthographic_view': True
             },
             'prep_func': prep_pull_bottom,
             'exec_save': True
@@ -352,7 +355,9 @@ tf_operator_consts = {
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'FLAT',
-                'color_type': 'TEXTURE'
+                'color_type': 'TEXTURE',
+                'use_snap': True,
+                'transform_pivot_point': True
             },
             'prep_func': prep_cutout_prep,
             'exec_save': True
@@ -515,7 +520,11 @@ tf_operator_consts = {
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'STUDIO',
-                'color_type': 'MATERIAL'
+                'color_type': 'MATERIAL',
+                'use_proportional_edit': True,
+                'proportional_size': True,
+                'show_overlays': True,
+                'ufit_quad_view': True
             },
             'prep_func': prep_flare,
             'exec_save': True
@@ -577,7 +586,9 @@ tf_operator_consts = {
                 'light': 'STUDIO',
                 'color_type': 'VERTEX',
                 'overlay_axes': (1, 1, 1),
-                'overlay_text': True
+                'overlay_text': True,
+                'ufit_quad_view': True,
+                'transform_pivot_point': True
             },
             'prep_func': prep_alignment,
             'exec_save': True

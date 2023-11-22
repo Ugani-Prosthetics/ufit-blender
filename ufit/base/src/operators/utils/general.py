@@ -872,7 +872,9 @@ def return_to_default_object_mode(context, obj):
     user_interface.set_active_tool('builtin.select_box')
 
 
-def return_to_default_state(context, object_name, light, color_type, overlay_axes=(0, 0, 0), overlay_text=False):
+def return_to_default_state(context, object_name, light, color_type, overlay_axes=(0, 0, 0), overlay_text=False,
+                            use_proportional_edit=True, proportional_size=True, show_overlays=True,
+                            use_snap=True, ufit_quad_view=True, ufit_orthographic_view=True, transform_pivot_point='CURSOR'):
     # activate object in object mode
     obj = bpy.data.objects[object_name]
 
@@ -908,6 +910,14 @@ def return_to_default_state(context, object_name, light, color_type, overlay_axe
     bpy.context.space_data.overlay.show_axis_y = overlay_axes[1]
     bpy.context.space_data.overlay.show_axis_z = overlay_axes[2]
     bpy.context.space_data.overlay.show_text = overlay_text
+
+    bpy.context.scene.tool_settings.use_proportional_edit = use_proportional_edit
+    bpy.context.tool_settings.proportional_size = proportional_size
+    bpy.context.space_data.overlay.show_overlays = show_overlays
+    bpy.context.scene.tool_settings.use_snap = use_snap
+    context.scene.ufit_quad_view = ufit_quad_view
+    context.scene.ufit_orthographic_view = ufit_orthographic_view
+    context.scene.tool_settings.transform_pivot_point = transform_pivot_point
 
 
 def filter_close_vertex_array(arr, rtol, atol):

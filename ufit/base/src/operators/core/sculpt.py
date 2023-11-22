@@ -296,8 +296,6 @@ def prep_cutout_prep(context):
     ufit_original.hide_set(True)
     ufit_measure.hide_set(True)
 
-    # transformation orientation global + activate vertex snapping
-    context.scene.transform_orientation_slots[0].type = 'GLOBAL'
     bpy.context.scene.tool_settings.use_snap = True
     bpy.context.scene.tool_settings.snap_elements = {'FACE_NEAREST'}
 
@@ -306,7 +304,6 @@ def prep_cutout_prep(context):
 
     # activate ufit
     general.activate_object(context, ufit_obj, mode='OBJECT')
-
 
 
 def lift_ufit_non_manifold_top(context):
@@ -768,13 +765,6 @@ def custom_thickness_done(context):
 def prep_flare(context):
     ufit_obj = bpy.data.objects['uFit']
 
-    # activate quad view
-    context.scene.ufit_quad_view = True
-
-    # activate proportional editing
-    bpy.context.scene.tool_settings.use_proportional_edit = True
-
-    # switch to edit mode and select vertices from cutout edge
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=['cutout_edge'])
 
     # move cursor to the middle of the selection
@@ -782,12 +772,6 @@ def prep_flare(context):
 
     # set the default flare tool
     user_interface.set_active_tool(bpy.context.scene.bl_rna.properties['ufit_flare_tool'].default)
-
-    # set proportional size to default size of ufit_flare_percentage
-    bpy.context.tool_settings.proportional_size = 0.01
-
-    # turn off the overlay
-    bpy.context.space_data.overlay.show_overlays = False
 
 
 def flare(context):

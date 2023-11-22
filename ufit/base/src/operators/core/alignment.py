@@ -116,9 +116,6 @@ def prep_alignment(context):
     foot_obj.select_set(False)  # deselect foot after focus
     foot_obj.hide_select = True  # do not make selectable
 
-    # change the view
-    context.scene.ufit_quad_view = True
-    context.scene.ufit_orthographic_view = True
     user_interface.change_orthographic('FRONT')
     user_interface.change_view_orbit(10, 'ORBITDOWN')
 
@@ -131,7 +128,6 @@ def prep_alignment(context):
 
     # activate the rotation tool
     context.scene.ufit_alignment_tool = 'builtin.rotate'
-    context.scene.tool_settings.transform_pivot_point = 'INDIVIDUAL_ORIGINS'
 
 
 def save_alignment(context):

@@ -873,8 +873,8 @@ def return_to_default_object_mode(context, obj):
 
 
 def return_to_default_state(context, object_name, light, color_type, overlay_axes=(0, 0, 0), overlay_text=False,
-                            use_proportional_edit=True, proportional_size=True, show_overlays=True,
-                            use_snap=True, ufit_quad_view=True, ufit_orthographic_view=True, transform_pivot_point='CURSOR'):
+                            use_proportional_edit=False, proportional_size=False, show_overlays=False,
+                            use_snap=False, ufit_quad_view=False, ufit_orthographic_view=False, transform_pivot_point='INDIVIDUAL_ORIGINS'):
     # activate object in object mode
     obj = bpy.data.objects[object_name]
 

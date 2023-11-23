@@ -233,7 +233,7 @@ tf_operator_consts = {
                 'overlay_axes': (1, 1, 1),
                 'overlay_text': True,
                 'ufit_quad_view': True,
-                'transform_pivot_point': True
+                'transform_pivot_point': 'CURSOR'
             },
             'prep_func': prep_rotate,
             'exec_save': True
@@ -357,7 +357,6 @@ tf_operator_consts = {
                 'light': 'FLAT',
                 'color_type': 'TEXTURE',
                 'use_snap': True,
-                'transform_pivot_point': True
             },
             'prep_func': prep_cutout_prep,
             'exec_save': True
@@ -587,8 +586,7 @@ tf_operator_consts = {
                 'color_type': 'VERTEX',
                 'overlay_axes': (1, 1, 1),
                 'overlay_text': True,
-                'ufit_quad_view': True,
-                'transform_pivot_point': True
+                'ufit_quad_view': True
             },
             'prep_func': prep_alignment,
             'exec_save': True

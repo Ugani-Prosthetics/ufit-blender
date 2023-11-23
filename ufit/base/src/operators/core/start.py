@@ -148,8 +148,8 @@ def import_3d_file(context, filepath):
     obj_scan.scale = (1, 1, 1)
 
     # Perform scaling by user defined unit
-    unit = context.scene.ufit_import_unit
-    obj_scan.scale = get_scale(unit)
+    type = context.scene.ufit_file_type
+    #obj_scan.scale = get_scale(unit)
 
     # activate object
     context.view_layer.objects.active = obj_scan

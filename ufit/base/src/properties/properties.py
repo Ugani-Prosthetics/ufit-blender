@@ -43,7 +43,7 @@ ufit_scene_properties = [
     'ufit_error_message',
 
     # import scan
-    'ufit_import_unit',
+    'ufit_file_type',
 
     # clean up
     'ufit_non_manifold_highlighted',
@@ -174,11 +174,11 @@ def register():
     bpy.types.Scene.ufit_error_message = StringProperty(name="Error Message")
 
     # import scan
-    bpy.types.Scene.ufit_import_unit = EnumProperty(name="Scan Unit", default=3,
+    bpy.types.Scene.ufit_file_type = EnumProperty(name="File Type", default=3,
                                                     items=[
-                                                        ("meter", "m", "", 1),
-                                                        ("centimeter", "cm", "", 2),
-                                                        ("millimeter", "mm", "", 3),
+                                                        ("zip", ".zip", "", 1),
+                                                        ("obj", ".obj", "", 2),
+                                                        ("stl", ".stl", "", 3),
                                                     ])
 
     # clean up
@@ -363,7 +363,7 @@ def unregister():
     del bpy.types.Scene.ufit_error_message
 
     # import scan
-    del bpy.types.Scene.ufit_import_unit
+    del bpy.types.Scene.ufit_file_type
 
     # clean up
     del bpy.types.Scene.ufit_non_manifold_highlighted

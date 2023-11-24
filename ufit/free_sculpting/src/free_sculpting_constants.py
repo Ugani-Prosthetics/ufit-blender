@@ -2,7 +2,7 @@
 from ...base.src.operators.core.prepare import (
     prep_move_scan, prep_clean_up, prep_verify_clean_up, prep_rotate)
 from ...base.src.operators.core.sculpt import (
-    prep_push_pull_smooth, minimal_prep_push_pull_smooth, prep_cutout, minimal_prep_new_cutout, prep_cutout_prep,
+    prep_push_pull_smooth, minimal_prep_push_pull_smooth, prep_draw, prep_cutout, minimal_prep_new_cutout, prep_cutout_prep,
     prep_scaling, prep_verify_scaling, minimal_prep_free_sculpt, prep_thickness, prep_custom_thickness,
     minimal_prep_custom_thickness)
 from ...base.src.operators.core.finish import prep_export
@@ -48,6 +48,15 @@ fs_ui_consts = {
             'help_text': 'For guided sculpting, hold Left-Click and move mouse to highlight an area. '
                          'Use CTRL-Click to remove highlighted area. '
                          'Once the area is highlighted, use the options in the menu to perform an action'},
+        'scale': {
+            'ui_name': 'Scaling',
+            'help_text': 'Scale the scan in mm or % to increase or decrease its size.'},
+        'verify_scaling': {
+            'ui_name': 'Verify Scaling',
+            'help_text': 'Verify the scaling is what you expected.'},
+        'border_choice': {
+            'ui_name': 'Borders',
+            'help_text': 'Would you like to set border on the model?'},
         'cutout_prep': {
             'ui_name': 'Prepare Cutout',
             'help_text': 'Indicate the cutout line by adding many points. '
@@ -62,12 +71,10 @@ fs_ui_consts = {
             'technical_name': 'new_cutout',
             'help_text': 'Click the button Another Cutout if you would you like to perform another cutout. '
                          'Click Next to continue to the next step.'},
-        'scale': {
-            'ui_name': 'Scaling',
-            'help_text': 'Scale the scan in mm or % to increase or decrease its size.'},
-        'verify_scaling': {
-            'ui_name': 'Verify Scaling',
-            'help_text': 'Verify the scaling is what you expected.'},
+        'draw': {
+            'ui_name': 'Draw Model',
+            'help_text': 'Draw the shape of the model by holding down the left mouse button and moving the brush '
+                         'over the scan. Use CTRL-Click to remove drawn area.'},
         'thickness': {
             'ui_name': 'Base Thickness',
             'help_text': 'Choose the base 3D printing thickness in mm.'},
@@ -259,15 +266,101 @@ fs_operator_consts = {
     'push_pull_smooth_done': {
         'checkpoint': None,
         'next_step': {
-            'name': 'cutout_prep',
+            'name': 'scale',
             'default_state': {
                 'object_name': 'uFit',
-                'light': 'FLAT',
+                'light': 'STUDIO',
                 'color_type': 'VERTEX'
             },
             'reset_substep': True,
-            'prep_func': prep_cutout_prep,
+            'prep_func': prep_scaling,
             'exec_save': True
+        },
+    },
+    'scale': {
+        'checkpoint': {
+            'name': 'scale',
+            'sub_steps': False
+        },
+        # 'next_step': None,  # replaced by custom main_func
+        'next_step': {
+            'conditions': [
+                {
+                    'condition_func': conditions.scale_condition,
+                    'name': 'verify_scaling',
+                    'default_state': {
+                        'object_name': 'uFit',
+                        'light': 'STUDIO',
+                        'color_type': 'RANDOM'
+                    },
+                    'reset_substep': True,
+                    'prep_func': prep_verify_scaling,
+                    'exec_save': True
+                },
+                {
+                    'condition_func': conditions.no_scale_condition,
+                    'name': 'draw',
+                    'default_state': {
+                        'object_name': 'uFit',
+                        'light': 'STUDIO',
+                        'color_type': 'MATERIAL'
+                    },
+                    'reset_substep': True,
+                    'prep_func': prep_draw,
+                    'exec_save': True
+                }
+            ]
+        }
+    },
+    'verify_scaling': {
+        'checkpoint': {
+            'name': 'verify_scaling',
+            'sub_steps': False
+        },
+        'next_step': {
+            'name': 'border_choice',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'STUDIO',
+                'color_type': 'MATERIAL'
+            },
+            'reset_substep': True,
+            'prep_func': None,
+            'exec_save': True
+        },
+    },
+    'border_choice': {
+        'checkpoint': {
+            'name': 'border_choice',
+            'sub_steps': False
+        },
+        'next_step': {
+            'conditions': [
+                {
+                    'condition_func': conditions.border_condition,
+                    'name': 'cutout_prep',
+                    'default_state': {
+                        'object_name': 'uFit',
+                        'light': 'FLAT',
+                        'color_type': 'VERTEX'
+                    },
+                    'reset_substep': True,
+                    'prep_func': prep_cutout_prep,
+                    'exec_save': True
+                },
+{
+                    'condition_func': conditions.no_border_condition,
+                    'name': 'draw',
+                    'default_state': {
+                        'object_name': 'uFit',
+                        'light': 'STUDIO',
+                        'color_type': 'MATERIAL'
+                    },
+                    'reset_substep': True,
+                    'prep_func': prep_draw,
+                    'exec_save': True
+                }
+            ]
         },
     },
     'cutout_prep': {
@@ -343,68 +436,34 @@ fs_operator_consts = {
             'sub_steps': True
         },
         'next_step': {
-            'name': 'scale',
-            'default_state': {
-                'object_name': 'uFit',
-                'light': 'STUDIO',
-                'color_type': 'VERTEX'
-            },
-            'reset_substep': True,
-            'prep_func': prep_scaling,
-            'exec_save': True
-        },
-    },
-    'scale': {
-        'checkpoint': {
-            'name': 'scale',
-            'sub_steps': False
-        },
-        # 'next_step': None,  # replaced by custom main_func
-        'next_step': {
-            'conditions': [
-                {
-                    'condition_func': conditions.scale_condition,
-                    'name': 'verify_scaling',
-                    'default_state': {
-                        'object_name': 'uFit',
-                        'light': 'STUDIO',
-                        'color_type': 'RANDOM'
-                    },
-                    'reset_substep': True,
-                    'prep_func': prep_verify_scaling,
-                    'exec_save': True
-                },
-                {
-                    'condition_func': conditions.no_scale_condition,
-                    'name': 'thickness',
-                    'default_state': {
-                        'object_name': 'uFit',
-                        'light': 'STUDIO',
-                        'color_type': 'MATERIAL'
-                    },
-                    'reset_substep': True,
-                    'prep_func': prep_thickness,
-                    'exec_save': True
-                }
-            ]
-        }
-    },
-    'verify_scaling': {
-        'checkpoint': {
-            'name': 'verify_scaling',
-            'sub_steps': False
-        },
-        'next_step': {
-            'name': 'thickness',
+            'name': 'draw',
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'STUDIO',
                 'color_type': 'MATERIAL'
             },
             'reset_substep': True,
-            'prep_func': prep_thickness,
+            'prep_func': prep_draw,
             'exec_save': True
-        }
+        },
+    },
+    'apply_draw': {
+        'checkpoint': {
+            'name': 'draw',
+            'sub_steps': False
+        },
+        # 'next_step': None,
+        'next_step': {
+            'name': 'export',
+            'default_state': {
+                'object_name': 'uFit',
+                'light': 'STUDIO',
+                'color_type': 'RANDOM'
+            },
+            'reset_substep': True,
+            'prep_func': prep_export,
+            'exec_save': True
+        },
     },
     'thickness': {
         'checkpoint': {

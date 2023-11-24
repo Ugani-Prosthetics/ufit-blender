@@ -1,3 +1,12 @@
+# border / no border
+def border_condition(context):
+    return context.scene.ufit_border_choice == "border"
+
+
+def no_border_condition(context):
+    return context.scene.ufit_border_choice == "no_border"
+
+
 # cutout style free / straight
 def cutout_style_free_condition(context):
     return context.scene.ufit_cutout_style == "free"

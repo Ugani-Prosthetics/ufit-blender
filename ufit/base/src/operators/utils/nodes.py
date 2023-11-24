@@ -68,25 +68,24 @@ def set_push_pull_smooth_shader_nodes(ufit_obj, color_attr_name):
 #######################################
 # Geometry Nodes
 #######################################
-def set_voronoi_geometry_nodes_one(ufit_obj, color_attr_name):
-    # Check if "Voronoi Nodes One" node tree already exists
-    voronoi_node_tree_name = "Voronoi Nodes One"
-    if voronoi_node_tree_name not in bpy.data.node_groups:
+def set_voronoi_geometry_nodes_one(ufit_obj, tree_name, color_attr_name):
+    # Check if the node tree already exists
+    if tree_name not in bpy.data.node_groups:
         # Create a new geometry nodes modifer (automatically creates a node_group with name "Geometry Nodes"
         bpy.ops.node.new_geometry_nodes_modifier()
 
-        # Rename the new node tree to "Voronoi Nodes One"
-        bpy.data.node_groups[0].name = voronoi_node_tree_name
+        # Rename the new node tree
+        bpy.data.node_groups[0].name = tree_name
 
-        # Access the "Voronoi Nodes One" geometry nodes tree
-        node_tree = bpy.data.node_groups[voronoi_node_tree_name]
+        # Access the geometry nodes tree
+        node_tree = bpy.data.node_groups[tree_name]
 
         in_node = node_tree.nodes["Group Input"]
         out_node = node_tree.nodes["Group Output"]
 
         named_attribute = node_tree.nodes.new(type="GeometryNodeInputNamedAttribute")
         named_attribute.data_type = 'FLOAT_COLOR'
-        named_attribute.inputs[0].default_value = "area_selection"
+        named_attribute.inputs[0].default_value = color_attr_name
 
         equal_node = node_tree.nodes.new(type="FunctionNodeCompare")
         equal_node.data_type = 'RGBA'
@@ -121,11 +120,21 @@ def set_voronoi_geometry_nodes_one(ufit_obj, color_attr_name):
         blur_attribute_one.inputs[4].default_value = 20  # iterations
         blur_attribute_one.inputs[5].default_value = 1  # weight
 
+        named_attribute_two = node_tree.nodes.new(type="GeometryNodeInputNamedAttribute")
+        named_attribute_two.data_type = 'FLOAT_COLOR'
+        named_attribute_two.inputs[0].default_value = color_attr_name
+
+        equal_node_two = node_tree.nodes.new(type="FunctionNodeCompare")
+        equal_node_two.data_type = 'RGBA'
+        equal_node_two.operation = 'NOT_EQUAL'
+        equal_node_two.inputs[7].default_value = (1.0, 1.0, 0.0, 1.0)
+        equal_node_two.inputs[12].default_value = 0.1
+
         set_position_node_one = node_tree.nodes.new(type="GeometryNodeSetPosition")
 
         extrude_mesh_node = node_tree.nodes.new(type="GeometryNodeExtrudeMesh")
         extrude_mesh_node.name = 'ufit_extrude_node'
-        extrude_mesh_node.inputs[3].default_value = 0.004  # thickness
+        extrude_mesh_node.inputs[3].default_value = bpy.context.scene.ufit_voronoi_one_thickness/1000
         extrude_mesh_node.inputs[4].default_value = False  # individual
 
         flip_faces_node = node_tree.nodes.new(type="GeometryNodeFlipFaces")
@@ -133,13 +142,14 @@ def set_voronoi_geometry_nodes_one(ufit_obj, color_attr_name):
         join_geometry_node = node_tree.nodes.new(type="GeometryNodeJoinGeometry")
 
         merge_by_dist_node = node_tree.nodes.new(type="GeometryNodeMergeByDistance")
+        merge_by_dist_node.inputs[2].default_value = 0.0001  # 0.01cm
 
         position_node_two = node_tree.nodes.new(type="GeometryNodeInputPosition")
 
         blur_attribute_two = node_tree.nodes.new(type="GeometryNodeBlurAttribute")
         blur_attribute_two.name = 'ufit_smooth_node'
         blur_attribute_two.data_type = 'FLOAT_VECTOR'
-        blur_attribute_two.inputs[4].default_value = 5
+        blur_attribute_two.inputs[4].default_value = 1  # smoothing iterations
         blur_attribute_two.inputs[5].default_value = 0.5
 
         set_position_node_two = node_tree.nodes.new(type="GeometryNodeSetPosition")
@@ -153,8 +163,11 @@ def set_voronoi_geometry_nodes_one(ufit_obj, color_attr_name):
         node_tree.links.new(in_node.outputs['Geometry'], delete_geometry_node.inputs['Geometry'])
         node_tree.links.new(boolean_and_node.outputs['Boolean'], delete_geometry_node.inputs['Selection'])
 
+        node_tree.links.new(named_attribute_two.outputs[2], equal_node_two.inputs[6])
+
         node_tree.links.new(position_node_one.outputs['Position'], blur_attribute_one.inputs[2])
         node_tree.links.new(blur_attribute_one.outputs[2], set_position_node_one.inputs['Position'])
+        node_tree.links.new(equal_node_two.outputs['Result'], set_position_node_one.inputs['Selection'])
         node_tree.links.new(delete_geometry_node.outputs['Geometry'], set_position_node_one.inputs['Geometry'])
 
         node_tree.links.new(set_position_node_one.outputs['Geometry'], extrude_mesh_node.inputs['Mesh'])
@@ -165,6 +178,7 @@ def set_voronoi_geometry_nodes_one(ufit_obj, color_attr_name):
 
         node_tree.links.new(join_geometry_node.outputs['Geometry'], merge_by_dist_node.inputs['Geometry'])
         node_tree.links.new(position_node_two.outputs['Position'], blur_attribute_two.inputs[2])
+        node_tree.links.new(equal_node_two.outputs['Result'], set_position_node_two.inputs['Selection'])
         node_tree.links.new(blur_attribute_two.outputs[2], set_position_node_two.inputs['Position'])
         node_tree.links.new(merge_by_dist_node.outputs['Geometry'], set_position_node_two.inputs['Geometry'])
 
@@ -172,28 +186,27 @@ def set_voronoi_geometry_nodes_one(ufit_obj, color_attr_name):
 
     else:
         geometry_modifier = ufit_obj.modifiers.new(name="Geometry Nodes", type='NODES')
-        geometry_modifier.node_group = bpy.data.node_groups[voronoi_node_tree_name]
+        geometry_modifier.node_group = bpy.data.node_groups[tree_name]
 
 
-def set_voronoi_geometry_nodes_two(ufit_obj, color_attr_name):
-    # Check if "Voronoi Nodes Two" node tree already exists
-    voronoi_node_tree_name = "Voronoi Nodes Two"
-    if voronoi_node_tree_name not in bpy.data.node_groups:
+def set_voronoi_geometry_nodes_two(ufit_obj, tree_name, color_attr_name):
+    # Check if node tree already exists
+    if tree_name not in bpy.data.node_groups:
         # Create a new geometry nodes modifer (automatically creates a node_group with name "Geometry Nodes"
         bpy.ops.node.new_geometry_nodes_modifier()
 
         # Rename the new node tree to "Voronoi Nodes Two"
-        bpy.data.node_groups[0].name = voronoi_node_tree_name
+        bpy.data.node_groups[0].name = tree_name
 
         # Access the "Voronoi Nodes Two" geometry nodes tree
-        node_tree = bpy.data.node_groups[voronoi_node_tree_name]
+        node_tree = bpy.data.node_groups[tree_name]
 
         in_node = node_tree.nodes["Group Input"]
         out_node = node_tree.nodes["Group Output"]
 
         named_attribute = node_tree.nodes.new(type="GeometryNodeInputNamedAttribute")
         named_attribute.data_type = 'FLOAT_COLOR'
-        named_attribute.inputs[0].default_value = "area_selection"
+        named_attribute.inputs[0].default_value = color_attr_name
 
         equal_node = node_tree.nodes.new(type="FunctionNodeCompare")
         equal_node.data_type = 'RGBA'
@@ -219,7 +232,7 @@ def set_voronoi_geometry_nodes_two(ufit_obj, color_attr_name):
 
         extrude_mesh_node_two = node_tree.nodes.new(type="GeometryNodeExtrudeMesh")
         extrude_mesh_node_two.name = 'ufit_extrude_node'
-        extrude_mesh_node_two.inputs[3].default_value = 0.004  # thickness
+        extrude_mesh_node_two.inputs[3].default_value = bpy.context.scene.ufit_voronoi_two_thickness/1000  # thickness
         extrude_mesh_node_two.inputs[4].default_value = False  # individual
 
         flip_faces_node = node_tree.nodes.new(type="GeometryNodeFlipFaces")
@@ -227,6 +240,7 @@ def set_voronoi_geometry_nodes_two(ufit_obj, color_attr_name):
         join_geometry_node = node_tree.nodes.new(type="GeometryNodeJoinGeometry")
 
         merge_by_dist_node = node_tree.nodes.new(type="GeometryNodeMergeByDistance")
+        merge_by_dist_node.inputs[2].default_value = 0.0001
 
         subdivision_surface_node = node_tree.nodes.new(type="GeometryNodeSubdivisionSurface")
         subdivision_surface_node.inputs[1].default_value = 1
@@ -252,4 +266,4 @@ def set_voronoi_geometry_nodes_two(ufit_obj, color_attr_name):
 
     else:
         geometry_modifier = ufit_obj.modifiers.new(name="Geometry Nodes", type='NODES')
-        geometry_modifier.node_group = bpy.data.node_groups[voronoi_node_tree_name]
+        geometry_modifier.node_group = bpy.data.node_groups[tree_name]

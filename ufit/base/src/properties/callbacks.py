@@ -50,7 +50,8 @@ def show_prescale_update(self, context):
 
 
 def show_original_update(self, context):
-    ufit_original = bpy.data.objects['uFit_Original']
+    # ufit_original = bpy.data.objects['uFit_Original']
+    ufit_original = bpy.data.objects['uFit_Measurement']  # temporary workaround to avoid same color
     if self.ufit_show_original:
         ufit_original.hide_set(False)
     else:
@@ -171,30 +172,58 @@ def thickness_type_update(self, context):
 
     general.remove_all_modifiers(ufit_obj)
     if self.ufit_thickness_type == 'normal':
-
         # add a solididfy modifier on uFit
         solidify_mod = ufit_obj.modifiers.new(name="Solidify", type="SOLIDIFY")
         solidify_mod.offset = 1
         solidify_mod.use_even_offset = False  # DO NOT USE EVEN OFFSET
-        solidify_mod.thickness = context.scene.ufit_print_thickness / 1000  # one mm of thickness
+        solidify_mod.thickness = context.scene.ufit_solidify_thickness / 1000  # one mm of thickness
     elif self.ufit_thickness_type == 'draw':
-        nodes.set_voronoi_geometry_nodes_one(ufit_obj, color_attr_select)
+        color_attributes.activate_color_attribute(ufit_obj, 'draw_selection')
+        nodes.set_voronoi_geometry_nodes_one(ufit_obj, tree_name="Voronoi Nodes Empty", color_attr_name='draw_selection')
         general.activate_object(context, ufit_obj, mode='VERTEX_PAINT')
         context.scene.ufit_voronoi_size = 'empty'
     elif self.ufit_thickness_type == 'voronoi_one':
-        nodes.set_voronoi_geometry_nodes_one(ufit_obj, color_attr_select)
+        color_attributes.activate_color_attribute(ufit_obj, 'voronoi_one_selection')
+        nodes.set_voronoi_geometry_nodes_one(ufit_obj, tree_name="Voronoi Nodes One", color_attr_name='voronoi_one_selection')
         general.activate_object(context, ufit_obj, mode='VERTEX_PAINT')
         context.scene.ufit_voronoi_size = 'medium'
     elif self.ufit_thickness_type == 'voronoi_two':
+        color_attributes.activate_color_attribute(ufit_obj, 'voronoi_two_selection')
         decimate_mod = ufit_obj.modifiers.new(name="Decimate", type="DECIMATE")
-        decimate_mod.ratio = 0.1
+        decimate_mod.ratio = 0.01
 
-        nodes.set_voronoi_geometry_nodes_two(ufit_obj, color_attr_select)
+        nodes.set_voronoi_geometry_nodes_two(ufit_obj, tree_name="Voronoi Nodes Two", color_attr_name='voronoi_two_selection')
         general.activate_object(context, ufit_obj, mode='OBJECT')
 
 
-def voronoi_size_update(self, context):
+def solidify_thickness_update(self, context):
+    ufit_obj = bpy.data.objects['uFit']
+
+    solidify_mod = ufit_obj.modifiers["Solidify"]
+    solidify_mod.thickness = self.ufit_solidify_thickness / 1000
+
+
+def draw_thickness_update(self, context):
+    node_tree = bpy.data.node_groups['Voronoi Nodes Empty']
+    node_tree.nodes['ufit_extrude_node'].inputs[3].default_value = self.ufit_draw_thickness/1000
+
+
+def voronoi_one_thickness_update(self, context):
     node_tree = bpy.data.node_groups['Voronoi Nodes One']
+    node_tree.nodes['ufit_extrude_node'].inputs[3].default_value = self.ufit_voronoi_one_thickness / 1000
+
+
+def voronoi_two_thickness_update(self, context):
+    node_tree = bpy.data.node_groups['Voronoi Nodes Two']
+    node_tree.nodes['ufit_extrude_node'].inputs[3].default_value = self.ufit_voronoi_two_thickness / 1000
+
+
+def voronoi_size_update(self, context):
+    if context.scene.ufit_thickness_type == 'draw':
+        node_tree = bpy.data.node_groups['Voronoi Nodes Empty']
+    else:
+        node_tree = bpy.data.node_groups['Voronoi Nodes One']
+
     compare_node = node_tree.nodes['ufit_compare_node']
 
     if self.ufit_voronoi_size == 'very_small':

@@ -554,6 +554,9 @@ def find_closest_n_vertices_ix(obj, points, n=4):
 
 
 def select_vertices_within_distance_of_selected(obj, max_distance):
+    # make sure you are in edit mode
+    activate_object(bpy.context, obj, mode='EDIT')
+
     # create a kd-tree from a mesh
     bm = bmesh.from_edit_mesh(obj.data)
 

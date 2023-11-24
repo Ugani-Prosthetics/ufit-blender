@@ -228,6 +228,14 @@ def register():
                                                      ],
                                                      update=callbacks.sculpt_brush_update)
 
+    # border
+    bpy.types.Scene.ufit_border_choice = EnumProperty(name="Border Choice", default=1,
+                                                      items=[
+                                                          ("border", "Border", "", 1),
+                                                          ("no_border", "No Border", "", 2),
+                                                      ],
+                                                      update=callbacks.cutout_style_update)
+
     # cutout
     bpy.types.Scene.ufit_cutout_style = EnumProperty(name="Cutout Style", default=1,
                                                      items=[
@@ -277,14 +285,23 @@ def register():
 
     # thickness
     bpy.types.Scene.ufit_print_thickness = FloatProperty(name="Thickness", min=0.0, max=10.0, step=10, default=4.2)
+
     bpy.types.Scene.ufit_thickness_type = EnumProperty(name="Thickness", default=1,
                                                        items=[
                                                            ("normal", "Normal", "", 1),
                                                            ("draw", "Draw", "", 2),
                                                            ("voronoi_one", "Voronoi 1", "", 3),
-                                                           ("voronoi_two", "Voronoi 2", "", 4),
+                                                           ("voronoi_two", "Voronoi 2 (beta)", "", 4),
                                                        ],
                                                        update=callbacks.thickness_type_update)
+    bpy.types.Scene.ufit_solidify_thickness = FloatProperty(name="Thickness", min=0.0, max=10.0, step=10, default=2.1,
+                                                            update=callbacks.solidify_thickness_update)
+    bpy.types.Scene.ufit_draw_thickness = FloatProperty(name="Thickness", min=0.0, max=10.0, step=10, default=2.1,
+                                                        update=callbacks.draw_thickness_update)
+    bpy.types.Scene.ufit_voronoi_one_thickness = FloatProperty(name="Thickness", min=0.0, max=10.0, step=10, default=2.1,
+                                                               update=callbacks.voronoi_one_thickness_update)
+    bpy.types.Scene.ufit_voronoi_two_thickness = FloatProperty(name="Thickness", min=0.0, max=10.0, step=10, default=2.1,
+                                                               update=callbacks.voronoi_two_thickness_update)
     bpy.types.Scene.ufit_voronoi_size = EnumProperty(name="Size", default=3,
                                                      items=[
                                                          ("very_small", "Very Small", "", 1),

@@ -199,6 +199,9 @@ def select_vertices_by_color_exclude(context, obj, color_attr_name, color_exclud
 
 
 def color_selected_vertices(context, obj, color_attr_name, color: Vector((0.0, 0.0, 0.0, 0.0))):
+    # make sure you are in edit mode
+    general.activate_object(context, obj, mode='EDIT')
+
     # get the index of the selected vertices
     selected_verts_ix = general.get_selected_vertices_ix(context)
 

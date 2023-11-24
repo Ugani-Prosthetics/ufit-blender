@@ -11,29 +11,48 @@ class UIThickness(UFitPanel, bpy.types.Panel):
 
         if include_voronoi:
             row0 = layout.row()
-            row0.prop(scene, 'ufit_thickness_type', expand=True)
+            row0.prop(scene, 'ufit_thickness_type')
+
+            box0 = layout.box()
+            box0_row0 = box0.row()
 
             if context.scene.ufit_thickness_type == 'normal':
-                box0 = layout.box()
-                box0_row0 = box0.row()
-                box0_row0.prop(ufit_obj.modifiers['Solidify'], 'thickness')
+                box0_row0.prop(scene, 'ufit_solidify_thickness')
+
+            elif context.scene.ufit_thickness_type == 'draw':
+                node_tree = bpy.data.node_groups['Voronoi Nodes Empty']
+
+                box0_row0.prop(scene, 'ufit_draw_thickness')
+
+                # box1 = layout.box()
+                # box1_row0 = box1.row()
+                # box1_row0.prop(node_tree.nodes['ufit_smooth_node'].inputs[4], 'default_value', text='Smooth')
+
             elif context.scene.ufit_thickness_type == 'voronoi_one':
                 node_tree = bpy.data.node_groups['Voronoi Nodes One']
 
-                box0 = layout.box()
-                box0_row0 = box0.row()
-                box0_row1 = box0.row()
-                box0_row2 = box0.row()
-                box0_row3 = box0.row()
-                box0_row4 = box0.row()
-                box0_row0.prop(scene, 'ufit_voronoi_size', text='Size')
-                box0_row1.prop(node_tree.nodes['ufit_voronoi_node'].inputs[2], 'default_value', text='Quantity')
-                box0_row2.prop(node_tree.nodes['ufit_voronoi_node'].inputs[5], 'default_value', text='Randomness')
-                box0_row3.prop(node_tree.nodes['ufit_extrude_node'].inputs[3], 'default_value', text='Thickness')
-                box0_row4.prop(node_tree.nodes['ufit_smooth_node'].inputs[4], 'default_value', text='Smooth')
+                box0_row0.prop(scene, 'ufit_voronoi_one_thickness')
 
-                # box0_row1 = box0.row()
-                # box0_row1.prop(ufit_obj.modifiers['Wireframe'], 'thickness')
+                box1 = layout.box()
+                box1_row0 = box1.row()
+                box1_row1 = box1.row()
+                box1_row2 = box1.row()
+                # box1_row3 = box1.row()
+                box1_row0.prop(scene, 'ufit_voronoi_size', text='Size')
+                box1_row1.prop(node_tree.nodes['ufit_voronoi_node'].inputs[2], 'default_value', text='Quantity')
+                box1_row2.prop(node_tree.nodes['ufit_voronoi_node'].inputs[5], 'default_value', text='Randomness')
+                # box1_row2.prop(node_tree.nodes['ufit_smooth_node'].inputs[4], 'default_value', text='Smooth')
+
+                # box1_row1 = box0.row()
+                # box1_row1.prop(ufit_obj.modifiers['Wireframe'], 'thickness')
+            elif context.scene.ufit_thickness_type == 'voronoi_two':
+                node_tree = bpy.data.node_groups['Voronoi Nodes Two']
+
+                box0_row0.prop(scene, 'ufit_voronoi_two_thickness')
+
+                box1 = layout.box()
+                box1_row0 = box1.row()
+                box1_row0.prop(ufit_obj.modifiers['Decimate'], 'ratio', text='Ratio')
 
         else:
             box0 = layout.box()

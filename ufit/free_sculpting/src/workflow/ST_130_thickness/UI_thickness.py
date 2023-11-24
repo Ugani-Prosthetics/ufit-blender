@@ -9,7 +9,7 @@ class UIThicknessFS(UIThickness):
     def draw(self, context):
         self.draw_base(context,
                        ot_thickness="fs_operators.thickness",
-                       include_voronoi=True)
+                       include_voronoi=False)
 
     @classmethod
     def poll(cls, context):

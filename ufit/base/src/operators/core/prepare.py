@@ -87,16 +87,20 @@ def clean_up(context):
 ###############################
 def prep_verify_clean_up(context):
     ufit_obj = bpy.data.objects['uFit']
+    general.activate_object(context, ufit_obj, mode='EDIT')
 
-    # get fixable non-manifold areas (with less than x verts)
-    non_manifold_areas = general.create_non_manifold_vertex_groups(context, ufit_obj, max_verts=75)
+    # select holes/non-manifold
+    bpy.ops.mesh.select_non_manifold()
 
-    # highlight first non-manifold area or force switch to edit mode
-    if non_manifold_areas:
-        context.scene.ufit_non_manifold_highlighted = list(non_manifold_areas.keys())[0]
-        highlight_next_non_manifold(context)
-    else:
-        bpy.ops.object.mode_set(mode='EDIT')
+    # # get fixable non-manifold areas (with less than x verts)
+    # non_manifold_areas = general.create_non_manifold_vertex_groups(context, ufit_obj, max_verts=75)
+    #
+    # # highlight first non-manifold area or force switch to edit mode
+    # if non_manifold_areas:
+    #     context.scene.ufit_non_manifold_highlighted = list(non_manifold_areas.keys())[0]
+    #     highlight_next_non_manifold(context)
+    # else:
+    #     bpy.ops.object.mode_set(mode='EDIT')
 
 
 def highlight_next_non_manifold(context):

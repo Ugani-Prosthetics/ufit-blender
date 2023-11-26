@@ -491,7 +491,7 @@ def perform_cutout(context):
     context.scene.ufit_number_of_cutouts += 1
 
     # select all cutout edges
-    vgs = general.get_all_cutuout_edges(context)
+    vgs = general.get_all_cutout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # Invert selection and smooth all the rest to avoid weird normals on scaling
@@ -594,7 +594,7 @@ def scale(context):
         mm_scaling(context, ufit_measure, context.scene.ufit_liner_scaling / 1000)  # mm
 
     # smooth to avoid weird normals due to scaling (avoid smoothning of cutout edge)
-    vgs = general.get_all_cutuout_edges(context)
+    vgs = general.get_all_cutout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
     bpy.ops.mesh.select_all(action='INVERT')
     bpy.ops.mesh.vertices_smooth(factor=0.5, repeat=10)
@@ -634,7 +634,7 @@ def create_milling_model(context):
         flare_done(context)  # deactivate proportional editing
 
     # select cutout edge
-    vgs = general.get_all_cutuout_edges(context)
+    vgs = general.get_all_cutout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # use the standard duplicate operator (Shift + D)
@@ -663,7 +663,7 @@ def create_milling_model(context):
     general.create_new_vertex_group_for_selected(context, ufit_obj, 'milling_model_edge', mode='EDIT')
 
     # select again the vertices from cutout_edge group (contains the original + copied vertices)
-    vgs = general.get_all_cutuout_edges(context)
+    vgs = general.get_all_cutout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # connect vertices via bridge edge loops
@@ -697,7 +697,7 @@ def prep_thickness(context):
     bpy.data.brushes["Draw"].color = (1, 0, 0)  # Red
 
     # get border vertices (using vertex groups from previous cutout)
-    vgs = general.get_all_cutuout_edges(context)
+    vgs = general.get_all_cutout_edges(context)
     border_vertices = general.get_vertices_from_multiple_vertex_groups(ufit_obj, vgs)
 
     # add a safety margin to the border by including more vertices
@@ -752,7 +752,7 @@ def create_printing_thickness(context):
     bpy.ops.mesh.select_all(action='DESELECT')  # deselect all vertices
 
     # activate the vertex group
-    vgs = general.get_all_cutuout_edges(context)
+    vgs = general.get_all_cutout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # remove wrongly selected edges (very exceptional)
@@ -793,7 +793,7 @@ def minimal_prep_custom_thickness(context):
 
 
 def create_custom_thickness(context, extrusion):
-    vgs = general.get_all_cutuout_edges(context)
+    vgs = general.get_all_cutout_edges(context)
     push_pull_region(context, extrusion, exclude_vertex_groups=vgs)
 
 
@@ -815,7 +815,7 @@ def prep_flare(context):
     bpy.context.scene.tool_settings.use_proportional_edit = True
 
     # switch to edit mode and select vertices from cutout edge
-    vgs = general.get_all_cutuout_edges(context)
+    vgs = general.get_all_cutout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # move cursor to the middle of the selection
@@ -836,7 +836,7 @@ def flare(context):
     ufit_obj = bpy.data.objects['uFit']
 
     # make sure the vertices from the cutout edge are selected
-    vgs = general.get_all_cutuout_edges(context)
+    vgs = general.get_all_cutout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # calculate the flare percentage

@@ -762,6 +762,40 @@ def get_vertices_from_vertex_group(obj, vg_name):
 
     return vertices
 
+def get_vertices_from_multiple_vertex_groups(obj, vg_names):
+    # Get vertex groups indeces
+    index_vgs = [obj.vertex_groups[vg].index for vg in vg_names]
+
+    # Get the mesh data
+    mesh = obj.data
+
+    # Loop over all vertices and store them if they are in the vertex groups
+    vertices = []
+    for vert in mesh.vertices:
+        for group in vert.groups:
+            if group.group in index_vgs:
+                vertices.append(vert)
+    return vertices
+
+def expand_border_vertices(obj, vertices, safety_margin):
+    # Get the mesh data
+    mesh = obj.data
+
+    # Loop over all the vertices of the obj and calculate the distance to the border vertices
+    additional_vertices = []
+    for vertex in mesh.vertices:
+        for vertex_border in vertices:
+
+            # Skip calculation if vertex is part of the border
+            if vertex_border.index == vertex.index:
+                continue
+
+            distance = (vertex.co - vertex_border.co).length
+            if distance < safety_margin:
+                additional_vertices.append(vertex)
+                break  # stop once the vertex is found whithin the distance (no need to compare with the others)
+
+    return vertices + additional_vertices
 
 def move_vertices_from_vertex_group(obj, vg_name, vector):
     # Create a bmesh from the object

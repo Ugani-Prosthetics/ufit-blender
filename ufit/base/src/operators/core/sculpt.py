@@ -684,6 +684,8 @@ def create_milling_model(context):
 #########################################
 # Thickness
 #########################################
+MARGIN_DISTANCE = 0.015  # meter
+
 def prep_thickness(context):
     ufit_obj = bpy.data.objects['uFit']
 
@@ -693,6 +695,23 @@ def prep_thickness(context):
     # create color attribute
     color_attributes.add_new_color_attr(ufit_obj, name=color_attr_select, color=(1, 1, 1, 1))
     bpy.data.brushes["Draw"].color = (1, 0, 0)  # Red
+
+    # get border vertices (using vertex groups from previous cutout)
+    vgs = general.get_all_cutuout_edges(context)
+    border_vertices = general.get_vertices_from_multiple_vertex_groups(ufit_obj, vgs)
+
+    # add a safety margin to the border by including more vertices
+    extended_border_vertices = general.expand_border_vertices(
+        ufit_obj, border_vertices, MARGIN_DISTANCE
+    )
+
+    # color border vertices
+    color_attributes.set_vertices_color(
+        ufit_obj,
+        color_attr_select,
+        extended_border_vertices,
+        color=(1.0, 0.0, 0.0, 1.0), # Red
+    )
 
     # activate color attribute
     color_attributes.activate_color_attribute(ufit_obj, color_attr_select)

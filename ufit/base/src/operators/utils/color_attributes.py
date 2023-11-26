@@ -197,4 +197,10 @@ def select_vertices_by_color_exclude(context, obj, color_attr_name, color_exclud
     general.select_verts(obj, colored_verts)
 
 
+def set_vertices_color(obj, color_attr_name, vertices, color):
+    mesh = obj.data
+    color_layer = mesh.color_attributes.get(color_attr_name)
 
+    # set color for all vertices
+    for vertex in vertices:
+        color_layer.data[vertex.index].color = color

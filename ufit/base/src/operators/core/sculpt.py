@@ -25,6 +25,9 @@ def prep_push_pull_smooth(context):
     bpy.data.brushes["Draw"].color = (0, 1, 0)  # green
     bpy.data.brushes["Draw"].secondary_color = (1, 1, 1)  # white
 
+    # set the falloff to max
+    bpy.ops.brush.curve_preset(shape='MAX')
+
 
 # called after remeasuring
 def minimal_prep_push_pull_smooth(context):
@@ -309,6 +312,9 @@ def minimal_prep_new_cutout(context):
 
     bpy.context.scene.tool_settings.use_snap = True
 
+    # set cutout style back to default
+    context.scene.ufit_cutout_style = 'free'
+
     # switch to annotation tool
     user_interface.activate_new_grease_pencil(context, name='Selections', layer_name='Cutout')
 
@@ -580,26 +586,32 @@ def mm_scaling(context, obj, mm_dist):
 
 def scale(context):
     ufit_obj = bpy.data.objects['uFit']
-    ufit_measure = bpy.data.objects['uFit_Measure']
-    ufit_measure.hide_set(False)  # must be visible for scaling
 
     general.duplicate_obj(ufit_obj, 'uFit_Prescale', context.collection, data=True, actions=False)
 
     # scale according to the liner thickness
     if context.scene.ufit_scaling_unit == 'percentage':
         perc_scaling(ufit_obj, context.scene.ufit_liner_scaling / 100)  # percentage
-        perc_scaling(ufit_measure, context.scene.ufit_liner_scaling / 100)  # percentage
     else:
         mm_scaling(context, ufit_obj, context.scene.ufit_liner_scaling / 1000)  # mm
-        mm_scaling(context, ufit_measure, context.scene.ufit_liner_scaling / 1000)  # mm
+
+    if 'uFit_Measure' in bpy.data.objects:
+        ufit_measure = bpy.data.objects['uFit_Measure']
+        ufit_measure.hide_set(False)  # must be visible for scaling
+
+        # scale according to the liner thickness
+        if context.scene.ufit_scaling_unit == 'percentage':
+            perc_scaling(ufit_measure, context.scene.ufit_liner_scaling / 100)  # percentage
+        else:
+            mm_scaling(context, ufit_measure, context.scene.ufit_liner_scaling / 1000)  # mm
+
+        ufit_measure.hide_set(True)  # make invisible again
 
     # smooth to avoid weird normals due to scaling (avoid smoothning of cutout edge)
     vgs = general.get_all_cutuout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
     bpy.ops.mesh.select_all(action='INVERT')
     bpy.ops.mesh.vertices_smooth(factor=0.5, repeat=10)
-
-    ufit_measure.hide_set(True)  # make invisible again
 
 
 #########################################
@@ -612,12 +624,86 @@ def prep_verify_scaling(context):
 
 def verify_scaling(context):
     # apply all transformations to UFit and UFitMeasure objects
-    ufit_objs = [bpy.data.objects['uFit'], bpy.data.objects['uFit_Measure']]
-    for obj in ufit_objs:
-        general.apply_transform(obj, use_location=True, use_rotation=True, use_scale=True)
+    general.apply_transform(bpy.data.objects['uFit'], use_location=True, use_rotation=True, use_scale=True)
+
+    if 'uFit_Measure' in bpy.data.objects:
+        general.apply_transform(bpy.data.objects['uFit_Measure'], use_location=True, use_rotation=True, use_scale=True)
 
     # delete the pre-scaling object
     general.delete_obj_by_name_contains('uFit_Prescale')
+
+
+#################################
+# Draw
+#################################
+def prep_draw(context):
+    ufit_obj = bpy.data.objects['uFit']
+
+    # apply location
+    general.apply_transform(ufit_obj, use_location=True, use_rotation=True, use_scale=True)
+
+    # now duplicate ufit_obj
+    if 'uFit_Original' not in bpy.data.objects:
+        general.duplicate_obj(ufit_obj, 'uFit_Original', context.collection, data=True, actions=False)
+    if 'uFit_Measure' not in bpy.data.objects:
+        general.duplicate_obj(ufit_obj, 'uFit_Measure', context.collection, data=True, actions=False)
+
+    ufit_original = bpy.data.objects['uFit_Original']
+    ufit_measure = bpy.data.objects['uFit_Measure']
+
+    ufit_original.hide_set(False)
+    ufit_measure.hide_set(True)
+
+    # create new color attributes
+    ca_draw = 'draw_selection'
+    ca_voronoi_one = 'voronoi_one_selection'
+    ca_voronoi_two = 'voronoi_two_selection'
+    color_attributes.add_new_color_attr(ufit_obj, name='draw_selection', color=(1, 1, 1, 1))
+    color_attributes.add_new_color_attr(ufit_obj, name='voronoi_one_selection', color=(1, 1, 1, 1))
+    color_attributes.add_new_color_attr(ufit_obj, name='voronoi_two_selection', color=(1, 1, 1, 1))
+    bpy.data.brushes["Draw"].color = (1, 0, 0)  # Red
+
+    # activate color attribute
+    # color_attributes.activate_color_attribute(ufit_obj, color_attr_select)
+
+    # select all vertices within x distance of a border
+    cutout_edge_vgs = [vg.name for vg in ufit_obj.vertex_groups if vg.name.startswith('cutout_edge_')]
+    general.select_vertices_from_vertex_groups(context, ufit_obj, cutout_edge_vgs)
+
+    # color red within 1 cm of the border red
+    general.select_vertices_within_distance_of_selected(ufit_obj, max_distance=0.01)
+    color_attributes.color_selected_vertices(context, ufit_obj, ca_draw, color=Vector((1, 0, 0, 1)))
+    color_attributes.color_selected_vertices(context, ufit_obj, ca_voronoi_one, color=Vector((1, 0, 0, 1)))
+
+    # color yellow within 0.2 cm of the border black
+    # general.select_vertices_from_vertex_groups(context, ufit_obj, cutout_edge_vgs)
+    # # general.select_vertices_within_distance_of_selected(ufit_obj, max_distance=0.002)
+    # color_attributes.color_selected_vertices(context, ufit_obj, ca_draw, color=Vector((1, 1, 0, 1)))
+    # color_attributes.color_selected_vertices(context, ufit_obj, ca_voronoi_one, color=Vector((1, 1, 0, 1)))
+    # color_attributes.color_selected_vertices(context, ufit_obj, ca_voronoi_two, color=Vector((1, 1, 0, 1)))
+
+    # activate vertex paint
+    general.activate_object(context, ufit_obj, mode='VERTEX_PAINT')
+
+    # trigger callback
+    context.scene.ufit_draw_type = 'free'
+
+
+def apply_draw(context):
+    ufit_obj = bpy.data.objects['uFit']
+    ufit_original = bpy.data.objects['uFit_Original']
+
+    ufit_original.hide_set(True)
+
+    # node_tree = bpy.data.node_groups['Voronoi Nodes Empty']
+
+    general.apply_all_modifiers(context, ufit_obj)
+
+    general.activate_object(context, ufit_obj, mode='EDIT')
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.mesh.flip_normals()
+
+    # add remesh (0.03cm) + smooth (factor 0.5, repeat 5)
 
 
 #########################################
@@ -685,17 +771,7 @@ def create_milling_model(context):
 # Thickness
 #########################################
 def prep_thickness(context):
-    ufit_obj = bpy.data.objects['uFit']
-
-    # trigger the callback to set default values
-    context.scene.ufit_thickness_voronoi = 'normal'
-
-    # create color attribute
-    color_attributes.add_new_color_attr(ufit_obj, name=color_attr_select, color=(1, 1, 1, 1))
-    bpy.data.brushes["Draw"].color = (1, 0, 0)  # Red
-
-    # activate color attribute
-    color_attributes.activate_color_attribute(ufit_obj, color_attr_select)
+    pass
 
 
 def create_printing_thickness(context):

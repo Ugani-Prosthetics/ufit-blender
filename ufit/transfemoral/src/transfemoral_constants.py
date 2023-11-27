@@ -65,13 +65,13 @@ tf_ui_consts = {
             'help_text': 'Hold Left-Click and move mouse to select the area at the bottom of the leg that '
                          'should be pulled downwards. Once selected, set your pulling distance in the menu.'},
         'cutout_prep': {
-            'ui_name': 'Prepare Cutout',
-            'help_text': 'Indicate the cutout line by adding many points. '
+            'ui_name': 'Prepare Trime Line',
+            'help_text': 'Indicate the trim line by adding many points. '
                          'Deselect a point by clicking it again while holding CTRL.'},
         'cutout': {
-            'ui_name': 'Cutout Corrections',
+            'ui_name': 'Trim Line Corrections',
             'technical_name': 'cutout',
-            'help_text': 'Make corrections to the cutout curve by selecting a point using Left-Click, '
+            'help_text': 'Make corrections to the trim line curve by selecting a point using Left-Click, '
                          'press G, move mouse to the destination and Left-Click again.'},
         'scale': {
             'ui_name': 'Scaling',

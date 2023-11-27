@@ -42,6 +42,6 @@ class UINewCutout(UFitPanel, bpy.types.Panel):
 
         # row0
         row0 = layout.row()
-        row0.operator(ot_new_cutout, text="Another Cutout")
+        row0.operator(ot_new_cutout, text="Another Border")
 
         get_standard_navbox(self.layout, "ufit_operators.prev_step", ot_cutout_done)

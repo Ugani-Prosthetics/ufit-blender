@@ -1,4 +1,5 @@
 import bpy
+import bmesh
 import numpy as np
 from mathutils import Vector
 from . import general
@@ -195,6 +196,24 @@ def select_vertices_by_color_exclude(context, obj, color_attr_name, color_exclud
 
     # effectively select the vertices
     general.select_verts(obj, colored_verts)
+
+
+def color_selected_vertices(context, obj, color_attr_name, color: Vector((0.0, 0.0, 0.0, 0.0))):
+    # make sure you are in edit mode
+    general.activate_object(context, obj, mode='EDIT')
+
+    # get the index of the selected vertices
+    selected_verts_ix = general.get_selected_vertices_ix(context)
+
+    # activate object mode
+    general.activate_object(context, obj, mode='OBJECT')
+
+    # get the color layer (needs to be in Object mode)
+    color_layer = obj.data.color_attributes.get(color_attr_name)
+
+    # give color to the selected vertices
+    for vert_idx in selected_verts_ix:
+        color_layer.data[vert_idx].color = color
 
 
 

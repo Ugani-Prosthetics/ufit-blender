@@ -32,3 +32,5 @@ class UIImportScan(UFitPanel, bpy.types.Panel):
         nav_box.operator("ufit_operators.prev_step", text="Back")
 
 
+
+

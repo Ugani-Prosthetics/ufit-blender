@@ -412,6 +412,9 @@ def activate_object(context, active_obj, mode='OBJECT', hide_select_all=True):
         # bug in blender: tool header gets visible in full screen mode
         bpy.ops.wm.context_set_value(data_path="space_data.show_region_tool_header", value='False')
 
+        # set the falloff to max
+        bpy.ops.brush.curve_preset(shape='MAX')
+
 
 def order_verts_by_closest(verts):
     ordered_verts = []
@@ -548,6 +551,28 @@ def find_closest_n_vertices_ix(obj, points, n=4):
             closests_verts.add(index)
 
     return list(closests_verts)
+
+
+def select_vertices_within_distance_of_selected(obj, max_distance):
+    # make sure you are in edit mode
+    activate_object(bpy.context, obj, mode='EDIT')
+
+    # create a kd-tree from a mesh
+    bm = bmesh.from_edit_mesh(obj.data)
+
+    # get kd tree
+    kd = get_kd_tree(obj)
+
+    # ensure the bmesh has an up-to-date index table
+    bm.verts.ensure_lookup_table()
+
+    # select verts within a radius
+    for v in [v for v in bm.verts if v.select]:
+        co_find = v.co
+        for (co, index, dist) in kd.find_range(co_find, max_distance):
+            bm.verts[index].select = True
+
+    bmesh.update_edit_mesh(obj.data)
 
 
 def subdivide_until_vertex_count(obj, n):

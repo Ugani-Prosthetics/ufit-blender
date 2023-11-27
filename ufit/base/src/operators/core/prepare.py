@@ -78,8 +78,8 @@ def clean_up(context):
     bpy.ops.mesh.delete_loose()
 
     # Reselect all and fill holes
-    # bpy.ops.mesh.select_all(action='SELECT')
-    # bpy.ops.mesh.fill_holes(sides=100)
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.mesh.fill_holes(sides=50)
 
 
 ###############################

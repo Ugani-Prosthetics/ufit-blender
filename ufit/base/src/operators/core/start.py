@@ -86,39 +86,58 @@ def init_modeling_folders(context, filepath):
         context.scene.ufit_folder_checkpoints = f'{modeling_folder}/checkpoints'
 
         # copy zip file to modeling folder
-        shutil.copy2(filepath, f'{modeling_folder}/{file_name}')
-
-        # extract the zip file
-        zip_extract_folder = f'{modeling_folder}/{file_name.replace(".zip", "")}'
-        with zipfile.ZipFile(filepath, 'r') as zip_ref:
-            zip_ref.extractall(zip_extract_folder)
-
-        # store checkpoints folder and scan_filename
+        # shutil.copy2(filepath, f'{modeling_folder}/{file_name}')
         obj_filepath = None
-        for file in os.listdir(zip_extract_folder):
-            if file.endswith(".obj") or file.endswith(".stl"):
-                obj_filepath = f'{zip_extract_folder}/{file}'
-                context.scene.ufit_scan_filename = file.split(".")[0]
-                break
+
+        if file_name.endswith(".obj"):
+
+            png_file = next((os.path.join(file_folder, file) for file in os.listdir(file_folder) if file
+                            .endswith(".png")), None)
+            mtl_file = next((os.path.join(file_folder, file) for file in os.listdir(file_folder) if file
+                            .endswith(".mtl")), None)
+            if png_file and mtl_file:
+                shutil.copy2(filepath, f'{modeling_folder}')
+                shutil.copy2(png_file, f'{modeling_folder}')
+                shutil.copy2(mtl_file, f'{modeling_folder}')
+                obj_filepath = f'{modeling_folder}/{file_name}'  # not sure about the path
+                context.scene.ufit_scan_filename = file_name.split(".")[0]
+            else:
+                raise Exception(f" MTL /PNG files are missing")
+        elif file_name.endswith(".stl"):
+            shutil.copy2(filepath, f'{modeling_folder}')
+            obj_filepath = f'{modeling_folder}/{file_name}'
+            context.scene.ufit_scan_filename = file_name.split(".")[0]
+
+        else:
+            # extract the zip file
+            with zipfile.ZipFile(filepath, 'r') as zip_ref:
+                zip_ref.extractall(modeling_folder)
+
+            # store checkpoints folder and scan_filename
+            for file in os.listdir(modeling_folder):
+                if file.endswith(".obj") or file.endswith(".stl"):
+                    obj_filepath = f'{modeling_folder}/{file}'
+                    context.scene.ufit_scan_filename = file.split(".")[0]
+                    break
 
         if not obj_filepath:
             raise Exception('Could not find an .obj or .stl file in scan folder')
 
         clear_checkpoints(context)
-
         return obj_filepath
 
     else:
         raise Exception(f"Found checkpoints folder. You can't use 'Create New' in this location.")
 
 
-def import_zip(context, filepath):
+def import_3d_file(context, filepath):
     # delete everything from the scene
     delete_scene(context)
-
     # load the new object
-    bpy.ops.import_scene.obj(filepath=filepath)
-
+    if filepath.endswith(".obj"):
+        bpy.ops.import_scene.obj(filepath=filepath)
+    elif filepath.endswith(".stl"):
+        bpy.ops.import_mesh.stl(filepath=filepath)
     # rename the object
     obj_scan = bpy.context.selected_objects[0]
     obj_scan.name = 'uFit'

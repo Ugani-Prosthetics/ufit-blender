@@ -58,18 +58,18 @@ fs_ui_consts = {
             'ui_name': 'Borders',
             'help_text': 'Would you like to set border on the model?'},
         'cutout_prep': {
-            'ui_name': 'Prepare Cutout',
-            'help_text': 'Indicate the cutout line by adding many points. '
+            'ui_name': 'Prepare Border',
+            'help_text': 'Indicate the border by adding many points. '
                          'Deselect a point by clicking it again while holding CTRL.'},
         'cutout': {
-            'ui_name': 'Cutout',
+            'ui_name': 'Border Corrections',
             'technical_name': 'cutout',
-            'help_text': 'Make corrections to the cutout curve by selecting a point using Left-Click, '
+            'help_text': 'Make corrections to the border curve by selecting a point using Left-Click, '
                          'press G, move mouse to the destination and Left-Click again.'},
         'new_cutout': {
-            'ui_name': 'Another Cutout or Continue?',
+            'ui_name': 'Another Border or Continue?',
             'technical_name': 'new_cutout',
-            'help_text': 'Click the button Another Cutout if you would you like to perform another cutout. '
+            'help_text': 'Click the button Another Border if you would another border. '
                          'Click Next to continue to the next step.'},
         'draw': {
             'ui_name': 'Draw Model',
@@ -294,19 +294,19 @@ fs_operator_consts = {
                         'color_type': 'RANDOM'
                     },
                     'reset_substep': True,
-                    'prep_func': prep_verify_scaling,
+                    'prep_func': None,
                     'exec_save': True
                 },
                 {
                     'condition_func': conditions.no_scale_condition,
-                    'name': 'draw',
+                    'name': 'border_choice',
                     'default_state': {
                         'object_name': 'uFit',
                         'light': 'STUDIO',
                         'color_type': 'MATERIAL'
                     },
                     'reset_substep': True,
-                    'prep_func': prep_draw,
+                    'prep_func': None,
                     'exec_save': True
                 }
             ]
@@ -321,8 +321,8 @@ fs_operator_consts = {
             'name': 'border_choice',
             'default_state': {
                 'object_name': 'uFit',
-                'light': 'STUDIO',
-                'color_type': 'MATERIAL'
+                'light': 'FLAT',
+                'color_type': 'TEXTURE'
             },
             'reset_substep': True,
             'prep_func': None,
@@ -377,7 +377,7 @@ fs_operator_consts = {
                     'default_state': {
                         'object_name': 'uFit',
                         'light': 'FLAT',
-                        'color_type': 'TEXTURE'
+                        'color_type': 'VERTEX'
                     },
                     'reset_substep': False,
                     'prep_func': prep_cutout,
@@ -417,7 +417,10 @@ fs_operator_consts = {
         },
     },
     'new_cutout': {
-        'checkpoint': None,
+        'checkpoint': {
+            'name': 'new_cutout',
+            'sub_steps': True
+        },
         'next_step': {
             'name': 'cutout_prep',
             'default_state': {
@@ -432,7 +435,7 @@ fs_operator_consts = {
     },
     'cutout_done': {
         'checkpoint': {
-            'name': 'cutout',
+            'name': 'new_cutout',
             'sub_steps': True
         },
         'next_step': {

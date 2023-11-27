@@ -316,7 +316,7 @@ def minimal_prep_new_cutout(context):
     context.scene.ufit_cutout_style = 'free'
 
     # switch to annotation tool
-    # user_interface.activate_new_grease_pencil(context, name='Selections', layer_name='Cutout')
+    user_interface.activate_new_grease_pencil(context, name='Selections', layer_name='Cutout')
 
 
 def create_cutout_path(context):
@@ -642,32 +642,51 @@ def prep_draw(context):
     # apply location
     general.apply_transform(ufit_obj, use_location=True, use_rotation=True, use_scale=True)
 
-    # activate auto smooth
-    # bpy.context.object.data.use_auto_smooth = True
-
     # now duplicate ufit_obj
-    general.duplicate_obj(ufit_obj, 'uFit_Original', context.collection, data=True, actions=False)
-    ufit_measure = general.duplicate_obj(ufit_obj, 'uFit_Measure', context.collection, data=True, actions=False)
+    if 'uFit_Original' not in bpy.data.objects:
+        general.duplicate_obj(ufit_obj, 'uFit_Original', context.collection, data=True, actions=False)
+    if 'uFit_Measure' not in bpy.data.objects:
+        general.duplicate_obj(ufit_obj, 'uFit_Measure', context.collection, data=True, actions=False)
 
+    ufit_original = bpy.data.objects['uFit_Original']
+    ufit_measure = bpy.data.objects['uFit_Measure']
+
+    ufit_original.hide_set(False)
     ufit_measure.hide_set(True)
-
-    # remesh the uFit object so you have quads
-    # color_attributes.remesh_with_texture_to_color_attr(context, ufit_obj, 'scan_colors')
 
     # create new color attributes
     ca_draw = 'draw_selection'
+    ca_voronoi_one = 'voronoi_one_selection'
+    ca_voronoi_two = 'voronoi_two_selection'
     color_attributes.add_new_color_attr(ufit_obj, name='draw_selection', color=(1, 1, 1, 1))
+    color_attributes.add_new_color_attr(ufit_obj, name='voronoi_one_selection', color=(1, 1, 1, 1))
+    color_attributes.add_new_color_attr(ufit_obj, name='voronoi_two_selection', color=(1, 1, 1, 1))
     bpy.data.brushes["Draw"].color = (1, 0, 0)  # Red
 
-    color_attributes.activate_color_attribute(ufit_obj, ca_draw)
-    nodes.set_voronoi_geometry_nodes_one(ufit_obj, tree_name="Voronoi Nodes Empty", color_attr_name=ca_draw)
-    general.activate_object(context, ufit_obj, mode='VERTEX_PAINT')
-    context.scene.ufit_voronoi_size = 'empty'
+    # activate color attribute
+    # color_attributes.activate_color_attribute(ufit_obj, color_attr_select)
 
-    node_tree = bpy.data.node_groups['Voronoi Nodes Empty']
-    compare_node = node_tree.nodes['ufit_compare_node']
-    compare_node.inputs[1].default_value = 0  # make sure it is empty
-    # node_tree.nodes['ufit_extrude_node'].inputs[3].default_value = 0 # no thickness
+    # select all vertices within x distance of a border
+    cutout_edge_vgs = [vg.name for vg in ufit_obj.vertex_groups if vg.name.startswith('cutout_edge_')]
+    general.select_vertices_from_vertex_groups(context, ufit_obj, cutout_edge_vgs)
+
+    # color red within 1 cm of the border red
+    general.select_vertices_within_distance_of_selected(ufit_obj, max_distance=0.01)
+    color_attributes.color_selected_vertices(context, ufit_obj, ca_draw, color=Vector((1, 0, 0, 1)))
+    color_attributes.color_selected_vertices(context, ufit_obj, ca_voronoi_one, color=Vector((1, 0, 0, 1)))
+
+    # color yellow within 0.2 cm of the border black
+    # general.select_vertices_from_vertex_groups(context, ufit_obj, cutout_edge_vgs)
+    # # general.select_vertices_within_distance_of_selected(ufit_obj, max_distance=0.002)
+    # color_attributes.color_selected_vertices(context, ufit_obj, ca_draw, color=Vector((1, 1, 0, 1)))
+    # color_attributes.color_selected_vertices(context, ufit_obj, ca_voronoi_one, color=Vector((1, 1, 0, 1)))
+    # color_attributes.color_selected_vertices(context, ufit_obj, ca_voronoi_two, color=Vector((1, 1, 0, 1)))
+
+    # activate vertex paint
+    general.activate_object(context, ufit_obj, mode='VERTEX_PAINT')
+
+    # trigger callback
+    context.scene.ufit_draw_type = 'free'
 
 
 def apply_draw(context):
@@ -752,38 +771,7 @@ def create_milling_model(context):
 # Thickness
 #########################################
 def prep_thickness(context):
-    ufit_obj = bpy.data.objects['uFit']
-
-    # trigger the callback to set default values
-    context.scene.ufit_thickness_type = 'normal'
-
-    # create new color attributes
-    ca_draw = 'draw_selection'
-    ca_voronoi_one = 'voronoi_one_selection'
-    ca_voronoi_two = 'voronoi_two_selection'
-    color_attributes.add_new_color_attr(ufit_obj, name='draw_selection', color=(1, 1, 1, 1))
-    color_attributes.add_new_color_attr(ufit_obj, name='voronoi_one_selection', color=(1, 1, 1, 1))
-    color_attributes.add_new_color_attr(ufit_obj, name='voronoi_two_selection', color=(1, 1, 1, 1))
-    bpy.data.brushes["Draw"].color = (1, 0, 0)  # Red
-
-    # activate color attribute
-    # color_attributes.activate_color_attribute(ufit_obj, color_attr_select)
-
-    # select all vertices within x distance of a border
-    cutout_edge_vgs = [vg.name for vg in ufit_obj.vertex_groups if vg.name.startswith('cutout_edge_')]
-    general.select_vertices_from_vertex_groups(context, ufit_obj, cutout_edge_vgs)
-
-    # color red within 1 cm of the border red
-    general.select_vertices_within_distance_of_selected(ufit_obj, max_distance=0.01)
-    color_attributes.color_selected_vertices(context, ufit_obj, ca_draw, color=Vector((1, 0, 0, 1)))
-    color_attributes.color_selected_vertices(context, ufit_obj, ca_voronoi_one, color=Vector((1, 0, 0, 1)))
-
-    # color yellow within 0.2 cm of the border black
-    general.select_vertices_from_vertex_groups(context, ufit_obj, cutout_edge_vgs)
-    # general.select_vertices_within_distance_of_selected(ufit_obj, max_distance=0.002)
-    color_attributes.color_selected_vertices(context, ufit_obj, ca_draw, color=Vector((1, 1, 0, 1)))
-    color_attributes.color_selected_vertices(context, ufit_obj, ca_voronoi_one, color=Vector((1, 1, 0, 1)))
-    color_attributes.color_selected_vertices(context, ufit_obj, ca_voronoi_two, color=Vector((1, 1, 0, 1)))
+    pass
 
 
 def create_printing_thickness(context):

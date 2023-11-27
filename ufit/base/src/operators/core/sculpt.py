@@ -497,7 +497,7 @@ def perform_cutout(context):
     context.scene.ufit_number_of_cutouts += 1
 
     # select all cutout edges
-    vgs = general.get_all_cutuout_edges(context)
+    vgs = general.get_all_cutout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # Invert selection and smooth all the rest to avoid weird normals on scaling
@@ -608,7 +608,7 @@ def scale(context):
         ufit_measure.hide_set(True)  # make invisible again
 
     # smooth to avoid weird normals due to scaling (avoid smoothning of cutout edge)
-    vgs = general.get_all_cutuout_edges(context)
+    vgs = general.get_all_cutout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
     bpy.ops.mesh.select_all(action='INVERT')
     bpy.ops.mesh.vertices_smooth(factor=0.5, repeat=10)
@@ -636,6 +636,10 @@ def verify_scaling(context):
 #################################
 # Draw
 #################################
+MARGIN_DISTANCE_BORDER = 0.01  # meter
+MARGIN_DISTANCE_EDGE = 0.002
+
+
 def prep_draw(context):
     ufit_obj = bpy.data.objects['uFit']
 
@@ -655,32 +659,40 @@ def prep_draw(context):
     ufit_measure.hide_set(True)
 
     # create new color attributes
-    ca_draw = 'draw_selection'
-    ca_voronoi_one = 'voronoi_one_selection'
-    ca_voronoi_two = 'voronoi_two_selection'
-    color_attributes.add_new_color_attr(ufit_obj, name='draw_selection', color=(1, 1, 1, 1))
-    color_attributes.add_new_color_attr(ufit_obj, name='voronoi_one_selection', color=(1, 1, 1, 1))
-    color_attributes.add_new_color_attr(ufit_obj, name='voronoi_two_selection', color=(1, 1, 1, 1))
+    color_atts = ['draw_selection', 'voronoi_one_selection', 'voronoi_two_selection']
+    for ca in color_atts:
+        color_attributes.add_new_color_attr(ufit_obj, name=ca, color=(1, 1, 1, 1))
     bpy.data.brushes["Draw"].color = (1, 0, 0)  # Red
 
-    # activate color attribute
-    # color_attributes.activate_color_attribute(ufit_obj, color_attr_select)
+    # get border vertices (using vertex groups from previous cutout)
+    vgs = general.get_all_cutout_edges(context)
+    edge_vertices = general.get_vertices_from_multiple_vertex_groups(ufit_obj, vgs)
 
-    # select all vertices within x distance of a border
-    cutout_edge_vgs = [vg.name for vg in ufit_obj.vertex_groups if vg.name.startswith('cutout_edge_')]
-    general.select_vertices_from_vertex_groups(context, ufit_obj, cutout_edge_vgs)
+    # add a safety margin to the border by including more vertices
+    border_vertices = general.expand_border_vertices(
+        ufit_obj, edge_vertices, MARGIN_DISTANCE_BORDER
+    )
+    extended_edge_vertices = general.expand_border_vertices(
+        ufit_obj, edge_vertices, MARGIN_DISTANCE_EDGE
+    )
 
-    # color red within 1 cm of the border red
-    general.select_vertices_within_distance_of_selected(ufit_obj, max_distance=0.01)
-    color_attributes.color_selected_vertices(context, ufit_obj, ca_draw, color=Vector((1, 0, 0, 1)))
-    color_attributes.color_selected_vertices(context, ufit_obj, ca_voronoi_one, color=Vector((1, 0, 0, 1)))
+    # color border vertices red
+    for ca in color_atts:
+        color_attributes.set_vertices_color(
+            ufit_obj,
+            ca,
+            border_vertices,
+            color=(1.0, 0.0, 0.0, 1.0),  # Red
+        )
 
-    # color yellow within 0.2 cm of the border black
-    # general.select_vertices_from_vertex_groups(context, ufit_obj, cutout_edge_vgs)
-    # # general.select_vertices_within_distance_of_selected(ufit_obj, max_distance=0.002)
-    # color_attributes.color_selected_vertices(context, ufit_obj, ca_draw, color=Vector((1, 1, 0, 1)))
-    # color_attributes.color_selected_vertices(context, ufit_obj, ca_voronoi_one, color=Vector((1, 1, 0, 1)))
-    # color_attributes.color_selected_vertices(context, ufit_obj, ca_voronoi_two, color=Vector((1, 1, 0, 1)))
+    # color edge vertices yellow (after coloring red!)
+    for ca in color_atts:
+        color_attributes.set_vertices_color(
+            ufit_obj,
+            ca,
+            extended_edge_vertices,
+            color=(1.0, 1.0, 0.0, 1.0),  # Red
+        )
 
     # activate vertex paint
     general.activate_object(context, ufit_obj, mode='VERTEX_PAINT')
@@ -720,7 +732,7 @@ def create_milling_model(context):
         flare_done(context)  # deactivate proportional editing
 
     # select cutout edge
-    vgs = general.get_all_cutuout_edges(context)
+    vgs = general.get_all_cutout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # use the standard duplicate operator (Shift + D)
@@ -749,7 +761,7 @@ def create_milling_model(context):
     general.create_new_vertex_group_for_selected(context, ufit_obj, 'milling_model_edge', mode='EDIT')
 
     # select again the vertices from cutout_edge group (contains the original + copied vertices)
-    vgs = general.get_all_cutuout_edges(context)
+    vgs = general.get_all_cutout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # connect vertices via bridge edge loops
@@ -809,7 +821,7 @@ def create_printing_thickness(context):
     bpy.ops.mesh.select_all(action='DESELECT')  # deselect all vertices
 
     # activate the vertex group
-    vgs = general.get_all_cutuout_edges(context)
+    vgs = general.get_all_cutout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # remove wrongly selected edges (very exceptional)
@@ -850,7 +862,7 @@ def minimal_prep_custom_thickness(context):
 
 
 def create_custom_thickness(context, extrusion):
-    vgs = general.get_all_cutuout_edges(context)
+    vgs = general.get_all_cutout_edges(context)
     push_pull_region(context, extrusion, exclude_vertex_groups=vgs)
 
 
@@ -872,7 +884,7 @@ def prep_flare(context):
     bpy.context.scene.tool_settings.use_proportional_edit = True
 
     # switch to edit mode and select vertices from cutout edge
-    vgs = general.get_all_cutuout_edges(context)
+    vgs = general.get_all_cutout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # move cursor to the middle of the selection
@@ -893,7 +905,7 @@ def flare(context):
     ufit_obj = bpy.data.objects['uFit']
 
     # make sure the vertices from the cutout edge are selected
-    vgs = general.get_all_cutuout_edges(context)
+    vgs = general.get_all_cutout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # calculate the flare percentage

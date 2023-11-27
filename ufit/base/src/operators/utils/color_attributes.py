@@ -1,5 +1,4 @@
 import bpy
-import bmesh
 import numpy as np
 from mathutils import Vector
 from . import general
@@ -216,4 +215,10 @@ def color_selected_vertices(context, obj, color_attr_name, color: Vector((0.0, 0
         color_layer.data[vert_idx].color = color
 
 
+def set_vertices_color(obj, color_attr_name, vertices, color):
+    mesh = obj.data
+    color_layer = mesh.color_attributes.get(color_attr_name)
 
+    # set color for all vertices
+    for vertex in vertices:
+        color_layer.data[vertex.index].color = color

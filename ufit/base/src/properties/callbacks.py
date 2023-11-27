@@ -262,7 +262,7 @@ def flare_tool_update(self, context):
     # (re)select vertices from cutout edge
     # when the user switches tool, it can be used as a reset to reselect the edge
     ufit_obj = bpy.data.objects['uFit']
-    vgs = general.get_all_cutuout_edges(context)
+    vgs = general.get_all_cutout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     user_interface.set_active_tool(self.ufit_flare_tool)

@@ -802,6 +802,7 @@ def get_vertices_from_multiple_vertex_groups(obj, vg_names):
                 vertices.append(vert)
     return vertices
 
+
 def expand_border_vertices(obj, vertices, safety_margin):
     # Get the mesh data
     mesh = obj.data
@@ -821,6 +822,7 @@ def expand_border_vertices(obj, vertices, safety_margin):
                 break  # stop once the vertex is found whithin the distance (no need to compare with the others)
 
     return vertices + additional_vertices
+
 
 def move_vertices_from_vertex_group(obj, vg_name, vector):
     # Create a bmesh from the object

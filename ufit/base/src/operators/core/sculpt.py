@@ -636,6 +636,10 @@ def verify_scaling(context):
 #################################
 # Draw
 #################################
+MARGIN_DISTANCE_BORDER = 0.01  # meter
+MARGIN_DISTANCE_EDGE = 0.002
+
+
 def prep_draw(context):
     ufit_obj = bpy.data.objects['uFit']
 
@@ -655,32 +659,40 @@ def prep_draw(context):
     ufit_measure.hide_set(True)
 
     # create new color attributes
-    ca_draw = 'draw_selection'
-    ca_voronoi_one = 'voronoi_one_selection'
-    ca_voronoi_two = 'voronoi_two_selection'
-    color_attributes.add_new_color_attr(ufit_obj, name='draw_selection', color=(1, 1, 1, 1))
-    color_attributes.add_new_color_attr(ufit_obj, name='voronoi_one_selection', color=(1, 1, 1, 1))
-    color_attributes.add_new_color_attr(ufit_obj, name='voronoi_two_selection', color=(1, 1, 1, 1))
+    color_atts = ['draw_selection', 'voronoi_one_selection', 'voronoi_two_selection']
+    for ca in color_atts:
+        color_attributes.add_new_color_attr(ufit_obj, name=ca, color=(1, 1, 1, 1))
     bpy.data.brushes["Draw"].color = (1, 0, 0)  # Red
 
-    # activate color attribute
-    # color_attributes.activate_color_attribute(ufit_obj, color_attr_select)
+    # get border vertices (using vertex groups from previous cutout)
+    vgs = general.get_all_cutout_edges(context)
+    edge_vertices = general.get_vertices_from_multiple_vertex_groups(ufit_obj, vgs)
 
-    # select all vertices within x distance of a border
-    cutout_edge_vgs = [vg.name for vg in ufit_obj.vertex_groups if vg.name.startswith('cutout_edge_')]
-    general.select_vertices_from_vertex_groups(context, ufit_obj, cutout_edge_vgs)
+    # add a safety margin to the border by including more vertices
+    border_vertices = general.expand_border_vertices(
+        ufit_obj, edge_vertices, MARGIN_DISTANCE_BORDER
+    )
+    extended_edge_vertices = general.expand_border_vertices(
+        ufit_obj, edge_vertices, MARGIN_DISTANCE_EDGE
+    )
 
-    # color red within 1 cm of the border red
-    general.select_vertices_within_distance_of_selected(ufit_obj, max_distance=0.01)
-    color_attributes.color_selected_vertices(context, ufit_obj, ca_draw, color=Vector((1, 0, 0, 1)))
-    color_attributes.color_selected_vertices(context, ufit_obj, ca_voronoi_one, color=Vector((1, 0, 0, 1)))
+    # color border vertices red
+    for ca in color_atts:
+        color_attributes.set_vertices_color(
+            ufit_obj,
+            ca,
+            border_vertices,
+            color=(1.0, 0.0, 0.0, 1.0),  # Red
+        )
 
-    # color yellow within 0.2 cm of the border black
-    # general.select_vertices_from_vertex_groups(context, ufit_obj, cutout_edge_vgs)
-    # # general.select_vertices_within_distance_of_selected(ufit_obj, max_distance=0.002)
-    # color_attributes.color_selected_vertices(context, ufit_obj, ca_draw, color=Vector((1, 1, 0, 1)))
-    # color_attributes.color_selected_vertices(context, ufit_obj, ca_voronoi_one, color=Vector((1, 1, 0, 1)))
-    # color_attributes.color_selected_vertices(context, ufit_obj, ca_voronoi_two, color=Vector((1, 1, 0, 1)))
+    # color edge vertices yellow (after coloring red!)
+    for ca in color_atts:
+        color_attributes.set_vertices_color(
+            ufit_obj,
+            ca,
+            extended_edge_vertices,
+            color=(1.0, 1.0, 0.0, 1.0),  # Red
+        )
 
     # activate vertex paint
     general.activate_object(context, ufit_obj, mode='VERTEX_PAINT')
@@ -770,37 +782,8 @@ def create_milling_model(context):
 #########################################
 # Thickness
 #########################################
-MARGIN_DISTANCE = 0.015  # meter
-
 def prep_thickness(context):
-    ufit_obj = bpy.data.objects['uFit']
-
-    # trigger the callback to set default values
-    context.scene.ufit_thickness_voronoi = 'normal'
-
-    # create color attribute
-    color_attributes.add_new_color_attr(ufit_obj, name=color_attr_select, color=(1, 1, 1, 1))
-    bpy.data.brushes["Draw"].color = (1, 0, 0)  # Red
-
-    # get border vertices (using vertex groups from previous cutout)
-    vgs = general.get_all_cutout_edges(context)
-    border_vertices = general.get_vertices_from_multiple_vertex_groups(ufit_obj, vgs)
-
-    # add a safety margin to the border by including more vertices
-    extended_border_vertices = general.expand_border_vertices(
-        ufit_obj, border_vertices, MARGIN_DISTANCE
-    )
-
-    # color border vertices
-    color_attributes.set_vertices_color(
-        ufit_obj,
-        color_attr_select,
-        extended_border_vertices,
-        color=(1.0, 0.0, 0.0, 1.0), # Red
-    )
-
-    # activate color attribute
-    color_attributes.activate_color_attribute(ufit_obj, color_attr_select)
+    pass
 
 
 def create_printing_thickness(context):

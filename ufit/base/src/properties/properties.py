@@ -69,7 +69,7 @@ ufit_scene_properties = [
     'ufit_sculpt_brush',
 
     # cutout
-    'ufit_number_of_cuts',
+    'ufit_number_of_cutouts',
     'ufit_mean_tilt',
 
     # scaling
@@ -387,7 +387,7 @@ def unregister():
     del bpy.types.Scene.ufit_sculpt_brush
 
     # cutout
-    del bpy.types.Scene.ufit_number_of_cuts
+    del bpy.types.Scene.ufit_number_of_cutouts
     del bpy.types.Scene.ufit_mean_tilt
 
     # Scaling

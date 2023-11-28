@@ -41,7 +41,7 @@ tf_ui_consts = {
         'start': {
             'ui_name': 'Start Transfemoral'},
         'import_scan': {
-            'ui_name': 'Import Scan'},
+            'ui_name': 'Generate Socket Model'},
         'indicate': {
             'ui_name': 'Scarpas Triangle',
             'help_text': 'Indicate carefully the scarpas triangle. The point will later be used for alignment.'},
@@ -151,7 +151,10 @@ tf_operator_consts = {
             'prep_func': prep_move_scan,
             'exec_save': True
         },
-
+    },
+    'generate_model': {
+        'checkpoint': None,
+        'next_step': None,
     },
     'move_scan': {
         'checkpoint': {

@@ -3,6 +3,8 @@ import shutil
 import zipfile
 from datetime import datetime
 import bpy
+from ..utils.mesh import generate_socket
+
 from .checkpoints import (
     recalc_ufit_paths,
     set_active_step,
@@ -137,3 +139,21 @@ def import_zip(context, filepath):
 
     # apply scaling
     bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+
+
+# Start from dimensions
+def start_from_dimensions(context, length_unit, circ_interval, circ_list):
+    """Generates a model from dimensions
+    :param length_unit: str, the units of measurement for all the dimensions
+    :param circ_interval, the distance between consecutive circumference measurements
+    :param circ_list, list of circumferences of the circles that make the model
+    """
+
+    #housekeeping
+    # delete everything from the scene
+    delete_scene(context)
+
+    context.scene.unit_settings.length_unit = length_unit
+
+    # build the socket
+    generate_socket(context, 'uFit', circ_interval, circ_list)

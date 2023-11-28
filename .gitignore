@@ -18,6 +18,7 @@
 # Maven
 target/
 dist/
+blender/
 
 # JetBrains IDE
 .idea/
@@ -51,3 +52,4 @@ install_plugins_blender.sh
 
 # ignore ufit.ini
 ufit/ufit.ini
+ufit/__init__.py

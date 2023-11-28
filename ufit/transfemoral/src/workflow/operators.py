@@ -1,6 +1,9 @@
 import bpy
 from .ST_0_start.OT_start_modeling import OTStartModelingTF, OTStartFromExistingTF
-from .ST_10_import_scan.OT_import_scan import OTImportScanTF
+from .ST_10_import_scan.OT_import_scan import (
+    OTImportScanTF, 
+    OTGenerateModelFromDimTF
+)
 from .ST_20_indicate.OT_indicate_patella import OTMoveScanTF
 from .ST_30_clean_up.OT_clean_up import OTCleanUpTF
 from .ST_40_verify_clean_up.OT_verify_clean_up import (
@@ -44,6 +47,7 @@ def register():
     bpy.utils.register_class(OTStartModelingTF)
     bpy.utils.register_class(OTStartFromExistingTF)
     bpy.utils.register_class(OTImportScanTF)
+    bpy.utils.register_class(OTGenerateModelFromDimTF),
     bpy.utils.register_class(OTMoveScanTF)
     bpy.utils.register_class(OTCleanUpTF)
     bpy.utils.register_class(OTHighlightNonManifoldTF)
@@ -84,6 +88,7 @@ def unregister():
     bpy.utils.unregister_class(OTStartModelingTF)
     bpy.utils.unregister_class(OTStartFromExistingTF)
     bpy.utils.unregister_class(OTImportScanTF)
+    bpy.utils.unregister_class(OTGenerateModelFromDimTF)
     bpy.utils.unregister_class(OTMoveScanTF)
     bpy.utils.unregister_class(OTCleanUpTF)
     bpy.utils.unregister_class(OTHighlightNonManifoldTF)

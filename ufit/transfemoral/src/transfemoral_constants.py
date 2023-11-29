@@ -224,7 +224,11 @@ tf_operator_consts = {
                 'light': 'FLAT',
                 'color_type': 'TEXTURE',
                 'overlay_axes': (1, 1, 1),
-                'overlay_text': True
+                'overlay_text': True,
+                'quad_view': True,
+                'ortho_view': True,
+                'pivot_point': 'CURSOR',
+                'orientation_type': 'GLOBAL',
             },
             'reset_substep': True,
             'prep_func': prep_rotate,
@@ -326,7 +330,8 @@ tf_operator_consts = {
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'FLAT',
-                'color_type': 'TEXTURE'
+                'color_type': 'TEXTURE',
+                'ortho_view': True,
             },
             'reset_substep': True,
             'prep_func': prep_pull_bottom,
@@ -353,7 +358,11 @@ tf_operator_consts = {
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'FLAT',
-                'color_type': 'VERTEX'
+                'color_type': 'VERTEX',
+                'orientation_type': 'LOCAL',
+                'pivot_point': 'INDIVIDUAL_ORIGINS',
+                'use_snap': True,
+                'snap_elements': {'FACE_NEAREST'},
             },
             'reset_substep': True,
             'prep_func': prep_cutout_prep,
@@ -526,7 +535,11 @@ tf_operator_consts = {
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'STUDIO',
-                'color_type': 'MATERIAL'
+                'color_type': 'MATERIAL',
+                'show_overlays': False,
+                'quad_view': True,
+                'proportional_edit': True,
+                'proportional_size': 0.01,
             },
             'reset_substep': True,
             'prep_func': prep_flare,
@@ -592,7 +605,9 @@ tf_operator_consts = {
                 'light': 'STUDIO',
                 'color_type': 'VERTEX',
                 'overlay_axes': (1, 1, 1),
-                'overlay_text': True
+                'overlay_text': True,
+                'quad_view': True,
+                'ortho_view': True
             },
             'reset_substep': True,
             'prep_func': prep_alignment,

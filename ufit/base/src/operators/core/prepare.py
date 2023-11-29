@@ -164,14 +164,8 @@ def verify_clean_up(context):
 # Rotate
 ###############################
 def prep_rotate(context):
-    # activate quad and orthographic view
-    context.scene.ufit_quad_view = True
-    context.scene.ufit_orthographic_view = True
-
-    # cursor to world center and snap cursor as rotaion point, make rotation around global axis
+    # cursor to world center and snap cursor as rotaion point
     bpy.ops.view3d.snap_cursor_to_center()
-    context.scene.tool_settings.transform_pivot_point = 'CURSOR'
-    context.scene.transform_orientation_slots[0].type = 'GLOBAL'
 
     # activate rotation tool
     user_interface.set_active_tool('builtin.rotate')
@@ -245,7 +239,6 @@ def add_circumference(context, i, z=0.0):
 
     # set the move tool
     bpy.ops.wm.tool_set_by_id(name="builtin.move")
-    context.scene.tool_settings.transform_pivot_point = 'INDIVIDUAL_ORIGINS'
 
 
 # you cannot immediately apply after adding circumference because the user first moves it to the correct position

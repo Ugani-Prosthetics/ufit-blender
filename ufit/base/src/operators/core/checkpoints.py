@@ -1,7 +1,7 @@
 import os
 import re
 import bpy
-from ..utils.general import set_ufit_logo
+from ..utils import general, user_interface
 
 
 #################################
@@ -33,7 +33,7 @@ def set_active_step(context, step, path_consts, ui_consts, exec_save=True):
         bpy.ops.wm.save_as_mainfile(filepath=file_path, copy=True)
         bpy.ops.wm.open_mainfile(filepath=file_path)
 
-        set_ufit_logo()  # reset logo because textures are removed when opening new files
+        general.set_ufit_logo()  # reset logo because textures are removed when opening new files
         set_assistance(step, path_consts, ui_consts)
 
         update_progress(context, step, ui_consts['workflow'])
@@ -42,7 +42,7 @@ def set_active_step(context, step, path_consts, ui_consts, exec_save=True):
         # WORKAROUND: context is removed when opening a new main file
         bpy.app.timers.register(fill_history_with_null_operations, first_interval=0.1)
     else:
-        set_ufit_logo()
+        general.set_ufit_logo()
 
 
 def set_assistance(step, path_consts, ui_consts):
@@ -99,6 +99,16 @@ def previous_step(context, path_consts, ui_consts):
                         step='start',
                         path_consts=None,
                         ui_consts=None,
+                        exec_save=False)
+    elif context.scene.ufit_active_step == 'indicate':
+        bpy.ops.wm.read_homefile()
+
+        user_interface.basic_init_ufit()
+
+        set_active_step(context,
+                        step='import_scan',
+                        path_consts=path_consts,
+                        ui_consts=ui_consts,
                         exec_save=False)
     else:
         cp_rollback = context.scene.ufit_checkpoint_collection[-1]

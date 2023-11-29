@@ -153,3 +153,7 @@ def restart_ufit(context, custom_scene_props):
     general.reset_ufit_properties(context, scene_props=scene_props_to_reset)
 
     bpy.ops.wm.read_homefile()
+
+    user_interface.basic_init_ufit()
+
+

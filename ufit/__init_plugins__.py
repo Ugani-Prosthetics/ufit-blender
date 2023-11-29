@@ -75,6 +75,9 @@ def init_ufit():
     if bpy.context.window is None:
         bpy.app.timers.register(init_ufit, first_interval=0.1)
 
+    user_interface.open_n_sidebar()
+    bpy.context.scene.ufit_full_screen = True
+
     set_ufit_logo()
     bpy.context.scene.unit_settings.length_unit = 'CENTIMETERS'
     user_interface.set_outliner_restriction('show_restrict_column_select', True)

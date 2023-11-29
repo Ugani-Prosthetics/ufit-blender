@@ -14,12 +14,13 @@ class UIExportDevice(UFitPanel, bpy.types.Panel):
             box0_row0 = box0.row()
             box0_row0.prop(scene, 'ufit_show_original', text="Show Scan")
 
-            box1 = layout.box()
-            box1_row0 = box1.row()
-            box1_row1 = box1.row()
-            box1_row1.enabled = context.scene.ufit_smooth_borders
-            box1_row0.prop(scene, 'ufit_smooth_borders', text="Smooth Borders")
-            box1_row1.prop(ufit_obj.modifiers['Corrective Smooth'], 'iterations', text='Smooth Factor')
+            if context.scene.ufit_device_type not in ('transtibial', 'transfemoral'):
+                box1 = layout.box()
+                box1_row0 = box1.row()
+                box1_row1 = box1.row()
+                box1_row1.enabled = context.scene.ufit_smooth_borders
+                box1_row0.prop(scene, 'ufit_smooth_borders', text="Smooth Borders")
+                box1_row1.prop(ufit_obj.modifiers['Corrective Smooth'], 'iterations', text='Smooth Factor')
 
             if context.scene.ufit_total_contact_socket:
                 box2 = layout.box()

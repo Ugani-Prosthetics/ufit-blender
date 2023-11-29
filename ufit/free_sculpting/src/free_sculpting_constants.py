@@ -196,7 +196,11 @@ fs_operator_consts = {
                 'light': 'FLAT',
                 'color_type': 'TEXTURE',
                 'overlay_axes': (1, 1, 1),
-                'overlay_text': True
+                'overlay_text': True,
+                'quad_view': True,
+                'ortho_view': True,
+                'pivot_point': 'CURSOR',
+                'orientation_type': 'GLOBAL',
             },
             'reset_substep': True,
             'prep_func': prep_rotate,

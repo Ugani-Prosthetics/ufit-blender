@@ -935,7 +935,10 @@ def return_to_default_object_mode(context, obj):
     user_interface.set_active_tool('builtin.select_box')
 
 
-def return_to_default_state(context, object_name, light, color_type, overlay_axes=(0, 0, 0), overlay_text=False):
+def return_to_default_state(context, object_name, light, color_type, overlay_axes=(0, 0, 0), show_overlays=True,
+                            overlay_text=False, proportional_edit=False, proportional_size=10, use_snap=False,
+                            snap_elements={'FACE_NEAREST'}, quad_view=False, ortho_view=False,
+                            orientation_type='GLOBAL', pivot_point='INDIVIDUAL_ORIGINS'):
     # activate object in object mode
     obj = bpy.data.objects[object_name]
 
@@ -952,25 +955,26 @@ def return_to_default_state(context, object_name, light, color_type, overlay_axe
     # focus on the object
     user_interface.focus_on_selected()
 
-    # prevent selection for all objects (except object_name)
-    # bpy.context.space_data.show_restrict_column_select = True
-    # for obj in bpy.data.objects:
-    #     if obj.name != object_name:
-    #         obj.hide_select = True
-
-    # deactivate quad and orthographic view
-    context.scene.ufit_quad_view = False
-    context.scene.ufit_orthographic_view = False
-
-    # overlay
-    bpy.context.space_data.overlay.show_overlays = True
+    # never show
     bpy.context.space_data.overlay.show_floor = False  # never show the floor
     context.space_data.overlay.show_cursor = False  # never show the 3D cursor
     context.space_data.overlay.show_object_origins = False  # never show the object origins
+
+    # optional skow
+    bpy.context.space_data.overlay.show_overlays = show_overlays
     bpy.context.space_data.overlay.show_axis_x = overlay_axes[0]
     bpy.context.space_data.overlay.show_axis_y = overlay_axes[1]
     bpy.context.space_data.overlay.show_axis_z = overlay_axes[2]
     bpy.context.space_data.overlay.show_text = overlay_text
+
+    bpy.context.scene.tool_settings.use_proportional_edit = proportional_edit
+    bpy.context.tool_settings.proportional_size = proportional_size
+    bpy.context.scene.tool_settings.use_snap = use_snap
+    bpy.context.scene.tool_settings.snap_elements = snap_elements
+    context.scene.ufit_quad_view = quad_view
+    context.scene.ufit_orthographic_view = ortho_view
+    context.scene.transform_orientation_slots[0].type = orientation_type
+    context.scene.tool_settings.transform_pivot_point = pivot_point
 
 
 def filter_close_vertex_array(arr, rtol, atol):

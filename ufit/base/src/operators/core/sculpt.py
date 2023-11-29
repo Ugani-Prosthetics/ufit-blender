@@ -165,9 +165,6 @@ def push_pull_smooth_done(context):
 def prep_pull_bottom(context):
     ufit_obj = bpy.data.objects['uFit']
 
-    # change to orthographic view
-    context.scene.ufit_orthographic_view = True
-
     # turn on xray
     user_interface.set_xray(turn_on=True, alpha=1)
 
@@ -288,12 +285,6 @@ def prep_cutout_prep(context):
     # hide objects
     ufit_original.hide_set(True)
     ufit_measure.hide_set(True)
-
-    # transformation orientation global + activate vertex snapping
-    context.scene.transform_orientation_slots[0].type = 'LOCAL'
-    context.scene.tool_settings.transform_pivot_point = 'INDIVIDUAL_ORIGINS'
-    bpy.context.scene.tool_settings.use_snap = True
-    bpy.context.scene.tool_settings.snap_elements = {'FACE_NEAREST'}
 
     # switch to annotation tool
     user_interface.activate_new_grease_pencil(context, name='Selections', layer_name='Cutout')
@@ -877,12 +868,6 @@ def custom_thickness_done(context):
 def prep_flare(context):
     ufit_obj = bpy.data.objects['uFit']
 
-    # activate quad view
-    context.scene.ufit_quad_view = True
-
-    # activate proportional editing
-    bpy.context.scene.tool_settings.use_proportional_edit = True
-
     # switch to edit mode and select vertices from cutout edge
     vgs = general.get_all_cutout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
@@ -892,12 +877,6 @@ def prep_flare(context):
 
     # set the default flare tool
     user_interface.set_active_tool(bpy.context.scene.bl_rna.properties['ufit_flare_tool'].default)
-
-    # set proportional size to default size of ufit_flare_percentage
-    bpy.context.tool_settings.proportional_size = 0.01
-
-    # turn off the overlay
-    bpy.context.space_data.overlay.show_overlays = False
 
 
 def flare(context):

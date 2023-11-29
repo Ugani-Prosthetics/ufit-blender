@@ -321,3 +321,18 @@ def enum_previews_from_directory_items(context, pcoll, directory):
     pcoll.my_previews_dir = directory
     return pcoll.my_previews
 
+
+def open_n_sidebar():
+    override = get_area_override(area_type='VIEW_3D')
+
+    # bpy.ops.wm.context_toggle(override, data_path="space_data.show_region_ui")
+    bpy.ops.wm.context_set_value(override, data_path="space_data.show_region_ui", value='True')
+
+
+# function should only be executed once the scene is available (after Blender is fully loaded)
+def basic_init_ufit():
+    # keep looping until the context is filled after opening a new file
+    if bpy.context.window is None or bpy.context.screen is None:
+        bpy.app.timers.register(basic_init_ufit, first_interval=0.1)
+
+    bpy.context.scene.ufit_full_screen = True  # triggers the callback

@@ -10,12 +10,7 @@ class UIImportScanTT(UIImportScan):
         self.draw_base(context,
                        ot_import_scan="tt_operators.import_scan")
 
-
-
     @classmethod
     def poll(cls, context):
         return (context.scene.ufit_active_step == 'import_scan'
                 and context.scene.ufit_device_type == 'transtibial')
-
-
-

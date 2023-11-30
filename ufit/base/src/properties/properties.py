@@ -186,7 +186,8 @@ def register():
                                                     ])
 
     # scan scale
-    bpy.types.Scene.ufit_scan_scale_size = FloatProperty(name="Scale Scan", min=0.001, max=1.000, step=1, precision=3, default=1.000)
+    bpy.types.Scene.ufit_scan_scale_size = FloatProperty(name="Scale Scan", min=0.001, max=1.000, step=1, precision=3,
+                                                         default=1.000)
 
     # clean up
     bpy.types.Scene.ufit_non_manifold_highlighted = StringProperty(name="Non Manifold Highlighted")

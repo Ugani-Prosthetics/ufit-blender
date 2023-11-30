@@ -11,5 +11,3 @@ class OTImportScanTT(OTBaseTT, OTImportScan):
     def execute(self, context):
         return self.execute_base(context,
                                  operator_name='import_scan')
-
-

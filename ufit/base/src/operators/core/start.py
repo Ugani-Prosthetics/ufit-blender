@@ -90,9 +90,8 @@ def init_modeling_folders(context, filepath):
         # shutil.copy2(filepath, f'{modeling_folder}/{file_name}')
         obj_filepath = None
 
-        if context.scene.ufit_file_type == 'obj':
-            if not filepath.endswith(".obj"):
-                raise Exception('Only obj file is allowed. Please select the obj file')
+        if filepath.endswith(".obj"):
+
             png_file = next((os.path.join(file_folder, file) for file in os.listdir(file_folder) if file
                             .endswith(".png")), None)
             mtl_file = next((os.path.join(file_folder, file) for file in os.listdir(file_folder) if file
@@ -105,17 +104,14 @@ def init_modeling_folders(context, filepath):
                 context.scene.ufit_scan_filename = file_name.split(".")[0]
             else:
                 raise Exception(f" MTL /PNG files are missing")
-        elif context.scene.ufit_file_type == 'stl':
-            if not filepath.endswith(".stl"):
-                raise Exception('Only stl file is allowed. Please select the stl file')
+        elif filepath.endswith(".stl"):
+
             shutil.copy2(filepath, f'{modeling_folder}')
             obj_filepath = f'{modeling_folder}/{file_name}'
             context.scene.ufit_scan_filename = file_name.split(".")[0]
 
-        elif context.scene.ufit_file_type == 'zip':
-            if not filepath.endswith(".zip"):
-                raise Exception('Only zip file is allowed. Please select the zip file')
-            # extract the zip file
+        elif filepath.endswith(".zip"):
+           # extract the zip file
             with zipfile.ZipFile(filepath, 'r') as zip_ref:
                 zip_ref.extractall(modeling_folder)
 

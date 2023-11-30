@@ -138,6 +138,10 @@ tt_operator_consts = {
         'checkpoint': None,
         'next_step': None,
     },
+    'scale_scan': {
+        'checkpoint':None,
+        'next_step': None,
+    },
     'import_scan': {
         'checkpoint': None,
         'next_step': {

@@ -5,7 +5,6 @@ from .....base.src.operators.core.start import init_modeling_folders, import_3d_
 
 
 class OTImportScan(OTBase, ImportHelper):
-    filename_ext = '.zip'
 
     filter_glob: bpy.props.StringProperty(
         default='*.zip;*.stl;*.obj',
@@ -18,7 +17,24 @@ class OTImportScan(OTBase, ImportHelper):
         return True
 
     def main_func(self, context):
+
+        if context.scene.ufit_file_type == 'zip':
+            self.filter_glob = '*.zip'
+        elif context.scene.ufit_file_type == 'stl':
+            self.filter_glob = '*.stl'
+        elif context.scene.ufit_file_type == 'obj':
+            self.filter_glob = '*.obj'
+        else:
+            # Default to '*.zip' if the file type is not recognized
+            self.filter_glob = '*.zip'
         # execute func
+
         obj_filepath = init_modeling_folders(context, self.filepath)
         import_3d_file(context, obj_filepath)
+
+
+
+
+
+
 

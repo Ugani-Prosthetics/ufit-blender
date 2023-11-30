@@ -2,6 +2,7 @@ import os
 import re
 import bpy
 from ..utils.general import set_ufit_logo
+from ..utils.user_interface import get_addon_version
 
 
 #################################
@@ -132,6 +133,13 @@ def clear_checkpoints(context):
     # clear or create checkpoint folder
     if not os.path.exists(context.scene.ufit_folder_checkpoints):
         os.makedirs(context.scene.ufit_folder_checkpoints)
+        file_name = "uFit_settings.txt"  # You can change the file name as needed
+        file_path = os.path.join(context.scene.ufit_folder_checkpoints, file_name)
+        blender_version = bpy.app.version
+        with open(file_path, 'w') as new_file:
+            new_file.write(f"Blender Version: {blender_version}\n"
+                           f"uFit Version: {get_addon_version('uFit')}")
+
     else:
         for fname in os.listdir(context.scene.ufit_folder_checkpoints):
             os.remove(f'{context.scene.ufit_folder_checkpoints}/{fname}')

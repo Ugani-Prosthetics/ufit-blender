@@ -16,6 +16,7 @@ def prep_push_pull_smooth(context):
 
     # add area selection color attribute and add shader nodes
     color_attributes.add_new_color_attr(ufit_obj, name=color_attr_select, color=(1, 1, 1, 1))
+    color_attributes.activate_color_attribute(ufit_obj, color_attr_select)
     nodes.set_push_pull_smooth_shader_nodes(ufit_obj, color_attr_name=color_attr_select)
 
     # activate vertex paint mode
@@ -24,9 +25,6 @@ def prep_push_pull_smooth(context):
     context.scene.tool_settings.unified_paint_settings.size = 30  # change the brush size to 30px
     bpy.data.brushes["Draw"].color = (0, 1, 0)  # green
     bpy.data.brushes["Draw"].secondary_color = (1, 1, 1)  # white
-
-    # set the falloff to max
-    bpy.ops.brush.curve_preset(shape='MAX')
 
 
 # called after remeasuring
@@ -216,30 +214,6 @@ def pull_bottom_done(context):
 #################################
 # Prepare Cutout
 #################################
-def lift_ufit_non_manifold_top(context):
-    ufit_obj = bpy.data.objects['uFit']
-    non_manifold_areas = general.create_non_manifold_vertex_groups(context, ufit_obj, max_verts=None)
-
-    # get the non-manifold area with the biggest amount of vertices (big gap at top of socket)
-    max_nma = None
-    max_verts = 0
-    for nma, verts in non_manifold_areas.items():
-        if len(verts) > max_verts:
-            max_verts = len(verts)
-            max_nma = nma
-
-    if max_nma:
-        # highlight vertices from non-manifold area (vertex group)
-        general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=[max_nma])
-
-        # deactivate snapping to move verts up
-        bpy.context.scene.tool_settings.use_snap = False
-
-        # move the verts x cm up
-        context.scene.transform_orientation_slots[0].type = 'GLOBAL'
-        bpy.ops.transform.translate(value=(0, 0, 0.05))
-
-
 def add_straight_cutout_plane(context):
     ufit_obj = bpy.data.objects['uFit']
 
@@ -276,11 +250,6 @@ def prep_cutout_prep(context):
     # now duplicate ufit_obj
     ufit_original = general.duplicate_obj(ufit_obj, 'uFit_Original', context.collection, data=True, actions=False)
     ufit_measure = general.duplicate_obj(ufit_obj, 'uFit_Measure', context.collection, data=True, actions=False)
-
-    # remesh the uFit object so you have quads
-    if context.scene.ufit_device_type in ('transfemoral'):
-        lift_ufit_non_manifold_top(context)
-    color_attributes.remesh_with_texture_to_color_attr(context, ufit_obj, 'scan_colors')
 
     # hide objects
     ufit_original.hide_set(True)
@@ -627,7 +596,7 @@ def verify_scaling(context):
 #################################
 # Draw
 #################################
-MARGIN_DISTANCE_BORDER = 0.01  # meter
+MARGIN_DISTANCE_BORDER = 0.015  # meter
 MARGIN_DISTANCE_EDGE = 0.002
 
 
@@ -677,13 +646,13 @@ def prep_draw(context):
         )
 
     # color edge vertices yellow (after coloring red!)
-    for ca in color_atts:
-        color_attributes.set_vertices_color(
-            ufit_obj,
-            ca,
-            extended_edge_vertices,
-            color=(1.0, 1.0, 0.0, 1.0),  # Red
-        )
+    # for ca in color_atts:
+    #     color_attributes.set_vertices_color(
+    #         ufit_obj,
+    #         ca,
+    #         extended_edge_vertices,
+    #         color=(1.0, 1.0, 0.0, 1.0),  # Yellow
+    #     )
 
     # activate vertex paint
     general.activate_object(context, ufit_obj, mode='VERTEX_PAINT')
@@ -717,6 +686,7 @@ def create_milling_model(context):
     ufit_obj = bpy.data.objects['uFit']
 
     if context.scene.ufit_milling_flare:
+        print('flaring now')
         # execute standard flaring
         prep_flare(context)
         flare(context)
@@ -725,6 +695,10 @@ def create_milling_model(context):
     # select cutout edge
     vgs = general.get_all_cutout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
+
+    # get the max z
+    max_z = general.get_selected_max_z(ufit_obj)
+    new_z = max_z + context.scene.ufit_milling_margin / 100  # add milling margin
 
     # use the standard duplicate operator (Shift + D)
     bpy.ops.mesh.duplicate_move()
@@ -751,20 +725,15 @@ def create_milling_model(context):
     # add the copied vertices to a new vertex group
     general.create_new_vertex_group_for_selected(context, ufit_obj, 'milling_model_edge', mode='EDIT')
 
+    # set new z coordinate for the milling_model_edge vertex group
+    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=['milling_model_edge'])
+    general.set_selected_to_z(ufit_obj, new_z)
+
     # select again the vertices from cutout_edge group (contains the original + copied vertices)
-    vgs = general.get_all_cutout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # connect vertices via bridge edge loops
     bpy.ops.mesh.bridge_edge_loops()
-
-    # get the max z
-    max_z = general.get_selected_max_z(ufit_obj)
-    new_z = max_z + context.scene.ufit_milling_margin/100  # add milling margin
-
-    # set new z coordinate for the milling_model_edge vertex group
-    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=['milling_model_edge'])
-    general.set_selected_to_z(ufit_obj, new_z)
 
     # fill the hole
     bpy.ops.mesh.edge_face_add()
@@ -889,6 +858,9 @@ def flare(context):
 
     # calculate the flare percentage
     flare_perc = 1 + context.scene.ufit_flare_percentage/100
+
+    print(flare_perc)
+    print(context.tool_settings.proportional_size)
 
     # flare
     bpy.ops.transform.resize(value=(flare_perc, flare_perc, 1),

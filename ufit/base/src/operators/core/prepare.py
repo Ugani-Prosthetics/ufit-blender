@@ -1,5 +1,5 @@
 import bpy
-from ..utils import annotations, general, user_interface
+from ..utils import annotations, general, user_interface, color_attributes
 
 
 #########################################
@@ -149,6 +149,30 @@ def delete_non_manifold(context):
     bpy.ops.object.vertex_group_remove()
 
 
+def lift_ufit_non_manifold_top(context):
+    ufit_obj = bpy.data.objects['uFit']
+    non_manifold_areas = general.create_non_manifold_vertex_groups(context, ufit_obj, max_verts=None)
+
+    # get the non-manifold area with the biggest amount of vertices (big gap at top of socket)
+    max_nma = None
+    max_verts = 0
+    for nma, verts in non_manifold_areas.items():
+        if len(verts) > max_verts:
+            max_verts = len(verts)
+            max_nma = nma
+
+    if max_nma:
+        # highlight vertices from non-manifold area (vertex group)
+        general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=[max_nma])
+
+        # deactivate snapping to move verts up
+        bpy.context.scene.tool_settings.use_snap = False
+
+        # move the verts x cm up
+        context.scene.transform_orientation_slots[0].type = 'GLOBAL'
+        bpy.ops.transform.translate(value=(0, 0, 0.05))
+
+
 def verify_clean_up(context):
     ufit_obj = bpy.data.objects['uFit']
 
@@ -157,7 +181,12 @@ def verify_clean_up(context):
     bpy.ops.mesh.vertices_smooth(factor=0.5, repeat=7)
 
     # make sure to have more than 30000 vertices
-    general.subdivide_until_vertex_count(ufit_obj, 30000)
+    # general.subdivide_until_vertex_count(ufit_obj, 30000)
+
+    # remesh the uFit object so you have quads
+    if context.scene.ufit_device_type in ('transfemoral'):
+        lift_ufit_non_manifold_top(context)
+    color_attributes.remesh_with_texture_to_color_attr(context, ufit_obj, 'scan_colors')
 
 
 ###############################
@@ -346,7 +375,7 @@ def highlight_circumferences():
     # Object mode, show colors and orbit up the viewpoint to avoid frontal view
     general.activate_object(bpy.context, active_obj, mode='OBJECT')
     user_interface.change_orthographic('FRONT')
-    user_interface.set_shading_solid_mode(light='FLAT', color_type='TEXTURE')
+    user_interface.set_shading_solid_mode(light='FLAT', color_type='VERTEX')
     user_interface.set_active_tool('builtin.select_box')
 
     # un-hide and select all Circum objects

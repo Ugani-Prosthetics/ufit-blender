@@ -408,12 +408,17 @@ def activate_object(context, active_obj, mode='OBJECT', hide_select_all=True):
     # active_obj.select_set(True)
 
     bpy.ops.object.mode_set(mode=mode)
-    if mode == 'VERTEX_PAINT' and context.scene.ufit_full_screen:
-        # bug in blender: tool header gets visible in full screen mode
-        bpy.ops.wm.context_set_value(data_path="space_data.show_region_tool_header", value='False')
+    if mode == 'VERTEX_PAINT':
+        # set the falloff
+        bpy.ops.brush.curve_preset(shape='SMOOTH')
+        # bpy.ops.brush.curve_preset(shape='LINE')
+        # bpy.ops.brush.curve_preset(shape='MAX')
 
-        # set the falloff to max
-        bpy.ops.brush.curve_preset(shape='MAX')
+        if context.scene.ufit_full_screen:
+            # bug in blender: tool header gets visible in full screen mode
+            bpy.ops.wm.context_set_value(data_path="space_data.show_region_tool_header", value='False')
+
+
 
 
 def order_verts_by_closest(verts):

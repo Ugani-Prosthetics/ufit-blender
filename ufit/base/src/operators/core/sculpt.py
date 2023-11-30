@@ -20,7 +20,8 @@ def prep_push_pull_smooth(context):
     nodes.set_push_pull_smooth_shader_nodes(ufit_obj, color_attr_name=color_attr_select)
 
     # activate vertex paint mode
-    user_interface.set_shading_material_preview_mode()
+    if context.scene.ufit_colored_scan:
+        user_interface.set_shading_material_preview_mode()
     general.activate_object(context, ufit_obj, mode='VERTEX_PAINT')
     context.scene.tool_settings.unified_paint_settings.size = 30  # change the brush size to 30px
     bpy.data.brushes["Draw"].color = (0, 1, 0)  # green
@@ -686,7 +687,6 @@ def create_milling_model(context):
     ufit_obj = bpy.data.objects['uFit']
 
     if context.scene.ufit_milling_flare:
-        print('flaring now')
         # execute standard flaring
         prep_flare(context)
         flare(context)
@@ -858,9 +858,6 @@ def flare(context):
 
     # calculate the flare percentage
     flare_perc = 1 + context.scene.ufit_flare_percentage/100
-
-    print(flare_perc)
-    print(context.tool_settings.proportional_size)
 
     # flare
     bpy.ops.transform.resize(value=(flare_perc, flare_perc, 1),

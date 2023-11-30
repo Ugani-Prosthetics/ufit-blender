@@ -954,6 +954,8 @@ def return_to_default_state(context, object_name, light, color_type, overlay_axe
     return_to_default_object_mode(context, obj)
 
     # shading mode and orthographic
+    if light == 'FLAT' and not context.scene.ufit_colored_scan:
+        light = 'STUDIO'
     user_interface.set_shading_solid_mode(light=light, color_type=color_type)
     user_interface.change_orthographic('FRONT')
 

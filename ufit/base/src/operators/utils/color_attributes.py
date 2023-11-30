@@ -114,13 +114,18 @@ def bake_texture_to_color_attr(context, obj, material, color_attr_name, min_amou
 
 
 def remesh_with_texture_to_color_attr(context, obj, color_attr_name='original_colors'):
-    material = obj.data.materials[obj.active_material_index]
+    obj_baked = None
+    if len(obj.data.materials):
+        material = obj.data.materials[obj.active_material_index]
 
-    # bake texture to color attributes
-    bake_texture_to_color_attr(context, obj, material, 'scan_colors', 100000, mode='OBJECT')
+        # bake texture to color attributes
+        bake_texture_to_color_attr(context, obj, material, 'scan_colors', 100000, mode='OBJECT')
 
-    # duplicate the object
-    obj_baked = general.duplicate_obj(obj, f'{obj.name}_Baked', context.collection, data=True, actions=False)
+        # duplicate the object
+        obj_baked = general.duplicate_obj(obj, f'{obj.name}_Baked', context.collection, data=True, actions=False)
+
+    # make sure to be in object mode
+    general.activate_object(context, obj, mode='OBJECT')
 
     # remesh the ufit object so you have quads
     remesh_mod = obj.modifiers.new(name="Remesh", type='REMESH')
@@ -140,11 +145,12 @@ def remesh_with_texture_to_color_attr(context, obj, color_attr_name='original_co
         domain='POINT',
     )
 
-    # take over the color
-    transfer_color_attr_source_target(obj_baked, obj, color_attr_name, color_attr_name)
+    if obj_baked:
+        # take over the color
+        transfer_color_attr_source_target(obj_baked, obj, color_attr_name, color_attr_name)
 
-    # delete ufit_bake
-    general.delete_obj_by_name_contains(f'{obj.name}_Baked')
+        # delete ufit_bake
+        general.delete_obj_by_name_contains(f'{obj.name}_Baked')
 
 
 def get_vertices_by_color_exclude(obj, color_attr_name, color_exclude: Vector((0.0, 0.0, 0.0, 0.0))):

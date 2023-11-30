@@ -42,11 +42,10 @@ ufit_scene_properties = [
     # error message
     'ufit_error_message',
 
-    # import file type
+    # import scan
     'ufit_file_type',
-
-    # scan scale
-    'ufit_scan_scale_size'
+    'ufit_scan_scale_size',
+    'ufit_colored_scan',
 
     # clean up
     'ufit_non_manifold_highlighted',
@@ -187,17 +186,16 @@ def register():
     # error message
     bpy.types.Scene.ufit_error_message = StringProperty(name="Error Message")
 
-    # import file type
+    # import scan
     bpy.types.Scene.ufit_file_type = EnumProperty(name="File Type", default=2,
                                                     items=[
                                                         ("zip", ".zip", "", 1),
                                                         ("obj", ".obj", "", 2),
                                                         ("stl", ".stl", "", 3),
                                                     ])
-
-    # scan scale
     bpy.types.Scene.ufit_scan_scale_size = FloatProperty(name="Scale Scan", min=0.001, max=1.000, step=1, precision=3,
                                                          default=1.000)
+    bpy.types.Scene.ufit_colored_scan = BoolProperty(name='Colored Scan', default=True)
 
     # clean up
     bpy.types.Scene.ufit_non_manifold_highlighted = StringProperty(name="Non Manifold Highlighted")
@@ -421,11 +419,10 @@ def unregister():
     # error message
     del bpy.types.Scene.ufit_error_message
 
-    # import file type
+    # import scan
     del bpy.types.Scene.ufit_file_type
-
-    # scan scale
     del bpy.types.Scene.ufit_scan_scale_size
+    del bpy.types.Scene.ufit_colored_scan
 
     # clean up
     del bpy.types.Scene.ufit_non_manifold_highlighted

@@ -375,7 +375,10 @@ def highlight_circumferences():
     # Object mode, show colors and orbit up the viewpoint to avoid frontal view
     general.activate_object(bpy.context, active_obj, mode='OBJECT')
     user_interface.change_orthographic('FRONT')
-    user_interface.set_shading_solid_mode(light='FLAT', color_type='VERTEX')
+    light = 'FLAT'
+    if not bpy.context.scene.ufit_colored_scan:
+        light = 'STUDIO'
+    user_interface.set_shading_solid_mode(light=light, color_type='VERTEX')
     user_interface.set_active_tool('builtin.select_box')
 
     # un-hide and select all Circum objects

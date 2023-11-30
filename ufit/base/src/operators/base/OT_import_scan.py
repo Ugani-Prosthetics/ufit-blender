@@ -29,18 +29,6 @@ class OTImportScan(OTBase, ImportHelper):
         return super().invoke(context, event)
 
     def main_func(self, context):
-
-        if context.scene.ufit_file_type == 'zip':
-            self.filter_glob = '*.zip'
-        elif context.scene.ufit_file_type == 'stl':
-            self.filter_glob = '*.stl'
-        elif context.scene.ufit_file_type == 'obj':
-            self.filter_glob = '*.obj'
-        else:
-            # Default to '*.zip' if the file type is not recognized
-            self.filter_glob = '*.zip'
-        # execute func
-
         obj_filepath = init_modeling_folders(context, self.filepath)
         import_3d_file(context, obj_filepath)
 

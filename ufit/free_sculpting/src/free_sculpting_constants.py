@@ -194,7 +194,7 @@ fs_operator_consts = {
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'FLAT',
-                'color_type': 'TEXTURE',
+                'color_type': 'VERTEX',
                 'overlay_axes': (1, 1, 1),
                 'overlay_text': True,
                 'quad_view': True,
@@ -221,7 +221,7 @@ fs_operator_consts = {
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'FLAT',
-                'color_type': 'TEXTURE'
+                'color_type': 'VERTEX'
             },
             'reset_substep': True,
             'prep_func': prep_push_pull_smooth,
@@ -326,7 +326,7 @@ fs_operator_consts = {
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'FLAT',
-                'color_type': 'TEXTURE'
+                'color_type': 'VERTEX'
             },
             'reset_substep': True,
             'prep_func': None,

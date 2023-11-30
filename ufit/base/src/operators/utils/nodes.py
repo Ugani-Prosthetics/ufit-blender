@@ -8,61 +8,72 @@ def set_push_pull_smooth_shader_nodes(ufit_obj, color_attr_name):
     if ufit_obj.data.materials:
         material = ufit_obj.data.materials[ufit_obj.active_material_index]
 
-        # check if there was a colored scan loaded
-        node_tex_image = None
-        node_output_mat = None
-        node_bsdf_princ = None
-        if len(material.node_tree.nodes) == 3:
-            for node in material.node_tree.nodes:
-                if node.type == 'TEX_IMAGE':
-                    node_tex_image = node
-                if node.type == 'OUTPUT_MATERIAL':
-                    node_output_mat = node
-                if node.type == 'BSDF_PRINCIPLED':
-                    node_bsdf_princ = node
+        # remove all nodes
+        material.node_tree.nodes.clear()
 
-            if node_tex_image and node_output_mat and node_bsdf_princ:
-                # Add new nodes
-                node_rgb = material.node_tree.nodes.new('ShaderNodeRGB')
-                node_color_attr = material.node_tree.nodes.new('ShaderNodeVertexColor')
-                node_color_invert = material.node_tree.nodes.new('ShaderNodeInvert')
-                node_separate_color = material.node_tree.nodes.new('ShaderNodeSeparateColor')
-                node_mix = material.node_tree.nodes.new('ShaderNodeMix')
+        # nodes - selection
+        node_color_attr_one = material.node_tree.nodes.new('ShaderNodeVertexColor')
+        node_color_attr_one.layer_name = 'area_selection'
 
-                # set variables of new nodes
-                node_color_attr.layer_name = color_attr_name
-                node_separate_color.mode = 'RGB'
-                node_mix.data_type = 'RGBA'
-                node_mix.blend_type = 'BURN'
-                node_mix.clamp_result = True
-                node_mix.clamp_factor = False
-                node_rgb.outputs['Color'].default_value = (0.0, 1.0, 0.0, 1.0)  # selection in green
+        node_color_invert = material.node_tree.nodes.new('ShaderNodeInvert')
 
-                # make node links
-                material.node_tree.links.new(
-                    node_color_attr.outputs['Color'],
-                    node_color_invert.inputs['Color']
-                )
-                material.node_tree.links.new(
-                    node_color_invert.outputs['Color'],
-                    node_separate_color.inputs['Color']
-                )
-                material.node_tree.links.new(
-                    node_separate_color.outputs['Red'],
-                    node_mix.inputs['Factor']
-                )
-                material.node_tree.links.new(
-                    node_tex_image.outputs['Color'],
-                    node_mix.inputs[6]  # multiple 'A' inputs, we need to select type RGBA which is at index 6
-                )
-                material.node_tree.links.new(
-                    node_rgb.outputs['Color'],
-                    node_mix.inputs[7]  # multiple 'B' inputs, we need to select type RGBA which is at index 7
-                )
-                material.node_tree.links.new(
-                    node_mix.outputs[2],  # multiple 'Result' output, we need to select type RGBA which is at index 2
-                    node_bsdf_princ.inputs['Base Color']
-                )
+        node_separate_color = material.node_tree.nodes.new('ShaderNodeSeparateColor')
+        node_separate_color.mode = 'RGB'
+
+        # node - scan colors
+        node_color_attr_two = material.node_tree.nodes.new('ShaderNodeVertexColor')
+        node_color_attr_two.layer_name = 'scan_colors'
+
+        # node - RGB
+        node_rgb = material.node_tree.nodes.new('ShaderNodeRGB')
+        node_rgb.outputs['Color'].default_value = (0.0, 1.0, 0.0, 1.0)  # selection in green
+
+        # node mix to output
+        node_mix = material.node_tree.nodes.new('ShaderNodeMix')
+        node_mix.data_type = 'RGBA'
+        node_mix.blend_type = 'BURN'
+        node_mix.clamp_result = True
+        node_mix.clamp_factor = False
+
+        node_emmision = material.node_tree.nodes.new('ShaderNodeEmission')
+
+        node_material_output = material.node_tree.nodes.new('ShaderNodeOutputMaterial')
+
+        # Node links - color attribute selection to mix
+        material.node_tree.links.new(
+            node_color_attr_one.outputs['Color'],
+            node_color_invert.inputs['Color']
+        )
+        material.node_tree.links.new(
+            node_color_invert.outputs['Color'],
+            node_separate_color.inputs['Color']
+        )
+        material.node_tree.links.new(
+            node_separate_color.outputs['Red'],
+            node_mix.inputs['Factor']
+        )
+
+        # Node link - scan colors to mix
+        material.node_tree.links.new(
+            node_color_attr_two.outputs['Color'],
+            node_mix.inputs[6]
+        )
+
+        # Node link - RGB to mix
+        material.node_tree.links.new(
+            node_rgb.outputs['Color'],
+            node_mix.inputs[7]  # multiple 'B' inputs, we need to select type RGBA which is at index 7
+        )
+
+        # Node links - Emission to Output
+        material.node_tree.links.new(
+            node_mix.outputs[2],  # multiple 'Result' output, we need to select type RGBA which is at index 2
+            node_emmision.inputs['Color']
+        )
+        material.node_tree.links.new(
+            node_emmision.outputs['Emission'],
+            node_material_output.inputs['Surface'],
+        )
 
 
 #######################################

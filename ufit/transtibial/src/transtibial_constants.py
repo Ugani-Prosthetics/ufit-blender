@@ -222,7 +222,7 @@ tt_operator_consts = {
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'FLAT',
-                'color_type': 'TEXTURE',
+                'color_type': 'VERTEX',
                 'overlay_axes': (1, 1, 1),
                 'overlay_text': True,
                 'quad_view': True,
@@ -245,7 +245,7 @@ tt_operator_consts = {
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'FLAT',
-                'color_type': 'TEXTURE',
+                'color_type': 'VERTEX',
             },
             'reset_substep': True,
             'prep_func': prep_circumferences,
@@ -270,7 +270,7 @@ tt_operator_consts = {
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'FLAT',
-                'color_type': 'TEXTURE'
+                'color_type': 'VERTEX'
             },
             'reset_substep': True,
             'prep_func': prep_push_pull_smooth,
@@ -330,7 +330,7 @@ tt_operator_consts = {
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'FLAT',
-                'color_type': 'TEXTURE',
+                'color_type': 'VERTEX',
                 'ortho_view': True,
             },
             'reset_substep': True,
@@ -469,7 +469,9 @@ tt_operator_consts = {
                     'default_state': {
                         'object_name': 'uFit',
                         'light': 'STUDIO',
-                        'color_type': 'MATERIAL'
+                        'color_type': 'MATERIAL',
+                        'proportional_edit': True,
+                        'proportional_size': 0.01,
                     },
                     'reset_substep': True,
                     'prep_func': None,

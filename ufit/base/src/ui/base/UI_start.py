@@ -23,10 +23,13 @@ class UIImportScan(UFitPanel, bpy.types.Panel):
         layout = self.layout
 
         row1 = layout.row()
-        row1.prop(scene, 'ufit_import_unit', expand=True)
+        row1.prop(scene, 'ufit_file_type', expand=True)
 
         row2 = layout.row()
-        row2.operator(ot_import_scan)
+        row2.prop(scene, 'ufit_scan_scale_size', expand=True)
+
+        row3 = layout.row()
+        row3.operator(ot_import_scan)
 
         nav_box = layout.box().row()
         nav_box.operator("ufit_operators.prev_step", text="Back")

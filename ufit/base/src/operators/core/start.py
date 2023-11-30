@@ -69,6 +69,7 @@ def start_from_existing(context, file_path_obj, path_consts, ui_consts, debug_st
 # Import Scan
 #################################
 def init_modeling_folders(context, filepath):
+
     file_name = os.path.basename(filepath)
     file_folder = os.path.dirname(filepath)
 
@@ -89,7 +90,7 @@ def init_modeling_folders(context, filepath):
         # shutil.copy2(filepath, f'{modeling_folder}/{file_name}')
         obj_filepath = None
 
-        if file_name.endswith(".obj"):
+        if filepath.endswith(".obj"):
 
             png_file = next((os.path.join(file_folder, file) for file in os.listdir(file_folder) if file
                             .endswith(".png")), None)
@@ -103,13 +104,14 @@ def init_modeling_folders(context, filepath):
                 context.scene.ufit_scan_filename = file_name.split(".")[0]
             else:
                 raise Exception(f" MTL /PNG files are missing")
-        elif file_name.endswith(".stl"):
+        elif filepath.endswith(".stl"):
+
             shutil.copy2(filepath, f'{modeling_folder}')
             obj_filepath = f'{modeling_folder}/{file_name}'
             context.scene.ufit_scan_filename = file_name.split(".")[0]
 
-        else:
-            # extract the zip file
+        elif filepath.endswith(".zip"):
+           # extract the zip file
             with zipfile.ZipFile(filepath, 'r') as zip_ref:
                 zip_ref.extractall(modeling_folder)
 
@@ -134,6 +136,7 @@ def import_3d_file(context, filepath):
     # delete everything from the scene
     delete_scene(context)
     # load the new object
+
     if filepath.endswith(".obj"):
         bpy.ops.import_scene.obj(filepath=filepath)
     elif filepath.endswith(".stl"):
@@ -147,9 +150,9 @@ def import_3d_file(context, filepath):
     obj_scan.location = (0, 0, 0)
     obj_scan.scale = (1, 1, 1)
 
-    # Perform scaling by user defined unit
-    unit = context.scene.ufit_import_unit
-    obj_scan.scale = get_scale(unit)
+    # Perform scaling by user
+    scale = context.scene.ufit_scan_scale_size
+    obj_scan.scale = (scale, scale, scale)
 
     # activate object
     context.view_layer.objects.active = obj_scan

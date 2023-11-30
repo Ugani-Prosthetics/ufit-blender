@@ -10,9 +10,32 @@ from ....src import base_globals
 # Export Socket
 #################################
 def prep_export(context):
+    ufit_obj = bpy.data.objects['uFit']
+
     if context.scene.ufit_socket_or_milling == 'socket':
         # show the uFit Original Object
         context.scene.ufit_show_original = False
+
+    # Add a corrective smooth modifier to round corners
+    if context.scene.ufit_device_type not in ('transtibial', 'transfemoral'):
+        # switch to edit mode
+        general.activate_object(context, ufit_obj, mode='EDIT')
+        bpy.ops.mesh.select_all(action='DESELECT')
+
+        # select sharp edges + select more
+        bpy.ops.mesh.edges_select_sharp()
+        bpy.ops.mesh.select_more()
+
+        # add to vertex group
+        vg_name = 'edges'
+        general.create_new_vertex_group_for_selected(context, ufit_obj, vg_name, mode='OBJECT')
+
+        corrective_smooth = ufit_obj.modifiers.new("Corrective Smooth", type='CORRECTIVE_SMOOTH')
+        corrective_smooth.factor = 1
+        corrective_smooth.iterations = 5  # Set the number of iterations (repeat parameter)
+        corrective_smooth.smooth_type = 'LENGTH_WEIGHTED'
+        corrective_smooth.use_only_smooth = True
+        corrective_smooth.vertex_group = vg_name
 
     # unshow the z-axis
     context.space_data.overlay.show_axis_z = False
@@ -131,3 +154,7 @@ def restart_ufit(context, custom_scene_props):
     general.reset_ufit_properties(context, scene_props=scene_props_to_reset)
 
     bpy.ops.wm.read_homefile()
+
+    user_interface.basic_init_ufit()
+
+

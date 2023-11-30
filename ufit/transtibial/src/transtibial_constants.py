@@ -8,13 +8,8 @@ from ...base.src.operators.core.alignment import (
     prep_import_connector, prep_alignment, prep_transition_connector)
 from ...base.src.operators.core.finish import prep_export
 
-
-def socket_condition(context):
-    return context.scene.ufit_socket_or_milling == "socket"
-
-
-def milling_condition(context):
-    return context.scene.ufit_socket_or_milling == "milling"
+# conditions
+from ...base.src.properties import conditions
 
 
 tt_path_consts = {
@@ -70,13 +65,13 @@ tt_ui_consts = {
             'help_text': 'Hold Left-Click and move mouse to select the area at the bottom of the leg that '
                          'should be pulled downwards. Once selected, set your pulling distance in the menu.'},
         'cutout_prep': {
-            'ui_name': 'Prepare Cutout',
-            'help_text': 'Indicate the cutout line by adding many points. '
+            'ui_name': 'Prepare Trim Line',
+            'help_text': 'Indicate the trim line by adding many points. '
                          'Deselect a point by clicking it again while holding CTRL.'},
         'cutout': {
-            'ui_name': 'Cutout Corrections',
+            'ui_name': 'Trim Line Corrections',
             'technical_name': 'cutout',
-            'help_text': 'Make corrections to the cutout curve by selecting a point using Left-Click, '
+            'help_text': 'Make corrections to the trim line curve by selecting a point using Left-Click, '
                          'press G, move mouse to the destination and Left-Click again.'},
         'scale': {
             'ui_name': 'Scaling',
@@ -227,9 +222,13 @@ tt_operator_consts = {
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'FLAT',
-                'color_type': 'TEXTURE',
+                'color_type': 'VERTEX',
                 'overlay_axes': (1, 1, 1),
-                'overlay_text': True
+                'overlay_text': True,
+                'quad_view': True,
+                'ortho_view': True,
+                'pivot_point': 'CURSOR',
+                'orientation_type': 'GLOBAL',
             },
             'reset_substep': True,
             'prep_func': prep_rotate,
@@ -246,7 +245,7 @@ tt_operator_consts = {
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'FLAT',
-                'color_type': 'TEXTURE',
+                'color_type': 'VERTEX',
             },
             'reset_substep': True,
             'prep_func': prep_circumferences,
@@ -271,7 +270,7 @@ tt_operator_consts = {
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'FLAT',
-                'color_type': 'TEXTURE'
+                'color_type': 'VERTEX'
             },
             'reset_substep': True,
             'prep_func': prep_push_pull_smooth,
@@ -331,7 +330,8 @@ tt_operator_consts = {
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'FLAT',
-                'color_type': 'TEXTURE'
+                'color_type': 'VERTEX',
+                'ortho_view': True,
             },
             'reset_substep': True,
             'prep_func': prep_pull_bottom,
@@ -358,7 +358,11 @@ tt_operator_consts = {
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'FLAT',
-                'color_type': 'VERTEX'
+                'color_type': 'VERTEX',
+                'orientation_type': 'LOCAL',
+                'pivot_point': 'INDIVIDUAL_ORIGINS',
+                'use_snap': True,
+                'snap_elements': {'FACE_NEAREST'},
             },
             'reset_substep': True,
             'prep_func': prep_cutout_prep,
@@ -371,15 +375,32 @@ tt_operator_consts = {
             'sub_steps': False
         },
         'next_step': {
-            'name': 'cutout',
-            'default_state': {
-                'object_name': 'uFit',
-                'light': 'FLAT',
-                'color_type': 'VERTEX'
-            },
-            'reset_substep': True,
-            'prep_func': prep_cutout,
-            'exec_save': True
+            'conditions': [
+                {
+                    'condition_func': conditions.cutout_style_free_condition,
+                    'name': 'cutout',
+                    'default_state': {
+                        'object_name': 'uFit',
+                        'light': 'FLAT',
+                        'color_type': 'VERTEX'
+                    },
+                    'reset_substep': True,
+                    'prep_func': prep_cutout,
+                    'exec_save': True
+                },
+                {
+                    'condition_func': conditions.cutout_style_straight_condition,
+                    'name': 'scale',
+                    'default_state': {
+                        'object_name': 'uFit',
+                        'light': 'STUDIO',
+                        'color_type': 'VERTEX'
+                    },
+                    'reset_substep': True,
+                    'prep_func': prep_scaling,
+                    'exec_save': True
+                }
+            ]
         },
     },
     'cutout': {
@@ -431,7 +452,7 @@ tt_operator_consts = {
         'next_step': {
             'conditions': [
                 {
-                    'condition_func': socket_condition,
+                    'condition_func': conditions.socket_condition,
                     'name': 'thickness',
                     'default_state': {
                         'object_name': 'uFit',
@@ -443,12 +464,14 @@ tt_operator_consts = {
                     'exec_save': True
                 },
                 {
-                    'condition_func': milling_condition,
+                    'condition_func': conditions.milling_condition,
                     'name': 'milling_model',
                     'default_state': {
                         'object_name': 'uFit',
                         'light': 'STUDIO',
-                        'color_type': 'MATERIAL'
+                        'color_type': 'MATERIAL',
+                        'proportional_edit': True,
+                        'proportional_size': 0.01,
                     },
                     'reset_substep': True,
                     'prep_func': None,
@@ -514,7 +537,11 @@ tt_operator_consts = {
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'STUDIO',
-                'color_type': 'MATERIAL'
+                'color_type': 'MATERIAL',
+                'show_overlays': False,
+                'quad_view': True,
+                'proportional_edit': True,
+                'proportional_size': 0.01,
             },
             'reset_substep': True,
             'prep_func': prep_flare,
@@ -580,7 +607,9 @@ tt_operator_consts = {
                 'light': 'STUDIO',
                 'color_type': 'VERTEX',
                 'overlay_axes': (1, 1, 1),
-                'overlay_text': True
+                'overlay_text': True,
+                'quad_view': True,
+                'ortho_view': True
             },
             'reset_substep': True,
             'prep_func': prep_alignment,

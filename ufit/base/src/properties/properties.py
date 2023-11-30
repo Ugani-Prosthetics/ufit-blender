@@ -72,6 +72,8 @@ ufit_scene_properties = [
     'ufit_sculpt_brush',
 
     # cutout
+    'ufit_cutout_style',
+    'ufit_plane_operation',
     'ufit_number_of_cuts',
     'ufit_mean_tilt',
 
@@ -80,6 +82,15 @@ ufit_scene_properties = [
     'ufit_liner_scaling',
     'ufit_show_prescale',
 
+    # draw
+    'ufit_draw_type',
+    'ufit_free_draw_thickness',
+    'ufit_solidify_thickness',
+    'ufit_voronoi_type',
+    'ufit_voronoi_one_thickness',
+    'ufit_voronoi_two_thickness',
+    'ufit_voronoi_size',
+
     # socket or milling
     'ufit_socket_or_milling',
     'ufit_milling_flare',
@@ -87,8 +98,6 @@ ufit_scene_properties = [
 
     # thickness
     'ufit_print_thickness',
-    'ufit_thickness_voronoi',
-    'ufit_voronoi_size',
 
     # flare
     'ufit_flare_tool',
@@ -108,6 +117,7 @@ ufit_scene_properties = [
     'ufit_total_contact_socket',
 
     # export
+    'ufit_smooth_borders',
     'ufit_show_inner_part',
 ]
 
@@ -234,7 +244,28 @@ def register():
                                                      ],
                                                      update=callbacks.sculpt_brush_update)
 
+    # border
+    bpy.types.Scene.ufit_border_choice = EnumProperty(name="Border Choice", default=1,
+                                                      items=[
+                                                          ("border", "Yes", "", 1),
+                                                          ("no_border", "No", "", 2),
+                                                      ])
+
     # cutout
+    bpy.types.Scene.ufit_cutout_style = EnumProperty(name="Cutout Style", default=1,
+                                                     items=[
+                                                         ("free", "Free", "", 1),
+                                                         ("straight", "Straight", "", 2),
+                                                     ],
+                                                     update=callbacks.cutout_style_update)
+    bpy.types.Scene.ufit_plane_operation = EnumProperty(name="Plane Operation", default=1,
+                                                        items=[
+                                                            ("move", "Move", "", 1),
+                                                            ("rotate", "Rotate", "", 2),
+                                                            ("scale", "Scale", "", 3),
+                                                        ],
+                                                        update=callbacks.plane_operation_update)
+
     bpy.types.Scene.ufit_number_of_cutouts = IntProperty(name="Number of Cutouts", default=0)
     bpy.types.Scene.ufit_mean_tilt = EnumProperty(name="Tilt", default=3,
                                                   items=[
@@ -257,24 +288,29 @@ def register():
     bpy.types.Scene.ufit_show_original = BoolProperty(name="Show Original", default=True,
                                                       update=callbacks.show_original_update)
 
-    # socket or milling
-    bpy.types.Scene.ufit_socket_or_milling = EnumProperty(name="Socket or Milling?", default=1,
-                                                        items=[
-                                                            ("socket", "Socket", "", 1),
-                                                            ("milling", "Milling", "", 2),
-                                                        ])
-    bpy.types.Scene.ufit_milling_flare = BoolProperty(name="Milling Flare", default=True)
-    bpy.types.Scene.ufit_milling_margin = FloatProperty(name="Milling Margin", min=1.0, max=10.0, step=10,
-                                                        default=3.0)
+    # draw
+    bpy.types.Scene.ufit_draw_type = EnumProperty(name="Draw Type", default=1,
+                                                  items=[
+                                                      ("free", "Free", "", 1),
+                                                      ("solid", "Solid", "", 2),
+                                                      ("voronoi", "Voronoi", "", 3),
+                                                  ],
+                                                  update=callbacks.draw_type_update)
+    bpy.types.Scene.ufit_free_draw_thickness = FloatProperty(name="Thickness", min=0.0, max=10.0, step=10, default=2.1,
+                                                             update=callbacks.draw_thickness_update)
+    bpy.types.Scene.ufit_voronoi_type = EnumProperty(name="Voronoi Type", default=1,
+                                                     items=[
+                                                         ("voronoi_one", "Voronoi 1", "", 1),
+                                                         ("voronoi_two", "Voronoi 2", "", 2),
+                                                     ],
+                                                     update=callbacks.voronoi_type_update)
+    bpy.types.Scene.ufit_solidify_thickness = FloatProperty(name="Thickness", min=0.0, max=10.0, step=10, default=2.1,
+                                                            update=callbacks.solidify_thickness_update)
 
-    # thickness
-    bpy.types.Scene.ufit_print_thickness = FloatProperty(name="Thickness", min=0.0, max=10.0, step=10, default=4.2)
-    bpy.types.Scene.ufit_thickness_voronoi = EnumProperty(name="Thickness", default=1,
-                                                          items=[
-                                                              ("normal", "Normal", "", 1),
-                                                              ("voronoi", "Voronoi", "", 2),
-                                                          ],
-                                                          update=callbacks.thickness_voronoi_update)
+    bpy.types.Scene.ufit_voronoi_one_thickness = FloatProperty(name="Thickness", min=0.0, max=10.0, step=10, default=2.1,
+                                                               update=callbacks.voronoi_one_thickness_update)
+    bpy.types.Scene.ufit_voronoi_two_thickness = FloatProperty(name="Thickness", min=0.0, max=10.0, step=10, default=2.1,
+                                                               update=callbacks.voronoi_two_thickness_update)
     bpy.types.Scene.ufit_voronoi_size = EnumProperty(name="Size", default=3,
                                                      items=[
                                                          ("very_small", "Very Small", "", 1),
@@ -285,6 +321,19 @@ def register():
                                                          ("empty", "Empty Space", "", 6),
                                                      ],
                                                      update=callbacks.voronoi_size_update)
+
+    # socket or milling
+    bpy.types.Scene.ufit_socket_or_milling = EnumProperty(name="Socket or Milling?", default=1,
+                                                          items=[
+                                                              ("socket", "Socket", "", 1),
+                                                              ("milling", "Milling", "", 2),
+                                                          ])
+    bpy.types.Scene.ufit_milling_flare = BoolProperty(name="Milling Flare", default=True)
+    bpy.types.Scene.ufit_milling_margin = FloatProperty(name="Milling Margin", min=1.0, max=10.0, step=10,
+                                                        default=3.0)
+
+    # thickness
+    bpy.types.Scene.ufit_print_thickness = FloatProperty(name="Thickness", min=0.0, max=10.0, step=10, default=4.2)
 
     # flare
     bpy.types.Scene.ufit_flare_tool = EnumProperty(name="Mode", default=2,
@@ -327,6 +376,8 @@ def register():
     bpy.types.Scene.ufit_total_contact_socket = BoolProperty(name="Total Contact Socket", default=False)
 
     # export
+    bpy.types.Scene.ufit_smooth_borders = BoolProperty(name="Smooth Borders", default=True,
+                                                       update=callbacks.smooth_borders_update)
     bpy.types.Scene.ufit_show_inner_part = BoolProperty(name="Show Inner Part", default=False,
                                                         update=callbacks.show_inner_part_update)
 
@@ -398,6 +449,8 @@ def unregister():
     del bpy.types.Scene.ufit_sculpt_brush
 
     # cutout
+    del bpy.types.Scene.ufit_cutout_style
+    del bpy.types.Scene.ufit_plane_operation
     del bpy.types.Scene.ufit_number_of_cuts
     del bpy.types.Scene.ufit_mean_tilt
 
@@ -407,6 +460,15 @@ def unregister():
     del bpy.types.Scene.ufit_show_prescale
     del bpy.types.Scene.ufit_show_original
 
+    # draw
+    del bpy.types.Scene.ufit_draw_type
+    del bpy.types.Scene.ufit_free_draw_thickness
+    del bpy.types.Scene.ufit_solidify_thickness
+    del bpy.types.Scene.ufit_voronoi_type
+    del bpy.types.Scene.ufit_voronoi_one_thickness
+    del bpy.types.Scene.ufit_voronoi_two_thickness
+    del bpy.types.Scene.ufit_voronoi_size
+
     # socket or milling
     del bpy.types.Scene.ufit_socket_or_milling
     del bpy.types.Scene.ufit_milling_flare
@@ -414,8 +476,6 @@ def unregister():
 
     # thickness
     del bpy.types.Scene.ufit_print_thickness
-    del bpy.types.Scene.ufit_thickness_voronoi
-    del bpy.types.Scene.ufit_voronoi_size
 
     # Flare
     del bpy.types.Scene.ufit_flare_tool
@@ -435,4 +495,5 @@ def unregister():
     del bpy.types.Scene.ufit_total_contact_socket
 
     # export
+    del bpy.types.Scene.ufit_smooth_borders
     del bpy.types.Scene.ufit_show_inner_part

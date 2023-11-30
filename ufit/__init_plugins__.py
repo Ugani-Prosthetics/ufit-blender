@@ -15,7 +15,7 @@ bl_info = {
     "author": "Ugani Prosthetics",
     "blender": (3, 5, 0),
     "category": "O&P",
-    "version": (1, 2, 0)
+    "version": (2, 0, 0)
 }
 
 modulesNames = [
@@ -74,6 +74,9 @@ def init_ufit():
     # keep looping until the context is filled after opening a new file
     if bpy.context.window is None:
         bpy.app.timers.register(init_ufit, first_interval=0.1)
+
+    user_interface.open_n_sidebar()
+    bpy.context.scene.ufit_full_screen = True
 
     set_ufit_logo()
     bpy.context.scene.unit_settings.length_unit = 'CENTIMETERS'

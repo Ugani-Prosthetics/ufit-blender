@@ -1,8 +1,7 @@
 import os
 import re
 import bpy
-from ..utils.general import set_ufit_logo
-from ..utils.user_interface import get_addon_version
+from ..utils import general, user_interface
 
 
 #################################
@@ -34,7 +33,7 @@ def set_active_step(context, step, path_consts, ui_consts, exec_save=True):
         bpy.ops.wm.save_as_mainfile(filepath=file_path, copy=True)
         bpy.ops.wm.open_mainfile(filepath=file_path)
 
-        set_ufit_logo()  # reset logo because textures are removed when opening new files
+        general.set_ufit_logo()  # reset logo because textures are removed when opening new files
         set_assistance(step, path_consts, ui_consts)
 
         update_progress(context, step, ui_consts['workflow'])
@@ -43,7 +42,7 @@ def set_active_step(context, step, path_consts, ui_consts, exec_save=True):
         # WORKAROUND: context is removed when opening a new main file
         bpy.app.timers.register(fill_history_with_null_operations, first_interval=0.1)
     else:
-        set_ufit_logo()
+        general.set_ufit_logo()
 
 
 def set_assistance(step, path_consts, ui_consts):
@@ -101,6 +100,16 @@ def previous_step(context, path_consts, ui_consts):
                         path_consts=None,
                         ui_consts=None,
                         exec_save=False)
+    elif context.scene.ufit_active_step == 'indicate':
+        bpy.ops.wm.read_homefile()
+
+        user_interface.basic_init_ufit()
+
+        set_active_step(context,
+                        step='import_scan',
+                        path_consts=path_consts,
+                        ui_consts=ui_consts,
+                        exec_save=False)
     else:
         cp_rollback = context.scene.ufit_checkpoint_collection[-1]
         context.scene.ufit_checkpoints = cp_rollback.name
@@ -138,7 +147,7 @@ def clear_checkpoints(context):
         blender_version = bpy.app.version
         with open(file_path, 'w') as new_file:
             new_file.write(f"Blender Version: {blender_version}\n"
-                           f"uFit Version: {get_addon_version('uFit')}")
+                           f"uFit Version: {user_interface.get_addon_version('uFit')}")
 
     else:
         for fname in os.listdir(context.scene.ufit_folder_checkpoints):

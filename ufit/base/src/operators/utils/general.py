@@ -408,9 +408,17 @@ def activate_object(context, active_obj, mode='OBJECT', hide_select_all=True):
     # active_obj.select_set(True)
 
     bpy.ops.object.mode_set(mode=mode)
-    if mode == 'VERTEX_PAINT' and context.scene.ufit_full_screen:
-        # bug in blender: tool header gets visible in full screen mode
-        bpy.ops.wm.context_set_value(data_path="space_data.show_region_tool_header", value='False')
+    if mode == 'VERTEX_PAINT':
+        # set the falloff
+        bpy.ops.brush.curve_preset(shape='SMOOTH')
+        # bpy.ops.brush.curve_preset(shape='LINE')
+        # bpy.ops.brush.curve_preset(shape='MAX')
+
+        if context.scene.ufit_full_screen:
+            # bug in blender: tool header gets visible in full screen mode
+            bpy.ops.wm.context_set_value(data_path="space_data.show_region_tool_header", value='False')
+
+
 
 
 def order_verts_by_closest(verts):
@@ -550,6 +558,28 @@ def find_closest_n_vertices_ix(obj, points, n=4):
     return list(closests_verts)
 
 
+def select_vertices_within_distance_of_selected(obj, max_distance):
+    # make sure you are in edit mode
+    activate_object(bpy.context, obj, mode='EDIT')
+
+    # create a kd-tree from a mesh
+    bm = bmesh.from_edit_mesh(obj.data)
+
+    # get kd tree
+    kd = get_kd_tree(obj)
+
+    # ensure the bmesh has an up-to-date index table
+    bm.verts.ensure_lookup_table()
+
+    # select verts within a radius
+    for v in [v for v in bm.verts if v.select]:
+        co_find = v.co
+        for (co, index, dist) in kd.find_range(co_find, max_distance):
+            bm.verts[index].select = True
+
+    bmesh.update_edit_mesh(obj.data)
+
+
 def subdivide_until_vertex_count(obj, n):
     # select all
     bpy.ops.mesh.select_all(action='SELECT')
@@ -677,10 +707,10 @@ def find_closest_vertices_kdtree(source_obj, target_obj):
     # Create a dictionary to store closest vertices
     closest_vertices = {}
 
-    # Create kdTree for source_obj
+    # Create kdTree for target_obj
     target_kd_tree = get_kd_tree(target_obj)
 
-    # Loop through vertices of target_obj
+    # Loop through vertices of source_obj
     for source_vertex in source_obj.data.vertices:
         _, closest_index, _ = target_kd_tree.find(source_vertex.co)
 
@@ -761,6 +791,42 @@ def get_vertices_from_vertex_group(obj, vg_name):
                 })
 
     return vertices
+
+def get_vertices_from_multiple_vertex_groups(obj, vg_names):
+    # Get vertex groups indeces
+    index_vgs = [obj.vertex_groups[vg].index for vg in vg_names]
+
+    # Get the mesh data
+    mesh = obj.data
+
+    # Loop over all vertices and store them if they are in the vertex groups
+    vertices = []
+    for vert in mesh.vertices:
+        for group in vert.groups:
+            if group.group in index_vgs:
+                vertices.append(vert)
+    return vertices
+
+
+def expand_border_vertices(obj, vertices, safety_margin):
+    # Get the mesh data
+    mesh = obj.data
+
+    # Loop over all the vertices of the obj and calculate the distance to the border vertices
+    additional_vertices = []
+    for vertex in mesh.vertices:
+        for vertex_border in vertices:
+
+            # Skip calculation if vertex is part of the border
+            if vertex_border.index == vertex.index:
+                continue
+
+            distance = (vertex.co - vertex_border.co).length
+            if distance < safety_margin:
+                additional_vertices.append(vertex)
+                break  # stop once the vertex is found whithin the distance (no need to compare with the others)
+
+    return vertices + additional_vertices
 
 
 def move_vertices_from_vertex_group(obj, vg_name, vector):
@@ -874,7 +940,10 @@ def return_to_default_object_mode(context, obj):
     user_interface.set_active_tool('builtin.select_box')
 
 
-def return_to_default_state(context, object_name, light, color_type, overlay_axes=(0, 0, 0), overlay_text=False):
+def return_to_default_state(context, object_name, light, color_type, overlay_axes=(0, 0, 0), show_overlays=True,
+                            overlay_text=False, proportional_edit=False, proportional_size=10, use_snap=False,
+                            snap_elements={'FACE_NEAREST'}, quad_view=False, ortho_view=False,
+                            orientation_type='GLOBAL', pivot_point='INDIVIDUAL_ORIGINS'):
     # activate object in object mode
     obj = bpy.data.objects[object_name]
 
@@ -891,25 +960,26 @@ def return_to_default_state(context, object_name, light, color_type, overlay_axe
     # focus on the object
     user_interface.focus_on_selected()
 
-    # prevent selection for all objects (except object_name)
-    # bpy.context.space_data.show_restrict_column_select = True
-    # for obj in bpy.data.objects:
-    #     if obj.name != object_name:
-    #         obj.hide_select = True
-
-    # deactivate quad and orthographic view
-    context.scene.ufit_quad_view = False
-    context.scene.ufit_orthographic_view = False
-
-    # overlay
-    bpy.context.space_data.overlay.show_overlays = True
+    # never show
     bpy.context.space_data.overlay.show_floor = False  # never show the floor
     context.space_data.overlay.show_cursor = False  # never show the 3D cursor
     context.space_data.overlay.show_object_origins = False  # never show the object origins
+
+    # optional skow
+    bpy.context.space_data.overlay.show_overlays = show_overlays
     bpy.context.space_data.overlay.show_axis_x = overlay_axes[0]
     bpy.context.space_data.overlay.show_axis_y = overlay_axes[1]
     bpy.context.space_data.overlay.show_axis_z = overlay_axes[2]
     bpy.context.space_data.overlay.show_text = overlay_text
+
+    bpy.context.scene.tool_settings.use_proportional_edit = proportional_edit
+    bpy.context.tool_settings.proportional_size = proportional_size
+    bpy.context.scene.tool_settings.use_snap = use_snap
+    bpy.context.scene.tool_settings.snap_elements = snap_elements
+    context.scene.ufit_quad_view = quad_view
+    context.scene.ufit_orthographic_view = ortho_view
+    context.scene.transform_orientation_slots[0].type = orientation_type
+    context.scene.tool_settings.transform_pivot_point = pivot_point
 
 
 def filter_close_vertex_array(arr, rtol, atol):
@@ -1191,7 +1261,7 @@ def add_voronoi_modifiers_to_obj(obj, decimate_ratio=0.005, wireframe_thickness=
     subdivision_modifier.render_levels = subdivision_levels_render
 
 
-def get_all_cutuout_edges(context):
+def get_all_cutout_edges(context):
     # select all cutout edges
     vgs = []
     for i in range(context.scene.ufit_number_of_cutouts):

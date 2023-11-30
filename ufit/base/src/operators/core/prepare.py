@@ -1,5 +1,5 @@
 import bpy
-from ..utils import annotations, general, user_interface
+from ..utils import annotations, general, user_interface, color_attributes
 
 
 #########################################
@@ -69,17 +69,17 @@ def clean_up(context):
     bpy.ops.mesh.select_all(action='SELECT')
 
     # remove edges with no length and faces with no area
-    bpy.ops.mesh.dissolve_degenerate()
+    bpy.ops.mesh.dissolve_degenerate(threshold=0.0001)  # make sure to use the same distance as remove_doubles
 
     # merge by distance to only keep relevant vertices
-    bpy.ops.mesh.remove_doubles(threshold=0.001)
+    bpy.ops.mesh.remove_doubles(threshold=0.0001)
 
     # some extra clean up
     bpy.ops.mesh.delete_loose()
 
     # Reselect all and fill holes
-    # bpy.ops.mesh.select_all(action='SELECT')
-    # bpy.ops.mesh.fill_holes(sides=100)
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.mesh.fill_holes(sides=50)
 
 
 ###############################
@@ -87,16 +87,20 @@ def clean_up(context):
 ###############################
 def prep_verify_clean_up(context):
     ufit_obj = bpy.data.objects['uFit']
+    general.activate_object(context, ufit_obj, mode='EDIT')
 
-    # get fixable non-manifold areas (with less than x verts)
-    non_manifold_areas = general.create_non_manifold_vertex_groups(context, ufit_obj, max_verts=75)
+    # select holes/non-manifold
+    bpy.ops.mesh.select_non_manifold()
 
-    # highlight first non-manifold area or force switch to edit mode
-    if non_manifold_areas:
-        context.scene.ufit_non_manifold_highlighted = list(non_manifold_areas.keys())[0]
-        highlight_next_non_manifold(context)
-    else:
-        bpy.ops.object.mode_set(mode='EDIT')
+    # # get fixable non-manifold areas (with less than x verts)
+    # non_manifold_areas = general.create_non_manifold_vertex_groups(context, ufit_obj, max_verts=75)
+    #
+    # # highlight first non-manifold area or force switch to edit mode
+    # if non_manifold_areas:
+    #     context.scene.ufit_non_manifold_highlighted = list(non_manifold_areas.keys())[0]
+    #     highlight_next_non_manifold(context)
+    # else:
+    #     bpy.ops.object.mode_set(mode='EDIT')
 
 
 def highlight_next_non_manifold(context):
@@ -145,6 +149,30 @@ def delete_non_manifold(context):
     bpy.ops.object.vertex_group_remove()
 
 
+def lift_ufit_non_manifold_top(context):
+    ufit_obj = bpy.data.objects['uFit']
+    non_manifold_areas = general.create_non_manifold_vertex_groups(context, ufit_obj, max_verts=None)
+
+    # get the non-manifold area with the biggest amount of vertices (big gap at top of socket)
+    max_nma = None
+    max_verts = 0
+    for nma, verts in non_manifold_areas.items():
+        if len(verts) > max_verts:
+            max_verts = len(verts)
+            max_nma = nma
+
+    if max_nma:
+        # highlight vertices from non-manifold area (vertex group)
+        general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=[max_nma])
+
+        # deactivate snapping to move verts up
+        bpy.context.scene.tool_settings.use_snap = False
+
+        # move the verts x cm up
+        context.scene.transform_orientation_slots[0].type = 'GLOBAL'
+        bpy.ops.transform.translate(value=(0, 0, 0.05))
+
+
 def verify_clean_up(context):
     ufit_obj = bpy.data.objects['uFit']
 
@@ -153,21 +181,20 @@ def verify_clean_up(context):
     bpy.ops.mesh.vertices_smooth(factor=0.5, repeat=7)
 
     # make sure to have more than 30000 vertices
-    general.subdivide_until_vertex_count(ufit_obj, 30000)
+    # general.subdivide_until_vertex_count(ufit_obj, 30000)
+
+    # remesh the uFit object so you have quads
+    if context.scene.ufit_device_type in ('transfemoral'):
+        lift_ufit_non_manifold_top(context)
+    color_attributes.remesh_with_texture_to_color_attr(context, ufit_obj, 'scan_colors')
 
 
 ###############################
 # Rotate
 ###############################
 def prep_rotate(context):
-    # activate quad and orthographic view
-    context.scene.ufit_quad_view = True
-    context.scene.ufit_orthographic_view = True
-
-    # cursor to world center and snap cursor as rotaion point, make rotation around global axis
+    # cursor to world center and snap cursor as rotaion point
     bpy.ops.view3d.snap_cursor_to_center()
-    context.scene.tool_settings.transform_pivot_point = 'CURSOR'
-    context.scene.transform_orientation_slots[0].type = 'GLOBAL'
 
     # activate rotation tool
     user_interface.set_active_tool('builtin.rotate')
@@ -241,7 +268,6 @@ def add_circumference(context, i, z=0.0):
 
     # set the move tool
     bpy.ops.wm.tool_set_by_id(name="builtin.move")
-    context.scene.tool_settings.transform_pivot_point = 'INDIVIDUAL_ORIGINS'
 
 
 # you cannot immediately apply after adding circumference because the user first moves it to the correct position
@@ -349,7 +375,7 @@ def highlight_circumferences():
     # Object mode, show colors and orbit up the viewpoint to avoid frontal view
     general.activate_object(bpy.context, active_obj, mode='OBJECT')
     user_interface.change_orthographic('FRONT')
-    user_interface.set_shading_solid_mode(light='FLAT', color_type='TEXTURE')
+    user_interface.set_shading_solid_mode(light='FLAT', color_type='VERTEX')
     user_interface.set_active_tool('builtin.select_box')
 
     # un-hide and select all Circum objects

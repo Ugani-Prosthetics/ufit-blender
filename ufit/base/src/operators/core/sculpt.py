@@ -16,6 +16,7 @@ def prep_push_pull_smooth(context):
 
     # add area selection color attribute and add shader nodes
     color_attributes.add_new_color_attr(ufit_obj, name=color_attr_select, color=(1, 1, 1, 1))
+    color_attributes.activate_color_attribute(ufit_obj, color_attr_select)
     nodes.set_push_pull_smooth_shader_nodes(ufit_obj, color_attr_name=color_attr_select)
 
     # activate vertex paint mode
@@ -162,9 +163,6 @@ def push_pull_smooth_done(context):
 def prep_pull_bottom(context):
     ufit_obj = bpy.data.objects['uFit']
 
-    # change to orthographic view
-    context.scene.ufit_orthographic_view = True
-
     # turn on xray
     user_interface.set_xray(turn_on=True, alpha=1)
 
@@ -216,53 +214,52 @@ def pull_bottom_done(context):
 #################################
 # Prepare Cutout
 #################################
-def lift_ufit_non_manifold_top(context):
+def add_straight_cutout_plane(context):
     ufit_obj = bpy.data.objects['uFit']
-    non_manifold_areas = general.create_non_manifold_vertex_groups(context, ufit_obj, max_verts=None)
 
-    # get the non-manifold area with the biggest amount of vertices (big gap at top of socket)
-    max_nma = None
-    max_verts = 0
-    for nma, verts in non_manifold_areas.items():
-        if len(verts) > max_verts:
-            max_verts = len(verts)
-            max_nma = nma
+    # set the local object origin already to the center of mass
+    bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='MEDIAN')
 
-    if max_nma:
-        # highlight vertices from non-manifold area (vertex group)
-        general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=[max_nma])
+    # add straight cutout plane
+    bpy.ops.mesh.primitive_plane_add(size=0.35, location=ufit_obj.location)
+    bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='MEDIAN')
 
-        # deactivate snapping to move verts up
-        bpy.context.scene.tool_settings.use_snap = False
+    # rename plane
+    cut_obj = context.active_object
+    cut_obj.name = "uFit_Cutout"
 
-        # move the verts x cm up
-        context.scene.transform_orientation_slots[0].type = 'GLOBAL'
-        bpy.ops.transform.translate(value=(0, 0, 0.05))
+    # apply location
+    general.apply_transform(ufit_obj, use_location=True, use_rotation=True, use_scale=True)
+
+    # lock to z direction movement
+    # cut_obj.lock_location[0] = True
+    # cut_obj.lock_location[1] = True
+
+    # hide objects
+    cut_obj.hide_set(True)
 
 
 def prep_cutout_prep(context):
-    # create ufit measure and original objects
     ufit_obj = bpy.data.objects['uFit']
+
+    add_straight_cutout_plane(context)
+
+    # apply location
+    general.apply_transform(ufit_obj, use_location=True, use_rotation=True, use_scale=True)
+
+    # now duplicate ufit_obj
     ufit_original = general.duplicate_obj(ufit_obj, 'uFit_Original', context.collection, data=True, actions=False)
     ufit_measure = general.duplicate_obj(ufit_obj, 'uFit_Measure', context.collection, data=True, actions=False)
 
-    # hide the UFitMeasure object
+    # hide objects
     ufit_original.hide_set(True)
     ufit_measure.hide_set(True)
 
-    if context.scene.ufit_device_type in ('transfemoral'):
-        lift_ufit_non_manifold_top(context)
-
-    # remesh the uFit object so you quads
-    color_attributes.remesh_with_texture_to_color_attr(context, ufit_obj, 'scan_colors')
-
-    # transformation orientation global + activate vertex snapping
-    context.scene.transform_orientation_slots[0].type = 'GLOBAL'
-    bpy.context.scene.tool_settings.use_snap = True
-    bpy.context.scene.tool_settings.snap_elements = {'FACE_NEAREST'}
-
     # switch to annotation tool
     user_interface.activate_new_grease_pencil(context, name='Selections', layer_name='Cutout')
+
+    # activate ufit
+    general.activate_object(context, ufit_obj, mode='OBJECT')
 
 
 def minimal_prep_cutout_prep(context):
@@ -270,7 +267,22 @@ def minimal_prep_cutout_prep(context):
     user_interface.activate_new_grease_pencil(context, name='Selections', layer_name='Cutout')
 
 
+def minimal_prep_new_cutout(context):
+    add_straight_cutout_plane(context)
+
+    bpy.context.scene.tool_settings.use_snap = True
+
+    # set cutout style back to default
+    context.scene.ufit_cutout_style = 'free'
+
+    # switch to annotation tool
+    user_interface.activate_new_grease_pencil(context, name='Selections', layer_name='Cutout')
+
+
 def create_cutout_path(context):
+    if 'uFit_Cutout' in bpy.data.objects:
+        general.delete_obj_by_name_contains('uFit_Cutout')
+
     ufit_cutout_cu = bpy.data.curves.new("uFit_Cutout", "CURVE")
     ufit_cutout_ob = bpy.data.objects.new("uFit_Cutout", ufit_cutout_cu)
     polyline = ufit_cutout_cu.splines.new('NURBS')  # 'POLY''BEZIER''BSPLINE''CARDINAL''NURBS'
@@ -290,52 +302,54 @@ def create_cutout_path(context):
 
 
 def create_cutout_plane(context):
-    ufit_cutout_ob = create_cutout_path(context)
-    general.activate_object(context, ufit_cutout_ob, mode='EDIT')
+    if context.scene.ufit_cutout_style == 'free':
+        ufit_cutout_ob = create_cutout_path(context)
+        general.activate_object(context, ufit_cutout_ob, mode='EDIT')
 
-    # close the curve
-    bpy.ops.curve.select_all(action='SELECT')
-    bpy.ops.curve.cyclic_toggle()
+        # close the curve
+        bpy.ops.curve.select_all(action='SELECT')
+        bpy.ops.curve.cyclic_toggle()
 
-    bpy.context.object.data.dimensions = '3D'
+        bpy.context.object.data.dimensions = '3D'
 
-    # tilt local z-axis x degrees
-    bpy.ops.curve.tilt_clear()  # first clear the tilt
-    bpy.ops.transform.tilt(value=math.radians(int(bpy.context.scene.bl_rna.properties['ufit_mean_tilt'].default)),
-                           mirror=False,
-                           use_proportional_edit=False,
-                           proportional_edit_falloff='SMOOTH',
-                           proportional_size=1,
-                           use_proportional_connected=False,
-                           use_proportional_projected=False)
+        # tilt local z-axis x degrees
+        bpy.ops.curve.tilt_clear()  # first clear the tilt
+        bpy.ops.transform.tilt(value=math.radians(int(bpy.context.scene.bl_rna.properties['ufit_mean_tilt'].default)),
+                               mirror=False,
+                               use_proportional_edit=False,
+                               proportional_edit_falloff='SMOOTH',
+                               proportional_size=1,
+                               use_proportional_connected=False,
+                               use_proportional_projected=False)
 
-    # Z_UP not working in all cases
-    bpy.context.object.data.twist_mode = 'Z_UP'
+        # Z_UP not working in all cases
+        bpy.context.object.data.twist_mode = 'Z_UP'
 
-    # extrude the curve x cm everywhere
-    bpy.context.object.data.extrude = 0.01
+        # extrude the curve x cm everywhere
+        bpy.context.object.data.extrude = 0.01
 
-    # smoothen the curve
-    bpy.context.object.data.twist_smooth = 100
+        # smoothen the curve
+        bpy.context.object.data.twist_smooth = 100
 
-    # deselect all
-    bpy.ops.curve.select_all(action='DESELECT')
+        # deselect all
+        bpy.ops.curve.select_all(action='DESELECT')
 
-    # cleanup annotations
-    user_interface.cleanup_grease_pencil(context)
+        # cleanup annotations
+        user_interface.cleanup_grease_pencil(context)
 
 
 #################################
 # Cutout
 #################################
 def prep_cutout(context):
-    cutout_obj = bpy.data.objects['uFit_Cutout']
+    if context.scene.ufit_cutout_style == 'free':
+        cutout_obj = bpy.data.objects['uFit_Cutout']
 
-    # make the cutout object selectable
-    cutout_obj.hide_select = False
+        # make the cutout object selectable
+        cutout_obj.hide_select = True
 
-    # go to edit mode
-    general.activate_object(context, cutout_obj, mode='EDIT')
+        # go to edit mode
+        general.activate_object(context, cutout_obj, mode='EDIT')
 
 
 def create_cutout_line(context):
@@ -349,12 +363,18 @@ def create_cutout_line(context):
     # activate ufit_cutout_obj
     general.activate_object(context, ufit_cutout_obj, mode='EDIT')
 
-    # increase the smoothness of the cutout plane
-    bpy.context.object.data.twist_smooth = 500
+    if context.scene.ufit_cutout_style == "free":
+        # increase the smoothness of the cutout plane
+        bpy.context.object.data.twist_smooth = 500
 
-    # convert curve to mesh
-    general.activate_object(context, ufit_cutout_obj, mode='OBJECT')
-    bpy.ops.object.convert(target='MESH')
+        # convert curve to mesh
+        general.activate_object(context, ufit_cutout_obj, mode='OBJECT')
+        bpy.ops.object.convert(target='MESH')
+    elif context.scene.ufit_cutout_style == "straight":
+        # increase the number of vertices for accurate cut
+        bpy.ops.mesh.select_all(action='SELECT')
+        bpy.ops.mesh.subdivide(number_cuts=10)
+        general.activate_object(context, ufit_cutout_obj, mode='OBJECT')
 
     # apply scaling, rotation and location
     bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
@@ -437,7 +457,7 @@ def perform_cutout(context):
     context.scene.ufit_number_of_cutouts += 1
 
     # select all cutout edges
-    vgs = general.get_all_cutuout_edges(context)
+    vgs = general.get_all_cutout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # Invert selection and smooth all the rest to avoid weird normals on scaling
@@ -481,13 +501,20 @@ def perform_cutout(context):
         bpy.ops.mesh.remove_doubles()
 
         # dissolve geometry to remove weird normals
-        bpy.ops.mesh.dissolve_degenerate(threshold=0.00025)
+        bpy.ops.mesh.dissolve_degenerate(threshold=0.0001)  # make sure to use the same distance as remove_doubles
 
     else:
-        raise Exception('Please select the cutout line')
+        raise Exception('No cutout line found')
 
 
 def cutout(context):
+    create_cutout_line(context)
+    perform_cutout(context)
+
+
+def cutout_straight(context):
+    # cleanup annotations
+    user_interface.cleanup_grease_pencil(context)
     create_cutout_line(context)
     perform_cutout(context)
 
@@ -519,26 +546,32 @@ def mm_scaling(context, obj, mm_dist):
 
 def scale(context):
     ufit_obj = bpy.data.objects['uFit']
-    ufit_measure = bpy.data.objects['uFit_Measure']
-    ufit_measure.hide_set(False)  # must be visible for scaling
 
     general.duplicate_obj(ufit_obj, 'uFit_Prescale', context.collection, data=True, actions=False)
 
     # scale according to the liner thickness
     if context.scene.ufit_scaling_unit == 'percentage':
         perc_scaling(ufit_obj, context.scene.ufit_liner_scaling / 100)  # percentage
-        perc_scaling(ufit_measure, context.scene.ufit_liner_scaling / 100)  # percentage
     else:
         mm_scaling(context, ufit_obj, context.scene.ufit_liner_scaling / 1000)  # mm
-        mm_scaling(context, ufit_measure, context.scene.ufit_liner_scaling / 1000)  # mm
+
+    if 'uFit_Measure' in bpy.data.objects:
+        ufit_measure = bpy.data.objects['uFit_Measure']
+        ufit_measure.hide_set(False)  # must be visible for scaling
+
+        # scale according to the liner thickness
+        if context.scene.ufit_scaling_unit == 'percentage':
+            perc_scaling(ufit_measure, context.scene.ufit_liner_scaling / 100)  # percentage
+        else:
+            mm_scaling(context, ufit_measure, context.scene.ufit_liner_scaling / 1000)  # mm
+
+        ufit_measure.hide_set(True)  # make invisible again
 
     # smooth to avoid weird normals due to scaling (avoid smoothning of cutout edge)
-    vgs = general.get_all_cutuout_edges(context)
+    vgs = general.get_all_cutout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
     bpy.ops.mesh.select_all(action='INVERT')
     bpy.ops.mesh.vertices_smooth(factor=0.5, repeat=10)
-
-    ufit_measure.hide_set(True)  # make invisible again
 
 
 #########################################
@@ -551,12 +584,98 @@ def prep_verify_scaling(context):
 
 def verify_scaling(context):
     # apply all transformations to UFit and UFitMeasure objects
-    ufit_objs = [bpy.data.objects['uFit'], bpy.data.objects['uFit_Measure']]
-    for obj in ufit_objs:
-        general.apply_transform(obj, use_location=True, use_rotation=True, use_scale=True)
+    general.apply_transform(bpy.data.objects['uFit'], use_location=True, use_rotation=True, use_scale=True)
+
+    if 'uFit_Measure' in bpy.data.objects:
+        general.apply_transform(bpy.data.objects['uFit_Measure'], use_location=True, use_rotation=True, use_scale=True)
 
     # delete the pre-scaling object
     general.delete_obj_by_name_contains('uFit_Prescale')
+
+
+#################################
+# Draw
+#################################
+MARGIN_DISTANCE_BORDER = 0.015  # meter
+MARGIN_DISTANCE_EDGE = 0.002
+
+
+def prep_draw(context):
+    ufit_obj = bpy.data.objects['uFit']
+
+    # apply location
+    general.apply_transform(ufit_obj, use_location=True, use_rotation=True, use_scale=True)
+
+    # now duplicate ufit_obj
+    if 'uFit_Original' not in bpy.data.objects:
+        general.duplicate_obj(ufit_obj, 'uFit_Original', context.collection, data=True, actions=False)
+    if 'uFit_Measure' not in bpy.data.objects:
+        general.duplicate_obj(ufit_obj, 'uFit_Measure', context.collection, data=True, actions=False)
+
+    ufit_original = bpy.data.objects['uFit_Original']
+    ufit_measure = bpy.data.objects['uFit_Measure']
+
+    ufit_original.hide_set(False)
+    ufit_measure.hide_set(True)
+
+    # create new color attributes
+    color_atts = ['draw_selection', 'voronoi_one_selection', 'voronoi_two_selection']
+    for ca in color_atts:
+        color_attributes.add_new_color_attr(ufit_obj, name=ca, color=(1, 1, 1, 1))
+    bpy.data.brushes["Draw"].color = (1, 0, 0)  # Red
+
+    # get border vertices (using vertex groups from previous cutout)
+    vgs = general.get_all_cutout_edges(context)
+    edge_vertices = general.get_vertices_from_multiple_vertex_groups(ufit_obj, vgs)
+
+    # add a safety margin to the border by including more vertices
+    border_vertices = general.expand_border_vertices(
+        ufit_obj, edge_vertices, MARGIN_DISTANCE_BORDER
+    )
+    extended_edge_vertices = general.expand_border_vertices(
+        ufit_obj, edge_vertices, MARGIN_DISTANCE_EDGE
+    )
+
+    # color border vertices red
+    for ca in color_atts:
+        color_attributes.set_vertices_color(
+            ufit_obj,
+            ca,
+            border_vertices,
+            color=(1.0, 0.0, 0.0, 1.0),  # Red
+        )
+
+    # color edge vertices yellow (after coloring red!)
+    # for ca in color_atts:
+    #     color_attributes.set_vertices_color(
+    #         ufit_obj,
+    #         ca,
+    #         extended_edge_vertices,
+    #         color=(1.0, 1.0, 0.0, 1.0),  # Yellow
+    #     )
+
+    # activate vertex paint
+    general.activate_object(context, ufit_obj, mode='VERTEX_PAINT')
+
+    # trigger callback
+    context.scene.ufit_draw_type = 'free'
+
+
+def apply_draw(context):
+    ufit_obj = bpy.data.objects['uFit']
+    ufit_original = bpy.data.objects['uFit_Original']
+
+    ufit_original.hide_set(True)
+
+    # node_tree = bpy.data.node_groups['Voronoi Nodes Empty']
+
+    general.apply_all_modifiers(context, ufit_obj)
+
+    general.activate_object(context, ufit_obj, mode='EDIT')
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.mesh.flip_normals()
+
+    # add remesh (0.03cm) + smooth (factor 0.5, repeat 5)
 
 
 #########################################
@@ -567,14 +686,19 @@ def create_milling_model(context):
     ufit_obj = bpy.data.objects['uFit']
 
     if context.scene.ufit_milling_flare:
+        print('flaring now')
         # execute standard flaring
         prep_flare(context)
         flare(context)
         flare_done(context)  # deactivate proportional editing
 
     # select cutout edge
-    vgs = general.get_all_cutuout_edges(context)
+    vgs = general.get_all_cutout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
+
+    # get the max z
+    max_z = general.get_selected_max_z(ufit_obj)
+    new_z = max_z + context.scene.ufit_milling_margin / 100  # add milling margin
 
     # use the standard duplicate operator (Shift + D)
     bpy.ops.mesh.duplicate_move()
@@ -601,20 +725,15 @@ def create_milling_model(context):
     # add the copied vertices to a new vertex group
     general.create_new_vertex_group_for_selected(context, ufit_obj, 'milling_model_edge', mode='EDIT')
 
+    # set new z coordinate for the milling_model_edge vertex group
+    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=['milling_model_edge'])
+    general.set_selected_to_z(ufit_obj, new_z)
+
     # select again the vertices from cutout_edge group (contains the original + copied vertices)
-    vgs = general.get_all_cutuout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # connect vertices via bridge edge loops
     bpy.ops.mesh.bridge_edge_loops()
-
-    # get the max z
-    max_z = general.get_selected_max_z(ufit_obj)
-    new_z = max_z + context.scene.ufit_milling_margin/100  # add milling margin
-
-    # set new z coordinate for the milling_model_edge vertex group
-    general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=['milling_model_edge'])
-    general.set_selected_to_z(ufit_obj, new_z)
 
     # fill the hole
     bpy.ops.mesh.edge_face_add()
@@ -624,17 +743,7 @@ def create_milling_model(context):
 # Thickness
 #########################################
 def prep_thickness(context):
-    ufit_obj = bpy.data.objects['uFit']
-
-    # trigger the callback to set default values
-    context.scene.ufit_thickness_voronoi = 'normal'
-
-    # create color attribute
-    color_attributes.add_new_color_attr(ufit_obj, name=color_attr_select, color=(1, 1, 1, 1))
-    bpy.data.brushes["Draw"].color = (1, 0, 0)  # Red
-
-    # activate color attribute
-    color_attributes.activate_color_attribute(ufit_obj, color_attr_select)
+    pass
 
 
 def create_printing_thickness(context):
@@ -672,7 +781,7 @@ def create_printing_thickness(context):
     bpy.ops.mesh.select_all(action='DESELECT')  # deselect all vertices
 
     # activate the vertex group
-    vgs = general.get_all_cutuout_edges(context)
+    vgs = general.get_all_cutout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # remove wrongly selected edges (very exceptional)
@@ -713,7 +822,7 @@ def minimal_prep_custom_thickness(context):
 
 
 def create_custom_thickness(context, extrusion):
-    vgs = general.get_all_cutuout_edges(context)
+    vgs = general.get_all_cutout_edges(context)
     push_pull_region(context, extrusion, exclude_vertex_groups=vgs)
 
 
@@ -728,14 +837,8 @@ def custom_thickness_done(context):
 def prep_flare(context):
     ufit_obj = bpy.data.objects['uFit']
 
-    # activate quad view
-    context.scene.ufit_quad_view = True
-
-    # activate proportional editing
-    bpy.context.scene.tool_settings.use_proportional_edit = True
-
     # switch to edit mode and select vertices from cutout edge
-    vgs = general.get_all_cutuout_edges(context)
+    vgs = general.get_all_cutout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # move cursor to the middle of the selection
@@ -744,23 +847,20 @@ def prep_flare(context):
     # set the default flare tool
     user_interface.set_active_tool(bpy.context.scene.bl_rna.properties['ufit_flare_tool'].default)
 
-    # set proportional size to default size of ufit_flare_percentage
-    bpy.context.tool_settings.proportional_size = 0.01
-
-    # turn off the overlay
-    bpy.context.space_data.overlay.show_overlays = False
-
 
 def flare(context):
     # set ufit obj
     ufit_obj = bpy.data.objects['uFit']
 
     # make sure the vertices from the cutout edge are selected
-    vgs = general.get_all_cutuout_edges(context)
+    vgs = general.get_all_cutout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     # calculate the flare percentage
     flare_perc = 1 + context.scene.ufit_flare_percentage/100
+
+    print(flare_perc)
+    print(context.tool_settings.proportional_size)
 
     # flare
     bpy.ops.transform.resize(value=(flare_perc, flare_perc, 1),

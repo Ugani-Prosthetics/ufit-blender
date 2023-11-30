@@ -50,7 +50,8 @@ def show_prescale_update(self, context):
 
 
 def show_original_update(self, context):
-    ufit_original = bpy.data.objects['uFit_Original']
+    # ufit_original = bpy.data.objects['uFit_Original']
+    ufit_original = bpy.data.objects['uFit_Measure']  # temporary workaround to avoid same color
     if self.ufit_show_original:
         ufit_original.hide_set(False)
     else:
@@ -97,6 +98,54 @@ def sculpt_brush_update(self, context):
         bpy.data.brushes["Flatten/Contrast"].direction = 'FLATTEN'
 
 
+def cutout_style_update(self, context):
+    ufit_obj = bpy.data.objects['uFit']
+    cut_obj = bpy.data.objects['uFit_Cutout']
+
+    if self.ufit_cutout_style == 'free':
+        # activate uFit
+        general.activate_object(context, ufit_obj, mode='OBJECT')
+
+        # hide the cutout object
+        cut_obj.hide_set(True)
+
+        # set annotation tool
+        bpy.ops.wm.tool_set_by_id(name='builtin.annotate')
+
+        # activate snapping
+        bpy.context.scene.tool_settings.use_snap = True
+
+    elif self.ufit_cutout_style == 'straight':
+        # make uFit unselectable
+        ufit_obj.select_set(False)
+        ufit_obj.hide_select = True
+
+        # unhide cutter object
+        cut_obj.hide_set(False)
+        cut_obj.select_set(True)
+        cut_obj.hide_select = False
+
+        # activate the cutter object
+        general.activate_object(context, cut_obj, mode='OBJECT')
+
+        # set the ufit plane operation to move
+        context.scene.ufit_plane_operation = 'move'
+
+        # deactivate snapping
+        bpy.context.scene.tool_settings.use_snap = False
+
+
+def plane_operation_update(self, context):
+    if bpy.context.scene.ufit_plane_operation == 'move':
+        bpy.ops.wm.tool_set_by_id(name="builtin.move")
+
+    elif bpy.context.scene.ufit_plane_operation == 'rotate':
+        bpy.ops.wm.tool_set_by_id(name="builtin.rotate")
+
+    elif bpy.context.scene.ufit_plane_operation == 'scale':
+        bpy.ops.wm.tool_set_by_id(name="builtin.scale")
+
+
 def mean_tilt_update(self, context):
     tilt = int(self.ufit_mean_tilt)
 
@@ -117,46 +166,103 @@ def mean_tilt_update(self, context):
     bpy.ops.curve.select_all(action='DESELECT')
 
 
-def thickness_voronoi_update(self, context):
+def draw_type_update(self, context):
     ufit_obj = bpy.data.objects['uFit']
+    general.activate_object(context, ufit_obj, mode='OBJECT')
+
     general.remove_all_modifiers(ufit_obj)
-    if self.ufit_thickness_voronoi == 'normal':
-        general.activate_object(context, ufit_obj, mode='OBJECT')
+
+    if self.ufit_draw_type == 'free':
+        color_attributes.activate_color_attribute(ufit_obj, 'draw_selection')
+        nodes.set_voronoi_geometry_nodes_one(ufit_obj, tree_name="Voronoi Nodes Empty",
+                                             color_attr_name='draw_selection')
+        general.activate_object(context, ufit_obj, mode='VERTEX_PAINT')
+        context.scene.ufit_voronoi_size = 'empty'
+
+    elif self.ufit_draw_type == 'solid':
         # add a solididfy modifier on uFit
         solidify_mod = ufit_obj.modifiers.new(name="Solidify", type="SOLIDIFY")
         solidify_mod.offset = 1
         solidify_mod.use_even_offset = False  # DO NOT USE EVEN OFFSET
-        solidify_mod.thickness = context.scene.ufit_print_thickness / 1000  # one mm of thickness
-    elif self.ufit_thickness_voronoi == 'voronoi':
-        nodes.set_voronoi_geometry_nodes(ufit_obj, color_attr_select)
+        solidify_mod.thickness = context.scene.ufit_solidify_thickness / 1000  # one mm of thickness
+
+    elif self.ufit_draw_type == 'voronoi':
+        context.scene.ufit_voronoi_type = 'voronoi_one'
+
+
+def voronoi_type_update(self, context):
+    ufit_obj = bpy.data.objects['uFit']
+    general.activate_object(context, ufit_obj, mode='OBJECT')
+
+    general.remove_all_modifiers(ufit_obj)
+
+    if self.ufit_voronoi_type == 'voronoi_one':
+        color_attributes.activate_color_attribute(ufit_obj, 'voronoi_one_selection')
+        nodes.set_voronoi_geometry_nodes_one(ufit_obj, tree_name="Voronoi Nodes One",
+                                             color_attr_name='voronoi_one_selection')
         general.activate_object(context, ufit_obj, mode='VERTEX_PAINT')
-        # general.add_voronoi_to_obj(ufit_obj)
-        # context.scene.ufit_voronoi_size = 'low'
+        context.scene.ufit_voronoi_size = 'medium'
+    elif self.ufit_voronoi_type == 'voronoi_two':
+        color_attributes.activate_color_attribute(ufit_obj, 'voronoi_two_selection')
+        decimate_mod = ufit_obj.modifiers.new(name="Decimate", type="DECIMATE")
+        decimate_mod.ratio = 0.01
+
+        nodes.set_voronoi_geometry_nodes_two(ufit_obj, tree_name="Voronoi Nodes Two",
+                                             color_attr_name='voronoi_two_selection')
+        general.activate_object(context, ufit_obj, mode='OBJECT')
+
+
+def draw_thickness_update(self, context):
+    node_tree = bpy.data.node_groups['Voronoi Nodes Empty']
+    node_tree.nodes['ufit_extrude_node'].inputs[3].default_value = self.ufit_free_draw_thickness/1000
+
+
+def solidify_thickness_update(self, context):
+    ufit_obj = bpy.data.objects['uFit']
+
+    solidify_mod = ufit_obj.modifiers["Solidify"]
+    solidify_mod.thickness = self.ufit_solidify_thickness / 1000
+
+
+def voronoi_one_thickness_update(self, context):
+    node_tree = bpy.data.node_groups['Voronoi Nodes One']
+    node_tree.nodes['ufit_extrude_node'].inputs[3].default_value = self.ufit_voronoi_one_thickness / 1000
+
+
+def voronoi_two_thickness_update(self, context):
+    node_tree = bpy.data.node_groups['Voronoi Nodes Two']
+    node_tree.nodes['ufit_extrude_node'].inputs[3].default_value = self.ufit_voronoi_two_thickness / 1000
 
 
 def voronoi_size_update(self, context):
-    node_tree = bpy.data.node_groups['Voronoi Nodes']
-    compare_node = node_tree.nodes['ufit_compare_node']
+    node_tree = None
+    if context.scene.ufit_draw_type == 'free':
+        node_tree = bpy.data.node_groups['Voronoi Nodes Empty']
+    elif context.scene.ufit_draw_type == 'voronoi' and context.scene.ufit_voronoi_type == 'voronoi_one':
+        node_tree = bpy.data.node_groups['Voronoi Nodes One']
 
-    if self.ufit_voronoi_size == 'very_small':
-        compare_node.inputs[1].default_value = 0.3
-    elif self.ufit_voronoi_size == 'small':
-        compare_node.inputs[1].default_value = 0.25
-    elif self.ufit_voronoi_size == 'medium':
-        compare_node.inputs[1].default_value = 0.2
-    elif self.ufit_voronoi_size == 'big':
-        compare_node.inputs[1].default_value = 0.15
-    elif self.ufit_voronoi_size == 'very_big':
-        compare_node.inputs[1].default_value = 0.1
-    elif self.ufit_voronoi_size == 'empty':
-        compare_node.inputs[1].default_value = 0
+    if node_tree:
+        compare_node = node_tree.nodes['ufit_compare_node']
+
+        if self.ufit_voronoi_size == 'very_small':
+            compare_node.inputs[1].default_value = 0.3
+        elif self.ufit_voronoi_size == 'small':
+            compare_node.inputs[1].default_value = 0.25
+        elif self.ufit_voronoi_size == 'medium':
+            compare_node.inputs[1].default_value = 0.2
+        elif self.ufit_voronoi_size == 'big':
+            compare_node.inputs[1].default_value = 0.15
+        elif self.ufit_voronoi_size == 'very_big':
+            compare_node.inputs[1].default_value = 0.1
+        elif self.ufit_voronoi_size == 'empty':
+            compare_node.inputs[1].default_value = 0
 
 
 def flare_tool_update(self, context):
     # (re)select vertices from cutout edge
     # when the user switches tool, it can be used as a reset to reselect the edge
     ufit_obj = bpy.data.objects['uFit']
-    vgs = general.get_all_cutuout_edges(context)
+    vgs = general.get_all_cutout_edges(context)
     general.select_vertices_from_vertex_groups(context, ufit_obj, vg_names=vgs)
 
     user_interface.set_active_tool(self.ufit_flare_tool)
@@ -193,6 +299,11 @@ def alignment_object_update(self, context):
     # activate object
     obj = bpy.data.objects[self.ufit_alignment_object]
     general.activate_object(context, obj, 'OBJECT')
+
+
+def smooth_borders_update(self, context):
+    ufit_obj = bpy.data.objects['uFit']
+    ufit_obj.modifiers['Corrective Smooth'].show_viewport = self.ufit_smooth_borders
 
 
 def show_inner_part_update(self, context):

@@ -11,3 +11,8 @@ class OTCutoutPlaneTF(OTBaseTF, OTCutoutPlane):
     def execute(self, context):
         return self.execute_base(context,
                                  operator_name='cutout_prep')
+
+
+# class OTStraightCutoutPlaneTF(OTBaseTF, OTCutoutPlane):
+#     pass
+

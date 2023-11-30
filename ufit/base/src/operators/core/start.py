@@ -9,7 +9,7 @@ from .checkpoints import (
     clear_checkpoints,
     get_workflow_step,
 )
-from ..utils.general import delete_scene, get_scale
+from ..utils import general, nodes
 
 
 #################################
@@ -134,7 +134,7 @@ def init_modeling_folders(context, filepath):
 
 def import_3d_file(context, filepath):
     # delete everything from the scene
-    delete_scene(context)
+    general.delete_scene(context)
     # load the new object
 
     if filepath.endswith(".obj"):
@@ -144,6 +144,10 @@ def import_3d_file(context, filepath):
     # rename the object
     obj_scan = bpy.context.selected_objects[0]
     obj_scan.name = 'uFit'
+
+    # check if the object has a texture
+    if not nodes.has_texture(obj_scan):
+        context.scene.ufit_colored_scan = False
 
     # remove any rotation, location and scaling changes
     obj_scan.rotation_euler = (0, 0, 0)

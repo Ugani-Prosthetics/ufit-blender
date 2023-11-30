@@ -1,79 +1,107 @@
 import bpy
 
 
+def has_texture(obj):
+    # Check if the object is valid
+    if obj is None or obj.type != 'MESH':
+        return False
+
+    # Iterate through material slots
+    for slot in obj.material_slots:
+        material = slot.material
+
+        # Check if the material has texture slots
+        if material and material.use_nodes:
+            if material.node_tree and material.node_tree.nodes:
+                for node in material.node_tree.nodes:
+                    if node.type == 'TEX_IMAGE':
+                        return True
+
+    return False
+
+
 #######################################
 # Shader Nodes
 #######################################
 def set_push_pull_smooth_shader_nodes(ufit_obj, color_attr_name):
-    if ufit_obj.data.materials:
-        material = ufit_obj.data.materials[ufit_obj.active_material_index]
+    if not ufit_obj.data.materials:
+        # Create a new material
+        material = bpy.data.materials.new(name='texture')
 
-        # remove all nodes
-        material.node_tree.nodes.clear()
+        # Link the material to the active object (you can adjust this based on your needs)
+        bpy.context.active_object.data.materials.append(material)
 
-        # nodes - selection
-        node_color_attr_one = material.node_tree.nodes.new('ShaderNodeVertexColor')
-        node_color_attr_one.layer_name = 'area_selection'
+        # use nodes
+        material.use_nodes = True
 
-        node_color_invert = material.node_tree.nodes.new('ShaderNodeInvert')
+    material = ufit_obj.data.materials[ufit_obj.active_material_index]
 
-        node_separate_color = material.node_tree.nodes.new('ShaderNodeSeparateColor')
-        node_separate_color.mode = 'RGB'
+    # remove all nodes
+    material.node_tree.nodes.clear()
 
-        # node - scan colors
-        node_color_attr_two = material.node_tree.nodes.new('ShaderNodeVertexColor')
-        node_color_attr_two.layer_name = 'scan_colors'
+    # nodes - selection
+    node_color_attr_one = material.node_tree.nodes.new('ShaderNodeVertexColor')
+    node_color_attr_one.layer_name = 'area_selection'
 
-        # node - RGB
-        node_rgb = material.node_tree.nodes.new('ShaderNodeRGB')
-        node_rgb.outputs['Color'].default_value = (0.0, 1.0, 0.0, 1.0)  # selection in green
+    node_color_invert = material.node_tree.nodes.new('ShaderNodeInvert')
 
-        # node mix to output
-        node_mix = material.node_tree.nodes.new('ShaderNodeMix')
-        node_mix.data_type = 'RGBA'
-        node_mix.blend_type = 'BURN'
-        node_mix.clamp_result = True
-        node_mix.clamp_factor = False
+    node_separate_color = material.node_tree.nodes.new('ShaderNodeSeparateColor')
+    node_separate_color.mode = 'RGB'
 
-        node_emmision = material.node_tree.nodes.new('ShaderNodeEmission')
+    # node - scan colors
+    node_color_attr_two = material.node_tree.nodes.new('ShaderNodeVertexColor')
+    node_color_attr_two.layer_name = 'scan_colors'
 
-        node_material_output = material.node_tree.nodes.new('ShaderNodeOutputMaterial')
+    # node - RGB
+    node_rgb = material.node_tree.nodes.new('ShaderNodeRGB')
+    node_rgb.outputs['Color'].default_value = (0.0, 1.0, 0.0, 1.0)  # selection in green
 
-        # Node links - color attribute selection to mix
-        material.node_tree.links.new(
-            node_color_attr_one.outputs['Color'],
-            node_color_invert.inputs['Color']
-        )
-        material.node_tree.links.new(
-            node_color_invert.outputs['Color'],
-            node_separate_color.inputs['Color']
-        )
-        material.node_tree.links.new(
-            node_separate_color.outputs['Red'],
-            node_mix.inputs['Factor']
-        )
+    # node mix to output
+    node_mix = material.node_tree.nodes.new('ShaderNodeMix')
+    node_mix.data_type = 'RGBA'
+    node_mix.blend_type = 'BURN'
+    node_mix.clamp_result = True
+    node_mix.clamp_factor = False
 
-        # Node link - scan colors to mix
-        material.node_tree.links.new(
-            node_color_attr_two.outputs['Color'],
-            node_mix.inputs[6]
-        )
+    node_emmision = material.node_tree.nodes.new('ShaderNodeEmission')
 
-        # Node link - RGB to mix
-        material.node_tree.links.new(
-            node_rgb.outputs['Color'],
-            node_mix.inputs[7]  # multiple 'B' inputs, we need to select type RGBA which is at index 7
-        )
+    node_material_output = material.node_tree.nodes.new('ShaderNodeOutputMaterial')
 
-        # Node links - Emission to Output
-        material.node_tree.links.new(
-            node_mix.outputs[2],  # multiple 'Result' output, we need to select type RGBA which is at index 2
-            node_emmision.inputs['Color']
-        )
-        material.node_tree.links.new(
-            node_emmision.outputs['Emission'],
-            node_material_output.inputs['Surface'],
-        )
+    # Node links - color attribute selection to mix
+    material.node_tree.links.new(
+        node_color_attr_one.outputs['Color'],
+        node_color_invert.inputs['Color']
+    )
+    material.node_tree.links.new(
+        node_color_invert.outputs['Color'],
+        node_separate_color.inputs['Color']
+    )
+    material.node_tree.links.new(
+        node_separate_color.outputs['Red'],
+        node_mix.inputs['Factor']
+    )
+
+    # Node link - scan colors to mix
+    material.node_tree.links.new(
+        node_color_attr_two.outputs['Color'],
+        node_mix.inputs[6]
+    )
+
+    # Node link - RGB to mix
+    material.node_tree.links.new(
+        node_rgb.outputs['Color'],
+        node_mix.inputs[7]  # multiple 'B' inputs, we need to select type RGBA which is at index 7
+    )
+
+    # Node links - Emission to Output
+    material.node_tree.links.new(
+        node_mix.outputs[2],  # multiple 'Result' output, we need to select type RGBA which is at index 2
+        node_emmision.inputs['Color']
+    )
+    material.node_tree.links.new(
+        node_emmision.outputs['Emission'],
+        node_material_output.inputs['Surface'],
+    )
 
 
 #######################################

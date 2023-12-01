@@ -1,5 +1,6 @@
 import bpy
 from abc import abstractmethod
+from .....base.src import base_globals
 from .....base.src.operators.core.checkpoints import set_active_step, add_checkpoint, rollback_to_checkpoint
 from .....base.src.operators.utils.general import return_to_default_state
 from ...base_constants import base_path_consts, base_ui_consts, base_operator_consts
@@ -82,7 +83,10 @@ class OTBase(bpy.types.Operator):
 
             context.scene.ufit_error_message = str(e)
 
-            self.report({'ERROR'}, str(e))
+            if base_globals.debug_enabled:
+                raise Exception
+            else:
+                self.report({'ERROR'}, str(e))
 
         return {'FINISHED'}
 

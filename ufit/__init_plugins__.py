@@ -25,6 +25,24 @@ modulesNames = [
     'free_sculpting',
 ]
 
+enable_addons = [
+    'pose_library',
+    'io_anim_vba',
+    'io_scene_fbx',
+    'io_curve_svg',
+    'io_mesh_ply',
+    'io_mesh_uv_layout',
+    'io_scene_obj',
+    'io_scene_x3d',
+    'io_scene_gltf2',
+    'space_view3d_copy_attributes',
+    'object_print3d_utils',
+    'mesh_looptools',
+    'mesh_tissue',
+    'node_wrangler',
+    'cycles',
+]
+
 modules_full_names = {}
 for mod in modulesNames:
     modules_full_names[mod] = ('{}.{}'.format(__name__, mod))
@@ -110,9 +128,8 @@ def init_ufit():
 
 
 def register():
-    user_interface.enable_addon('mesh_looptools')
-    user_interface.enable_addon('object_print3d_utils')
-    user_interface.enable_addon('io_scene_obj')
+    for addon in enable_addons:
+        user_interface.enable_addon(addon)
     user_interface.set_theme_vertex_size(1)
     user_interface.set_input_preference('use_rotate_around_active', True)
     user_interface.set_input_preference('use_zoom_to_mouse', True)

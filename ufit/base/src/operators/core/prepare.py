@@ -100,7 +100,25 @@ def prep_verify_clean_up(context):
     #     context.scene.ufit_non_manifold_highlighted = list(non_manifold_areas.keys())[0]
     #     highlight_next_non_manifold(context)
     # else:
-    #     bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.separate(type='LOOSE')
+    print("verify clean up prep")
+    x = []
+    for i in bpy.context.selectable_objects:
+        x.append(len(i.data.vertices))
+    x.sort(reverse=True)
+    x = x[:1]
+    print(x)
+    print(type(x))
+    for i in bpy.context.selectable_objects:
+        if len(i.data.vertices) == x[0]:
+            print("done")
+            pass
+        else:
+            bpy.data.objects.remove(i, do_unlink=True)
+
+    bpy.context.selectable_objects[0].name = "uFit"
+    bpy.context.view_layer.objects.active = bpy.context.selectable_objects[0]
+    bpy.ops.object.mode_set(mode='EDIT')
 
 
 def highlight_next_non_manifold(context):

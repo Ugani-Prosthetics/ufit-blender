@@ -27,7 +27,6 @@ modulesNames = [
 
 enable_addons = [
     'pose_library',
-    'io_anim_vba',
     'io_scene_fbx',
     'io_curve_svg',
     'io_mesh_ply',

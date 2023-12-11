@@ -9,7 +9,7 @@ from .checkpoints import (
     clear_checkpoints,
     get_workflow_step,
 )
-from ..utils import general, nodes
+from ..utils import general, nodes, user_interface
 
 
 #################################
@@ -27,6 +27,19 @@ def start_modeling(context):
 def start_from_existing(context, file_path_obj, path_consts, ui_consts, debug_step=None):
     modeling_folder = os.path.dirname(file_path_obj)
     checkpoints_dir = os.path.join(modeling_folder, "checkpoints")
+    file_path = os.path.join(checkpoints_dir, 'uFit_settings.txt')
+    add_on_version = user_interface.get_addon_version('uFit').split('.')[0].strip()
+
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+            for line in lines:
+                if "uFit Version" in line:
+                    ufit_version = line.split(":")[1].strip()
+                    ufit_version = ufit_version.split('.')[0].strip()
+                    break
+    if add_on_version != ufit_version:
+        raise Exception(f"The current version does not support the model you have selected")
 
     if os.path.isdir(checkpoints_dir):
         if context.scene.ufit_device_type not in modeling_folder:

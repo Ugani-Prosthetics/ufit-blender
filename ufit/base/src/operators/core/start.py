@@ -38,8 +38,11 @@ def start_from_existing(context, file_path_obj, path_consts, ui_consts, debug_st
                     ufit_version = line.split(":")[1].strip()
                     ufit_version = ufit_version.split('.')[0].strip()
                     break
+    else:
+        raise Exception(f"The uFit_settings.txt file does not exist")
+
     if add_on_version != ufit_version:
-        raise Exception(f"The current version does not support the model you have selected")
+        raise Exception(f"The current version is 2.0.0 does not support the model you have selected")
 
     if os.path.isdir(checkpoints_dir):
         if context.scene.ufit_device_type not in modeling_folder:

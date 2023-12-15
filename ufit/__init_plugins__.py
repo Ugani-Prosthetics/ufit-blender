@@ -93,7 +93,7 @@ def init_ufit():
         bpy.app.timers.register(init_ufit, first_interval=0.1)
 
     user_interface.open_n_sidebar()
-    bpy.context.scene.ufit_full_screen = True
+    # bpy.context.scene.ufit_full_screen = True  # as of Blender 3.5.1 - Blender crashes with full screen
 
     set_ufit_logo()
     bpy.context.scene.unit_settings.length_unit = 'CENTIMETERS'

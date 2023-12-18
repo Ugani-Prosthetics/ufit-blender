@@ -14,7 +14,7 @@ class UIImportScanTF(UIImportScan):
 
         if scene.tf_socket_source == 'from_scan':
             self.draw_base(context,
-                        ot_import_scan="tf_operators.import_scan")
+                           ot_import_scan="tf_operators.import_scan")
         elif scene.tf_socket_source == 'from_measurement':
             self.draw_measurement_panel(scene, layout)
         else:
@@ -27,11 +27,16 @@ class UIImportScanTF(UIImportScan):
         row3 = layout.row()
         row3.prop(scene, 'tf_circumference_interval')
 
+        layout.row().separator()
+
+        box0 = layout.box()
+
         for i in range(1, 11):
-            row = layout.row()
+            row = box0.row()
             row.prop(scene, 'tf_circumference_{}'.format(i))
 
         row = layout.row()
+        row.operator("ufit_operators.prev_step", text="Back")
         row.operator('tf_operators.generate_model')
 
     @classmethod

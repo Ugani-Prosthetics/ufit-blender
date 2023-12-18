@@ -13,10 +13,11 @@ class OTImportScanTF(OTBaseTF, OTImportScan):
         return self.execute_base(context,
                                  operator_name='import_scan')
 
-class OTGenerateModelFromDimTF(OTBaseTF):
+
+class OTGenerateModelFromMeasurementTF(OTBaseTF):
     """Tooltip"""
     bl_idname = "tf_operators.generate_model"
-    bl_label = "Generate Model"
+    bl_label = "Generate"
     bl_options = {"REGISTER", "UNDO"}
 
     def append_circ_measurement(self, circ_list, circ_measurement):
@@ -43,4 +44,13 @@ class OTGenerateModelFromDimTF(OTBaseTF):
         print("units:", length_unit, "circ_interval", circ_interval, "circ_list", circ_list)
 
         start_from_dimensions(context, length_unit, circ_interval, circ_list)
-        return {'FINISHED'}
+
+        return self.execute_base(context, "import_scan")
+
+    def main_func(self, context):
+        # execute func
+        #obj_filepath = init_modeling_folders(context, self.filepath)
+
+        # we have to setup some paths here but I do not know what
+        # maybe we should at least input patient name and derive some paths from that
+        pass

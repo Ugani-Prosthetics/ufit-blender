@@ -27,33 +27,33 @@ def register():
     # model source
     bpy.types.Scene.tf_socket_source = bpy.props.EnumProperty(name="Socket Source", default=1,
                                                                items=[
-                                                                   ("from_scan", "From scan", "", 1),
-                                                                   ("from_measurement", "From measurement", "", 2),
+                                                                   ("from_scan", "Scan", "", 1),
+                                                                   ("from_measurement", "Measurement", "", 2),
                                                                ])
     
-    bpy.types.Scene.tf_circumference_interval = bpy.props.FloatProperty(name="Circumference Interval",
+    bpy.types.Scene.tf_circumference_interval = bpy.props.FloatProperty(name="Interval",
                                                                       description="Distance between circumference measurements",
                                                                       default=30)
 
-    bpy.types.Scene.tf_circumference_1 = bpy.props.FloatProperty(name="Circumference 1", default=438)
+    bpy.types.Scene.tf_circumference_1 = bpy.props.FloatProperty(name="Circum 1", default=438)
 
-    bpy.types.Scene.tf_circumference_2 = bpy.props.FloatProperty(name="Circumference 2", default=419)
+    bpy.types.Scene.tf_circumference_2 = bpy.props.FloatProperty(name="Circum 2", default=419)
 
-    bpy.types.Scene.tf_circumference_3 = bpy.props.FloatProperty(name="Circumference 3", default=400)
+    bpy.types.Scene.tf_circumference_3 = bpy.props.FloatProperty(name="Circum 3", default=400)
 
-    bpy.types.Scene.tf_circumference_4 = bpy.props.FloatProperty(name="Circumference 4", default=390)
+    bpy.types.Scene.tf_circumference_4 = bpy.props.FloatProperty(name="Circum 4", default=390)
 
-    bpy.types.Scene.tf_circumference_5 = bpy.props.FloatProperty(name="Circumference 5", default=390)
+    bpy.types.Scene.tf_circumference_5 = bpy.props.FloatProperty(name="Circum 5", default=390)
 
-    bpy.types.Scene.tf_circumference_6 = bpy.props.FloatProperty(name="Circumference 6", default=385)
+    bpy.types.Scene.tf_circumference_6 = bpy.props.FloatProperty(name="Circum 6", default=385)
 
-    bpy.types.Scene.tf_circumference_7 = bpy.props.FloatProperty(name="Circumference 7", default=372)
+    bpy.types.Scene.tf_circumference_7 = bpy.props.FloatProperty(name="Circum 7", default=372)
 
-    bpy.types.Scene.tf_circumference_8 = bpy.props.FloatProperty(name="Circumference 8", default=340)
+    bpy.types.Scene.tf_circumference_8 = bpy.props.FloatProperty(name="Circum 8", default=340)
 
-    bpy.types.Scene.tf_circumference_9 = bpy.props.FloatProperty(name="Circumference 9", default=240)
+    bpy.types.Scene.tf_circumference_9 = bpy.props.FloatProperty(name="Circum 9", default=240)
 
-    bpy.types.Scene.tf_circumference_10 = bpy.props.FloatProperty(name="Circumference 10")
+    bpy.types.Scene.tf_circumference_10 = bpy.props.FloatProperty(name="Circum 10")
 
     # import connector
     bpy.types.Scene.tf_connector_type = bpy.props.EnumProperty(name="Connector Type", default=1,

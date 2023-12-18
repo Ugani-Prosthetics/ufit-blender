@@ -49,6 +49,7 @@ Thumbs.db
 # ignore offline installation script
 install_plugins_blender.bat
 install_plugins_blender.sh
+clean_debug.bat
 
 # ignore ufit.ini
 ufit/ufit.ini

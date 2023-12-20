@@ -209,9 +209,9 @@ def register():
     bpy.types.Scene.ufit_circums_highlighted = BoolProperty(name='Circumferences Highlighted', default=False)
     bpy.types.Scene.ufit_circums_distance = EnumProperty(name="Distance", default=2,
                                                          items=[
-                                                             ("0.020", "2 cm", "", 1),
-                                                             ("0.030", "3 cm", "", 2),
-                                                             ("0.040", "4 cm", "", 3),
+                                                             ("0.020", "20 mm", "", 1),
+                                                             ("0.030", "30 mm", "", 2),
+                                                             ("0.040", "40 mm", "", 3),
                                                          ])
 
     # sculpt

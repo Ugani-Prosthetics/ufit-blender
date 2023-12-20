@@ -9,8 +9,9 @@ class UIDraw(UFitPanel, bpy.types.Panel):
         layout = self.layout
         scene = context.scene
 
-        row0 = layout.row()
-        row0.prop(scene, 'ufit_draw_type', text="")
+        # enable again to allow other draw types
+        # row0 = layout.row()
+        # row0.prop(scene, 'ufit_draw_type', text="")
 
         # separator
         layout.row().separator()

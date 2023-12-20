@@ -3,8 +3,7 @@ from ...base.src.operators.core.prepare import (
     prep_move_scan, prep_clean_up, prep_verify_clean_up, prep_rotate)
 from ...base.src.operators.core.sculpt import (
     prep_push_pull_smooth, minimal_prep_push_pull_smooth, prep_draw, prep_cutout, minimal_prep_new_cutout, prep_cutout_prep,
-    prep_scaling, prep_verify_scaling, minimal_prep_free_sculpt, prep_thickness, prep_custom_thickness,
-    minimal_prep_custom_thickness)
+    prep_scaling, prep_verify_scaling, minimal_prep_free_sculpt)
 from ...base.src.operators.core.finish import prep_export
 
 # conditions
@@ -75,13 +74,6 @@ fs_ui_consts = {
             'ui_name': 'Draw Model',
             'help_text': 'Draw the shape of the model by holding down the left mouse button and moving the brush '
                          'over the scan. Use CTRL-Click to remove drawn area.'},
-        'thickness': {
-            'ui_name': 'Base Thickness',
-            'help_text': 'Choose the base 3D printing thickness in mm.'},
-        'custom_thickness': {
-            'ui_name': 'Custom Thickness',
-            'help_text': 'Highlight the region that you would like to give custom thickness. '
-                         'Use the apply thickness button to see the result.'},
         'export': {
             'ui_name': 'Export Model',
             'help_text': 'Verify the results before exporting the model.'},
@@ -460,54 +452,6 @@ fs_operator_consts = {
             'sub_steps': False
         },
         # 'next_step': None,
-        'next_step': {
-            'name': 'export',
-            'default_state': {
-                'object_name': 'uFit',
-                'light': 'STUDIO',
-                'color_type': 'RANDOM'
-            },
-            'reset_substep': True,
-            'prep_func': prep_export,
-            'exec_save': True
-        },
-    },
-    'thickness': {
-        'checkpoint': {
-            'name': 'thickness',
-            'sub_steps': False
-        },
-        # 'next_step': None,
-        'next_step': {
-            'name': 'custom_thickness',
-            'default_state': {
-                'object_name': 'uFit',
-                'light': 'STUDIO',
-                'color_type': 'MATERIAL'
-            },
-            'reset_substep': True,
-            'prep_func': prep_custom_thickness,
-            'exec_save': True
-        },
-    },
-    'custom_thickness': {
-        'checkpoint': {
-            'name': 'custom_thickness',
-            'sub_steps': True
-        },
-        'next_step': {
-            'name': 'custom_thickness',
-            'default_state': None,
-            'reset_substep': False,
-            'prep_func': minimal_prep_custom_thickness,
-            'exec_save': True
-        },
-    },
-    'custom_thickness_done': {
-        'checkpoint': {
-            'name': 'custom_thickness',
-            'sub_steps': True
-        },
         'next_step': {
             'name': 'export',
             'default_state': {

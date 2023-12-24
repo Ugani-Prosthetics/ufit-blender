@@ -9,7 +9,7 @@ from .ST_40_verify_clean_up.OT_verify_clean_up import (
     OTDeleteNonManifoldFS,
     OTApproveCleanUpFS,
 )
-from .ST_50_rotate.OT_rotate_scan import OTMirrorFS, OTSaveRotationFS
+from .ST_50_rotate.OT_rotate_scan import OTMirrorFS, OTSaveRotationFS, OTRotatePartModelFS
 from .ST_70_push_pull_smooth.OT_push_pull_smooth import (
     OTPushPullRegionFS,
     OTSmoothRegionFS,
@@ -40,6 +40,7 @@ def register():
     bpy.utils.register_class(OTDeleteNonManifoldFS)
     bpy.utils.register_class(OTApproveCleanUpFS)
     bpy.utils.register_class(OTMirrorFS)
+    bpy.utils.register_class(OTRotatePartModelFS)
     bpy.utils.register_class(OTSaveRotationFS)
     bpy.utils.register_class(OTSmoothRegionFS)
     bpy.utils.register_class(OTPushPullRegionFS)
@@ -71,6 +72,7 @@ def unregister():
     bpy.utils.unregister_class(OTDeleteNonManifoldFS)
     bpy.utils.unregister_class(OTApproveCleanUpFS)
     bpy.utils.unregister_class(OTMirrorFS)
+    bpy.utils.unregister_class(OTRotatePartModelFS)
     bpy.utils.unregister_class(OTSaveRotationFS)
     bpy.utils.unregister_class(OTSmoothRegionFS)
     bpy.utils.unregister_class(OTPushPullRegionFS)

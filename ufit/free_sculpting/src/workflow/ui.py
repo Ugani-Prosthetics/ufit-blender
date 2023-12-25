@@ -13,8 +13,6 @@ from .ST_100_cutout_prep.UI_cutout_prep import UICutoutPrepFS
 from .ST_110_cutout.UI_cutout import UICutoutFS
 from .ST_120_new_cutout.UI_new_cutout import UINewCutoutFS
 from .ST_125_draw.UI_draw import UIDrawFS
-from .ST_130_thickness.UI_thickness import UIThicknessFS
-from .ST_140_custom_thickness.UI_custom_thickness import UICustomThicknessFS
 from .ST_180_export.UI_export_socket import UIExportSocketFS
 from .ST_190_finish.UI_finish import UIFinishedFS
 
@@ -34,8 +32,6 @@ def register():
     bpy.utils.register_class(UICutoutFS)
     bpy.utils.register_class(UINewCutoutFS)
     bpy.utils.register_class(UIDrawFS)
-    bpy.utils.register_class(UIThicknessFS)
-    bpy.utils.register_class(UICustomThicknessFS)
     bpy.utils.register_class(UIExportSocketFS)
     bpy.utils.register_class(UIFinishedFS)
 
@@ -55,7 +51,5 @@ def unregister():
     bpy.utils.unregister_class(UICutoutFS)
     bpy.utils.unregister_class(UINewCutoutFS)
     bpy.utils.unregister_class(UIDrawFS)
-    bpy.utils.unregister_class(UIThicknessFS)
-    bpy.utils.unregister_class(UICustomThicknessFS)
     bpy.utils.unregister_class(UIExportSocketFS)
     bpy.utils.unregister_class(UIFinishedFS)

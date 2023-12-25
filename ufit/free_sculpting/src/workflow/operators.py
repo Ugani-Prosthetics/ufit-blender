@@ -23,8 +23,6 @@ from .ST_100_cutout_prep.OT_cutout_prep import OTCutoutPlaneFS
 from .ST_110_cutout.OT_cutout import OTCutoutFS
 from .ST_120_new_cutout.OT_new_cutout import OTNewCutoutFS, OTCutoutDoneFS
 from .ST_125_draw.OT_draw import OTApplyDrawFS
-from .ST_130_thickness.OT_thickness import OTThicknessFS
-from .ST_140_custom_thickness.OT_custom_thickness import OTCustomThicknessFS, OTCustomThicknessDoneFS
 from .ST_180_export.OT_export_socket import OTExportSocketFS
 from .ST_190_finish.OT_finish import OTFinishFS
 
@@ -53,9 +51,6 @@ def register():
     bpy.utils.register_class(OTNewCutoutFS)
     bpy.utils.register_class(OTCutoutDoneFS)
     bpy.utils.register_class(OTApplyDrawFS)
-    bpy.utils.register_class(OTThicknessFS)
-    bpy.utils.register_class(OTCustomThicknessFS)
-    bpy.utils.register_class(OTCustomThicknessDoneFS)
     bpy.utils.register_class(OTExportSocketFS)
     bpy.utils.register_class(OTFinishFS)
 
@@ -84,8 +79,5 @@ def unregister():
     bpy.utils.unregister_class(OTNewCutoutFS)
     bpy.utils.unregister_class(OTCutoutDoneFS)
     bpy.utils.unregister_class(OTApplyDrawFS)
-    bpy.utils.unregister_class(OTThicknessFS)
-    bpy.utils.unregister_class(OTCustomThicknessFS)
-    bpy.utils.unregister_class(OTCustomThicknessDoneFS)
     bpy.utils.unregister_class(OTExportSocketFS)
     bpy.utils.unregister_class(OTFinishFS)

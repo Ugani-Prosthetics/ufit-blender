@@ -170,7 +170,7 @@ def import_3d_file(context, filepath):
     # Print the total surface area
     total_area = sum(f.area for f in bpy.context.active_object.data.polygons)
     print("Total Surface Area:", total_area)
-    if total_area > 200000:
+    if total_area > 10:
         raise Exception(f"Surface area exceeds the limit. Please select a smaller model")
 
 

@@ -326,8 +326,8 @@ def create_cutout_plane(context):
         # Z_UP not working in all cases
         bpy.context.object.data.twist_mode = 'Z_UP'
 
-        # extrude the curve x cm everywhere
-        bpy.context.object.data.extrude = 0.01
+        # extrude the curve 10 mm everywhere
+        bpy.context.object.data.extrude = 10
 
         # smoothen the curve
         bpy.context.object.data.twist_smooth = 100

@@ -15,7 +15,7 @@ bl_info = {
     "author": "Ugani Prosthetics",
     "blender": (3, 5, 0),
     "category": "O&P",
-    "version": (2, 0, 0)
+    "version": (2, 0, 1)
 }
 
 modulesNames = [

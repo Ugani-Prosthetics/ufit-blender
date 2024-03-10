@@ -477,21 +477,22 @@ def perform_cutout(context):
                                         object_index=ufit_obj.pass_index,
                                         index=selected_edges[0])
 
-        num_verts_part1 = len(general.get_selected_vertices(context))
-        bpy.ops.mesh.select_all(action='INVERT')
-        num_verts_part2 = len(general.get_selected_vertices(context))
-
-        if num_verts_part2 > num_verts_part1:
+        if context.scene.ufit_device_type in ('transtibial', 'transfemoral'):
+            # Calculate the average z-index
+            avg_z_part1 = get_avg_z(ufit_obj)
             bpy.ops.mesh.select_all(action='INVERT')
+            avg_z_part2 = get_avg_z(ufit_obj)
 
-        # # Calculate the average z-index
-        # avg_z_part1 = get_avg_z(ufit_obj)
-        # bpy.ops.mesh.select_all(action='INVERT')
-        # avg_z_part2 = get_avg_z(ufit_obj)
-        #
-        # # keep the part with lowest avg z
-        # if avg_z_part1 > avg_z_part2:
-        #     bpy.ops.mesh.select_all(action='INVERT')
+            # keep the part with lowest avg z
+            if avg_z_part1 > avg_z_part2:
+                bpy.ops.mesh.select_all(action='INVERT')
+        else:
+            num_verts_part1 = len(general.get_selected_vertices(context))
+            bpy.ops.mesh.select_all(action='INVERT')
+            num_verts_part2 = len(general.get_selected_vertices(context))
+
+            if num_verts_part2 > num_verts_part1:
+                bpy.ops.mesh.select_all(action='INVERT')
 
         # make sure the edge itself is not selected and delete
         general.deselect_edges_by_idx(context, selected_edges)

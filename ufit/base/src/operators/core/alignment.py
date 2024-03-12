@@ -187,7 +187,7 @@ def prep_transition_connector(context):
     general.activate_object(context, ufit_obj, mode='OBJECT')
 
     # add a plane (automatically the active object
-    z_loc = context.scene.ufit_connector_loc[2] + 0.05
+    z_loc = context.scene.ufit_connector_loc[2] + 0.07
     bpy.ops.mesh.primitive_plane_add(size=0.2, enter_editmode=False, align='WORLD',
                                      location=(0, 0, z_loc), scale=(1, 1, 1))
 

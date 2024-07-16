@@ -30,7 +30,8 @@ class OTLinerScaleTT(OTBaseTT, OTScale):
             return_to_default_state(context, 'uFit', light='STUDIO', color_type='MATERIAL')
 
             # step (no prep needed)
-            set_active_step(context, 'socket_milling', tt_path_consts, tt_ui_consts)
+            # set_active_step(context, 'socket_milling', tt_path_consts, tt_ui_consts)
+            set_active_step(context, 'thickness', tt_path_consts, tt_ui_consts)
 
     def execute(self, context):
         return self.execute_base(context,

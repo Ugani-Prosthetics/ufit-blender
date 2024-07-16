@@ -1,5 +1,5 @@
 import bpy
-from .....base.src.ui.utils.general import UFitPanel
+from .....base.src.ui.utils.general import UFitPanel, get_label_multiline
 from .....base.src.ui.utils.general import get_standard_navbox
 
 
@@ -33,6 +33,26 @@ class UICutout(UFitPanel, bpy.types.Panel):
         box0.prop(context.scene, 'ufit_mean_tilt')
 
         get_standard_navbox(self.layout, "ufit_operators.prev_step", ot_cutout)
+
+
+class UICutoutSelection(UFitPanel, bpy.types.Panel):
+    def draw_base(self, context, ot_cutout_selection):
+        object = context.active_object
+        layout = self.layout
+
+        # row0
+        row0 = layout.row()
+        box0 = row0.box()
+        get_label_multiline(
+            context=context,
+            text='Select the part you would like to keep.',
+            parent=box0
+        )
+
+        row1 = layout.row()
+        row1.prop(context.scene, 'cutout_selection', expand=True)
+
+        get_standard_navbox(self.layout, "ufit_operators.prev_step", ot_cutout_selection)
 
 
 class UINewCutout(UFitPanel, bpy.types.Panel):

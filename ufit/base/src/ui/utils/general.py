@@ -4,7 +4,7 @@ import textwrap
 class UFitPanel:
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = 'uFit'
+    bl_category = 'uFit Premium'
 
     # bl_options = {'DEFAULT_CLOSED'}
 

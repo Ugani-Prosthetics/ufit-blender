@@ -25,6 +25,7 @@ from .ST_70_push_pull_smooth.OT_push_pull_smooth import (
 from .ST_80_pull_bottom.OT_pull_bottom import OTPullBottomTF, OTPullBottomDoneTF
 from .ST_90_cutout_prep.OT_cutout_prep import OTCutoutPlaneTF
 from .ST_100_cutout.OT_cutout import OTCutoutTF
+from .ST_105_cutout_selection.OT_cutout_selection import OTCutoutSelectionTF
 from .ST_110_scale.OT_liner_scaling import OTLinerScaleTF
 from .ST_120_verify_scaling.OT_verify_scaling import OTApproveScalingTF
 from .ST_125_socket_milling.OT_socket_milling import OTSocketMillingTF
@@ -67,6 +68,7 @@ def register():
     bpy.utils.register_class(OTPullBottomDoneTF)
     bpy.utils.register_class(OTCutoutPlaneTF)
     bpy.utils.register_class(OTCutoutTF)
+    bpy.utils.register_class(OTCutoutSelectionTF)
     bpy.utils.register_class(OTThicknessTF)
     bpy.utils.register_class(OTCustomThicknessTF)
     bpy.utils.register_class(OTCustomThicknessDoneTF)
@@ -107,6 +109,7 @@ def unregister():
     bpy.utils.unregister_class(OTPullBottomDoneTF)
     bpy.utils.unregister_class(OTCutoutPlaneTF)
     bpy.utils.unregister_class(OTCutoutTF)
+    bpy.utils.unregister_class(OTCutoutSelectionTF)
     bpy.utils.unregister_class(OTThicknessTF)
     bpy.utils.unregister_class(OTCustomThicknessTF)
     bpy.utils.unregister_class(OTCustomThicknessDoneTF)

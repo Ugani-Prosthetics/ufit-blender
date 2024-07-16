@@ -170,18 +170,79 @@ def scale_connector_scale_groups(context):
     bpy.ops.transform.resize(value=(2, 2, 2))
 
 
+def create_inner_outer_ufit(context):
+    ufit_obj = bpy.data.objects['uFit']
+
+    # delete the faces from the edge ring
+    general.select_vertices_from_vertex_groups(context, ufit_obj, ['cutout_edge_0'])
+    bpy.ops.mesh.delete(type='FACE')
+
+    # select a random vertex and take the linked_pick
+    bpy.ops.mesh.select_linked_pick(deselect=False,
+                                    delimit=set(),
+                                    object_index=ufit_obj.pass_index,
+                                    index=50)
+
+    # create uFit_1 based on selection
+    ufit_1 = general.create_obj_from_selection(context, 'uFit_1')
+
+    # create uFit_2 as inverted selection
+    bpy.ops.mesh.select_all(action='INVERT')
+    ufit_2 = general.create_obj_from_selection(context, 'uFit_2')
+
+    # calculate the surface area, the smallest surface area is the inside
+    total_area_ufit_1 = sum(f.area for f in ufit_1.data.polygons)
+    total_area_ufit_2 = sum(f.area for f in ufit_2.data.polygons)
+
+    # assign the correct names
+    if total_area_ufit_1 > total_area_ufit_2:
+        ufit_outer = ufit_1
+        ufit_inner = ufit_2
+    else:
+        ufit_outer = ufit_2
+        ufit_inner = ufit_1
+
+    ufit_inner.name = 'uFit_Inner'
+    ufit_outer.name = 'uFit_Outer'
+
+    # flip the normals from ufit_outer for the boolean modifier to work as we want (no clue why)
+    general.activate_object(context, ufit_outer, mode='EDIT')
+    bpy.ops.mesh.flip_normals()
+
+    # add faces again to edge ring
+    general.select_vertices_from_vertex_groups(context, ufit_obj, ['cutout_edge_0'])
+    bpy.ops.mesh.bridge_edge_loops()
+
+    return ufit_inner, ufit_outer
+
+
 def prep_transition_connector(context):
     conn_obj = bpy.data.objects['Connector']
     ufit_obj = bpy.data.objects['uFit']
+
+    ufit_inner, ufit_outer = create_inner_outer_ufit(context)
 
     # change to the correct mode
     user_interface.change_orthographic('FRONT')
     user_interface.set_shading_solid_mode()
 
-    # update the shrinkwrap modifier
+    # remove the shrinkwrap modifier on the conn_obj
     shrinkwrap_mod = conn_obj.modifiers["Shrinkwrap"]
+    conn_obj.modifiers.remove(shrinkwrap_mod)
+
+    # create new shrinkwrap modifier from conn_obj to the ufit_inner object
+    shrinkwrap_mod = conn_obj.modifiers.new(name="Shrinkwrap_Inner", type="SHRINKWRAP")
     shrinkwrap_mod.wrap_method = 'NEAREST_SURFACEPOINT'
     shrinkwrap_mod.wrap_mode = 'ON_SURFACE'
+    shrinkwrap_mod.vertex_group = "scale_group_inner"
+    shrinkwrap_mod.target = ufit_inner
+
+    # create new shrinkwrap modifier from conn_obj to the ufit_outer object
+    shrinkwrap_mod = conn_obj.modifiers.new(name="Shrinkwrap_Outer", type="SHRINKWRAP")
+    shrinkwrap_mod.wrap_method = 'NEAREST_SURFACEPOINT'
+    shrinkwrap_mod.wrap_mode = 'ON_SURFACE'
+    shrinkwrap_mod.vertex_group = "scale_group_outer"
+    shrinkwrap_mod.target = ufit_outer
 
     # switch to object mode
     general.activate_object(context, ufit_obj, mode='OBJECT')
@@ -202,8 +263,20 @@ def prep_transition_connector(context):
     # set the move tool
     bpy.ops.wm.tool_set_by_id(name="builtin.move")
 
-    # add boolean modifier to the UFit obj to make the cut
+    # add boolean modifier to the uFit obj to make the cut
     boolean_mod = ufit_obj.modifiers.new(name="Boolean", type="BOOLEAN")
+    boolean_mod.operation = 'DIFFERENCE'
+    boolean_mod.solver = 'EXACT'
+    boolean_mod.object = cut_obj
+
+    # add boolean modifier to the uFit_Inner obj to make the cut
+    boolean_mod = ufit_inner.modifiers.new(name="Boolean", type="BOOLEAN")
+    boolean_mod.operation = 'DIFFERENCE'
+    boolean_mod.solver = 'EXACT'
+    boolean_mod.object = cut_obj
+
+    # add boolean modifier to the uFit_Outer obj to make the cut
+    boolean_mod = ufit_outer.modifiers.new(name="Boolean", type="BOOLEAN")
     boolean_mod.operation = 'DIFFERENCE'
     boolean_mod.solver = 'EXACT'
     boolean_mod.object = cut_obj
@@ -275,88 +348,82 @@ def correct_thickness_connector(context, conn_obj):
     general.delete_obj_by_name_contains('Inner_Shell')
 
 
-def create_inner_ufit(context, ufit_obj, conn_obj):
+def create_ufit_inside(context, ufit_obj, conn_obj):
     # duplicate the inner shell group
     general.select_vertices_from_vertex_groups(context, conn_obj, vg_names=['inner_shell_group'])
-    ufit_inner = general.create_obj_from_selection(context, 'uFit_Inner', copy_vg=True)
+    ufit_inside = general.create_obj_from_selection(context, 'uFit_Inside', copy_vg=True)
 
     # select all vertices and create faces
-    general.select_vertices_from_vertex_groups(context, ufit_inner, vg_names=['inner_shell_group'])
+    general.select_vertices_from_vertex_groups(context, ufit_inside, vg_names=['inner_shell_group'])
     bpy.ops.mesh.edge_face_add()
 
     # toggle edit mode
     bpy.ops.object.editmode_toggle()
     bpy.ops.object.editmode_toggle()
 
-    # duplicate uFit_Inner so we have it twice
-    ufit_inner_2 = general.duplicate_obj(ufit_inner, 'uFit_Inner_2', context.collection, data=True, actions=False)
+    # duplicate ufit_inside so we have it twice
+    ufit_inside_2 = general.duplicate_obj(ufit_inside, 'uFit_Inside_2', context.collection, data=True, actions=False)
 
-    # boolean modifier - intersect to capture everything inside uFit_Inner_2
-    boolean_mod = ufit_inner_2.modifiers.new(name="Boolean", type="BOOLEAN")
+    # boolean modifier - intersect to capture everything inside uFit_Inside_2 of the normal uFit Object
+    boolean_mod = ufit_inside_2.modifiers.new(name="Boolean", type="BOOLEAN")
     boolean_mod.operation = 'INTERSECT'
     boolean_mod.solver = 'EXACT'
     boolean_mod.object = ufit_obj
 
     # apply boolean modifier
-    general.activate_object(context, ufit_inner_2, mode='OBJECT')
-    override = {"object": ufit_inner_2, "active_object": ufit_inner_2}
+    general.activate_object(context, ufit_inside_2, mode='OBJECT')
+    override = {"object": ufit_inside_2, "active_object": ufit_inside_2}
     bpy.ops.object.modifier_apply(override, modifier="Boolean")
 
-    # on uFit_Inner delete the top face
-    general.select_vertices_from_vertex_groups(context, ufit_inner, vg_names=['scale_group_inner'])
+    # on uFit_Inside delete the top face
+    general.select_vertices_from_vertex_groups(context, ufit_inside, vg_names=['scale_group_inner'])
     bpy.ops.mesh.delete(type='FACE')
 
     # add a solididfy modifier on uFit_Inner
-    boolean_mod = ufit_inner.modifiers.new(name="Solidify", type="SOLIDIFY")
+    boolean_mod = ufit_inside.modifiers.new(name="Solidify", type="SOLIDIFY")
     boolean_mod.thickness = -0.001  # one mm of thickness
 
     # apply the solidify modifier
-    general.activate_object(context, ufit_inner, mode='OBJECT')
-    override = {"object": ufit_inner, "active_object": ufit_inner}
+    general.activate_object(context, ufit_inside, mode='OBJECT')
+    override = {"object": ufit_inside, "active_object": ufit_inside}
     bpy.ops.object.modifier_apply(override, modifier="Solidify")
 
-    # join the uFit_Inner and uFit_Inner_2
-    selected_objects = [ufit_inner, ufit_inner_2]
+    # join the uFit_Inner and uFit_Inside_2
+    selected_objects = [ufit_inside, ufit_inside_2]
     join_dict = {
-        'object': ufit_inner,
-        'active_object': ufit_inner,
+        'object': ufit_inside,
+        'active_object': ufit_inside,
         'selected_objects': selected_objects,
         'selected_editable_objects': selected_objects
     }
     bpy.ops.object.join(join_dict)
 
     # Remesh the uFit_Inner object
-    voxel_remesh = ufit_inner.modifiers.new("Voxel Remesh", type='REMESH')
+    voxel_remesh = ufit_inside.modifiers.new("Voxel Remesh", type='REMESH')
     voxel_remesh.mode = 'VOXEL'
     voxel_remesh.voxel_size = 0.0005  # Set the voxel size
 
     # set the origin to the center of the object and scale
     bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='MEDIAN')
-    ufit_inner.scale = (0.99, 0.99, 0.99)
+    ufit_inside.scale = (0.99, 0.99, 0.99)
 
     # apply the remesh modifier
-    general.activate_object(context, ufit_inner, mode='OBJECT')
-    override = {"object": ufit_inner, "active_object": ufit_inner}
+    general.activate_object(context, ufit_inside, mode='OBJECT')
+    override = {"object": ufit_inside, "active_object": ufit_inside}
     bpy.ops.object.modifier_apply(override, modifier="Voxel Remesh")
 
     # decimate geometry to reduce vertices
-    general.activate_object(context, ufit_inner, mode='EDIT')
+    general.activate_object(context, ufit_inside, mode='EDIT')
     bpy.ops.mesh.select_all(action='SELECT')
     bpy.ops.mesh.decimate(ratio=0.05)
 
     # make ufit_inner part of the collection
-    bpy.data.collections['Collection'].objects.link(ufit_inner)
-    bpy.context.scene.collection.objects.unlink(ufit_inner)  # ['Collection'].objects.link(ufit_inner)
+    bpy.data.collections['Collection'].objects.link(ufit_inside)
+    bpy.context.scene.collection.objects.unlink(ufit_inside)  # ['Collection'].objects.link(ufit_inside)
 
 
-def fix_transition_inaccuracy(context, ufit_obj, conn_obj, cut_obj):
-    # add boolean intersection modifier to the cutter object (DO NOT APPLY!)
-    boolean_mod = cut_obj.modifiers.new(name="Boolean", type="BOOLEAN")
-    boolean_mod.operation = 'INTERSECT'
-    boolean_mod.solver = 'EXACT'
-    boolean_mod.object = ufit_obj
-
-    for i in range(3):
+def fix_transition_inaccuracy(context, ufit_obj, conn_obj):
+    for i in range(5):
         # select the inner and outer scale vertex groups on conn_obj and subdivide
         general.select_vertices_from_vertex_groups(context, conn_obj, vg_names=['scale_group_inner'])
         bpy.ops.mesh.subdivide(number_cuts=1, ngon=False, quadcorner='INNERVERT')
@@ -367,7 +434,7 @@ def fix_transition_inaccuracy(context, ufit_obj, conn_obj, cut_obj):
         shrinkwrap_mod = conn_obj.modifiers.new(name="Shrinkwrap", type="SHRINKWRAP")
         shrinkwrap_mod.wrap_method = 'NEAREST_SURFACEPOINT'  # 'NEAREST_VERTEX'
         shrinkwrap_mod.wrap_mode = 'ON_SURFACE'
-        shrinkwrap_mod.target = cut_obj
+        shrinkwrap_mod.target = ufit_obj
         shrinkwrap_mod.vertex_group = 'shrinkwrap_group'
 
         # apply the shrinkwrap modifier
@@ -394,51 +461,63 @@ def fix_transition_inaccuracy(context, ufit_obj, conn_obj, cut_obj):
     # general.select_vertices_from_vertex_groups(context, conn_obj, vg_names=['shrinkwrap_group'])
     # bpy.ops.mesh.decimate(ratio=0.05)
 
-    # remove the intersect modifier
-    cut_obj.modifiers.remove(boolean_mod)
-
 
 def transition_connector(context):
     ufit_obj = bpy.data.objects['uFit']
     conn_obj = bpy.data.objects['Connector']
-    cut_obj = bpy.data.objects['Cutter']
 
     # apply shrinkwrap modifier on connector
     general.activate_object(context, conn_obj, mode='OBJECT')
     override = {"object": conn_obj, "active_object": conn_obj}
-    bpy.ops.object.modifier_apply(override, modifier="Shrinkwrap")
+    bpy.ops.object.modifier_apply(override, modifier="Shrinkwrap_Inner")
+    bpy.ops.object.modifier_apply(override, modifier="Shrinkwrap_Outer")
 
     # fix potential transition inaccuracy of connector
-    fix_transition_inaccuracy(context, ufit_obj, conn_obj, cut_obj)
+    fix_transition_inaccuracy(context, ufit_obj, conn_obj)
+
+    # make sure the ufit object is manifold
+    general.activate_object(context, ufit_obj, mode='OBJECT')
+    bpy.ops.mesh.print3d_clean_non_manifold()
 
     # temporary disable the Boolean modifier on uFit to create the inner part for full contact socket
-    general.activate_object(context, ufit_obj, mode='OBJECT')
     bpy.context.object.modifiers["Boolean"].show_viewport = False
 
     if context.scene.ufit_total_contact_socket:
-        create_inner_ufit(context, ufit_obj, conn_obj)
+        create_ufit_inside(context, ufit_obj, conn_obj)
 
     # make sure the thickness is horizontally consistent
     if context.scene.ufit_try_perfect_print:
         correct_thickness_connector(context, conn_obj)
 
-    # apply the Boolean modifier of the uFit and Cutter object
+    # apply the Boolean modifier of the uFit
     general.activate_object(context, ufit_obj, mode='OBJECT')
     bpy.context.object.modifiers["Boolean"].show_viewport = True  # reactivate
     override = {"object": ufit_obj, "active_object": ufit_obj}
     bpy.ops.object.modifier_apply(override, modifier="Boolean")
 
-    # boolean modifier to merge the uFit and Connector object
-    boolean_mod = ufit_obj.modifiers.new(name="Boolean", type="BOOLEAN")
-    boolean_mod.operation = 'UNION'
-    boolean_mod.solver = 'EXACT'
-    boolean_mod.object = conn_obj
-    # boolean_mod.use_self = True  # costs a crazy amount of performance
+    selected_objects = [ufit_obj, conn_obj]
+    join_dict = {
+        'object': ufit_obj,
+        'active_object': ufit_obj,
+        'selected_objects': selected_objects,
+        'selected_editable_objects': selected_objects
+    }
+    bpy.ops.object.join(join_dict)
 
-    # apply the merge
-    override = {"object": ufit_obj, "active_object": ufit_obj}
-    bpy.ops.object.modifier_apply(override, modifier="Boolean")
+    # # boolean modifier UNION to merge the uFit and Connector object
+    # boolean_mod = ufit_obj.modifiers.new(name="Boolean", type="BOOLEAN")
+    # boolean_mod.operation = 'UNION'
+    # boolean_mod.solver = 'EXACT'
+    # boolean_mod.object = conn_obj
+    # # boolean_mod.use_hole_tolerant = True
+    # # boolean_mod.use_self = True  # costs a crazy amount of performance
+    #
+    # # apply the merge
+    # override = {"object": ufit_obj, "active_object": ufit_obj}
+    # bpy.ops.object.modifier_apply(override, modifier="Boolean")
 
     # delete connector and cutter object
     general.delete_obj_by_name_contains(name='Connector')
     general.delete_obj_by_name_contains(name='Cutter')
+    general.delete_obj_by_name_contains(name='uFit_Inner')
+    general.delete_obj_by_name_contains(name='uFit_Outer')

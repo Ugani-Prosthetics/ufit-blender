@@ -5,7 +5,7 @@ from .....base.src.operators.base.OT_milling import OTSocketMilling
 class OTSocketMillingTT(OTBaseTT, OTSocketMilling):
     """Tooltip"""
     bl_idname = "tt_operators.socket_milling"
-    bl_label = "Socket or Milling"
+    bl_label = "Approve Socket/Milling"
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context):

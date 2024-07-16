@@ -166,6 +166,17 @@ def mean_tilt_update(self, context):
     bpy.ops.curve.select_all(action='DESELECT')
 
 
+def cutout_selection_update(self, context):
+    ufit_part1 = bpy.data.objects['uFit_part1']
+    ufit_part2 = bpy.data.objects['uFit_part2']
+
+    if self.cutout_selection == 'ufit_part1':
+        # activate uFit
+        general.activate_object(context, ufit_part1, mode='OBJECT')
+    else:
+        general.activate_object(context, ufit_part2, mode='OBJECT')
+
+
 def draw_type_update(self, context):
     ufit_obj = bpy.data.objects['uFit']
     general.activate_object(context, ufit_obj, mode='OBJECT')

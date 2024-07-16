@@ -46,7 +46,9 @@ def prep_clean_up(context):
 
     # go to edit mode
     general.activate_object(context, ufit_obj, mode='EDIT')
-    user_interface.set_shading_wireframe_mode()
+
+    # turn on xray
+    user_interface.set_xray(turn_on=True, alpha=1)
 
     # activate tools
     user_interface.set_active_tool('builtin.select_circle')
@@ -88,6 +90,9 @@ def clean_up(context):
 def prep_verify_clean_up(context):
     ufit_obj = bpy.data.objects['uFit']
     general.activate_object(context, ufit_obj, mode='EDIT')
+
+    # turn off xray
+    user_interface.set_xray(turn_on=False, alpha=1)
 
     bpy.ops.mesh.separate(type='LOOSE')
     x = []

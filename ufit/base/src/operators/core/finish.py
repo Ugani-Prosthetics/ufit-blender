@@ -1,4 +1,6 @@
+import os
 import json
+import base64
 from datetime import datetime
 import bpy
 from ..utils import general, user_interface
@@ -73,6 +75,8 @@ def upload_ufit_statistic(context):
         ufit_prefs.offline_transtibial_count += 1
     elif context.scene.ufit_device_type == 'transfemoral':
         ufit_prefs.offline_transfemoral_count += 1
+    elif context.scene.ufit_device_type == 'free_sculpting':
+        ufit_prefs.offline_free_sculpting_count += 1
 
     # create ufit statistic
     try:
@@ -80,7 +84,8 @@ def upload_ufit_statistic(context):
         data = {
             "params": {
                 "transtibial_count": ufit_prefs.offline_transtibial_count,
-                "transfemoral_count": ufit_prefs.offline_transfemoral_count
+                "transfemoral_count": ufit_prefs.offline_transfemoral_count,
+                "free_sculpting_count": ufit_prefs.offline_free_sculpting_count,
             }
         }
 
@@ -91,6 +96,7 @@ def upload_ufit_statistic(context):
         if r.ok and r.json()['result']['success']:
             ufit_prefs.offline_transtibial_count = 0
             ufit_prefs.offline_transfemoral_count = 0
+            ufit_prefs.offline_free_sculpting_count = 0
         else:
             pass
 
@@ -122,8 +128,8 @@ def export_device(context):
 
         # export stl of the inner part to checkpoints folder
         if context.scene.ufit_total_contact_socket:
-            ufit_inner_obj = bpy.data.objects['uFit_Inner']
-            general.activate_object(context, ufit_inner_obj, mode='OBJECT')
+            ufit_inside_obj = bpy.data.objects['uFit_Inside']
+            general.activate_object(context, ufit_inside_obj, mode='OBJECT')
             inner_part_name = f'finished_{context.scene.ufit_device_type}_inner_part_{ts}.stl'
             filepath_inner_part = f'{context.scene.ufit_folder_modeling}/{inner_part_name}'
             bpy.ops.export_mesh.stl(filepath=filepath_inner_part, check_existing=True, filter_glob='*.stl',

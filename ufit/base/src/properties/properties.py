@@ -75,6 +75,7 @@ ufit_scene_properties = [
     'ufit_plane_operation',
     'ufit_number_of_cutouts',
     'ufit_mean_tilt',
+    'cutout_selection',
 
     # scaling
     'ufit_scaling_unit',
@@ -140,6 +141,10 @@ def register():
                                                  items=[
                                                      ("https://ufit.ugani.org", "uFit", "", 1),
                                                  ])
+    # bpy.types.Scene.ufit_platform = EnumProperty(name="Platform", default=1,
+    #                                              items=[
+    #                                                  ("http://localhost:8069", "uFit", "", 1),
+    #                                              ])
     bpy.types.Scene.ufit_user = StringProperty(name="User")
     bpy.types.Scene.ufit_password = StringProperty(name="Password", subtype='PASSWORD')
 
@@ -168,7 +173,6 @@ def register():
     bpy.types.Scene.ufit_folder_modeling = StringProperty(name="Folder Modeling")
     bpy.types.Scene.ufit_folder_checkpoints = StringProperty(name="Folder Checkpoints")
 
-
     # steps (overview)
     bpy.types.Scene.ufit_active_step = StringProperty(name="Active Step", default='platform_login')
     bpy.types.Scene.ufit_substep = IntProperty(name="Active Substep", default=0)
@@ -194,7 +198,7 @@ def register():
                                                         ("stl", ".stl", "", 3),
                                                     ])
     bpy.types.Scene.ufit_scan_scale_size = FloatProperty(name="Scale Scan", min=0.001, max=1.000, step=1, precision=3,
-                                                         default=1.000)
+                                                         default=0.001)
     bpy.types.Scene.ufit_colored_scan = BoolProperty(name='Colored Scan', default=True)
 
     # clean up
@@ -274,6 +278,14 @@ def register():
                                                   ],
                                                   update=callbacks.mean_tilt_update)
 
+    # cutout selection
+    bpy.types.Scene.cutout_selection = EnumProperty(name="The part you would like to keep?", default=1,
+                                                    items=[
+                                                        ("ufit_part1", "Part 1", "", 1),
+                                                        ("ufit_part2", "Part 2", "", 2),
+                                                    ],
+                                                    update=callbacks.cutout_selection_update)
+
     # scaling
     bpy.types.Scene.ufit_scaling_unit = EnumProperty(name="Scaling Unit", default=1,
                                                      items=[
@@ -321,10 +333,10 @@ def register():
                                                      update=callbacks.voronoi_size_update)
 
     # socket or milling
-    bpy.types.Scene.ufit_socket_or_milling = EnumProperty(name="Socket or Milling?", default=1,
+    bpy.types.Scene.ufit_socket_or_milling = EnumProperty(name="3D Printing or CNC Milling?", default=1,
                                                           items=[
-                                                              ("socket", "Socket", "", 1),
-                                                              ("milling", "Milling", "", 2),
+                                                              ("socket", "3D Printing", "", 1),
+                                                              ("milling", "CNC Milling", "", 2),
                                                           ])
     bpy.types.Scene.ufit_milling_flare = BoolProperty(name="Milling Flare", default=True)
     bpy.types.Scene.ufit_milling_margin = FloatProperty(name="Milling Margin", min=1.0, max=10.0, step=10,
@@ -450,6 +462,7 @@ def unregister():
     del bpy.types.Scene.ufit_plane_operation
     del bpy.types.Scene.ufit_number_of_cutouts
     del bpy.types.Scene.ufit_mean_tilt
+    del bpy.types.Scene.cutout_selection
 
     # Scaling
     del bpy.types.Scene.ufit_scaling_unit

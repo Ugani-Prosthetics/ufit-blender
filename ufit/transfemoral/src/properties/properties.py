@@ -17,7 +17,6 @@ def register():
                                                                items=[
                                                                    ("universal_no_hole_circ.blend", "Universal No-hole Circ", "", 1),
                                                                    ("universal_4_hole_circ.blend", "Universal 4-hole Circ", "", 2),
-                                                                   ("universal_circ_regal_base_65mm.blend", "Regal Base 65mm", "", 3),
                                                                ])
 
     bpy.types.Scene.tf_foot_type = bpy.props.EnumProperty(name="Foot Type", default=1,

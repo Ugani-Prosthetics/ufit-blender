@@ -3,7 +3,7 @@ from ...base.src.operators.core.prepare import (
     prep_move_scan, prep_clean_up, prep_verify_clean_up, prep_rotate)
 from ...base.src.operators.core.sculpt import (
     prep_push_pull_smooth, minimal_prep_push_pull_smooth, prep_draw, prep_cutout, minimal_prep_new_cutout, prep_cutout_prep,
-    prep_scaling, prep_verify_scaling, minimal_prep_free_sculpt)
+    prep_cutout_selection, prep_scaling, prep_verify_scaling, minimal_prep_free_sculpt)
 from ...base.src.operators.core.finish import prep_export
 
 # conditions
@@ -65,6 +65,10 @@ fs_ui_consts = {
             'technical_name': 'cutout',
             'help_text': 'Make corrections to the border curve by selecting a point using Left-Click, '
                          'press G, move mouse to the destination and Left-Click again.'},
+        'cutout_selection': {
+            'ui_name': 'Part Selection',
+            'technical_name': 'cutout_selection',
+            'help_text': 'Select the part you would like to keep.'},
         'new_cutout': {
             'ui_name': 'Another Border or Continue?',
             'technical_name': 'new_cutout',
@@ -381,14 +385,15 @@ fs_operator_consts = {
                 },
                 {
                     'condition_func': conditions.cutout_style_straight_condition,
-                    'name': 'new_cutout',
+                    'name': 'cutout_selection',
                     'default_state': {
-                        'object_name': 'uFit',
+                        'object_name': 'uFit_part1',
                         'light': 'STUDIO',
-                        'color_type': 'VERTEX'
+                        'color_type': 'VERTEX',
+                        'focus': False
                     },
                     'reset_substep': False,
-                    'prep_func': prep_scaling,
+                    'prep_func': prep_cutout_selection,
                     'exec_save': True
                 }
             ]
@@ -400,6 +405,24 @@ fs_operator_consts = {
             'sub_steps': True
         },
         # 'next_step': None,
+        'next_step': {
+            'name': 'cutout_selection',
+            'default_state': {
+                'object_name': 'uFit_part1',
+                'light': 'STUDIO',
+                'color_type': 'VERTEX',
+                'focus': False
+            },
+            'reset_substep': False,
+            'prep_func': prep_cutout_selection,
+            'exec_save': True
+        },
+    },
+    'cutout_selection': {
+        'checkpoint': {
+            'name': 'cutout_selection',
+            'sub_steps': False
+        },
         'next_step': {
             'name': 'new_cutout',
             'default_state': {

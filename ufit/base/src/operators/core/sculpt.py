@@ -14,6 +14,9 @@ color_attr_select = 'area_selection'
 def prep_push_pull_smooth(context):
     ufit_obj = bpy.data.objects['uFit']
 
+    # now duplicate ufit_obj
+    # ufit_original = general.duplicate_obj(ufit_obj, 'uFit_Original', context.collection, data=True, actions=True)  # make a complete copy
+
     # add area selection color attribute and add shader nodes
     color_attributes.add_new_color_attr(ufit_obj, name=color_attr_select, color=(1, 1, 1, 1))
     color_attributes.activate_color_attribute(ufit_obj, color_attr_select)
@@ -471,39 +474,62 @@ def perform_cutout(context):
 
     # keep the object with the lowest average z coordinate
     selected_edges = general.get_selected_edges(context)
+
+    # bpy.ops.mesh.select_linked_pick(deselect=False, delimit=set(), object_index=0, index=25119)
+
     if selected_edges:
+        # operations on part1
         bpy.ops.mesh.select_linked_pick(deselect=False,
                                         delimit=set(),
                                         object_index=ufit_obj.pass_index,
                                         index=selected_edges[0])
 
-        if context.scene.ufit_device_type in ('transtibial', 'transfemoral'):
-            # Calculate the average z-index
-            avg_z_part1 = get_avg_z(ufit_obj)
-            bpy.ops.mesh.select_all(action='INVERT')
-            avg_z_part2 = get_avg_z(ufit_obj)
+        general.create_new_vertex_group_for_selected(context, ufit_obj, 'part1', mode='EDIT')
 
-            # keep the part with lowest avg z
-            if avg_z_part1 > avg_z_part2:
-                bpy.ops.mesh.select_all(action='INVERT')
-        else:
-            num_verts_part1 = len(general.get_selected_vertices(context))
-            bpy.ops.mesh.select_all(action='INVERT')
-            num_verts_part2 = len(general.get_selected_vertices(context))
+        bpy.ops.mesh.select_all(action='INVERT')
+        general.select_edges_by_idx(context, selected_edges)  # reselect the edge
+        general.create_new_vertex_group_for_selected(context, ufit_obj, 'part2', mode='EDIT')
 
-            if num_verts_part2 > num_verts_part1:
-                bpy.ops.mesh.select_all(action='INVERT')
+        # rename ufit object to uFit_part1
+        ufit_part1 = ufit_obj
+        ufit_part1.name = 'uFit_part1'
 
-        # make sure the edge itself is not selected and delete
-        general.deselect_edges_by_idx(context, selected_edges)
+        # create uFit_part2
+        ufit_part2 = general.duplicate_obj(ufit_part1, 'uFit_part2', context.collection, data=True, actions=False)
+
+        # activate part1 and remove vertices of part2
+        general.select_vertices_from_vertex_groups(context, ufit_part1, ['part1'])
+        bpy.ops.mesh.select_all(action='INVERT')
         bpy.ops.mesh.delete(type='VERT')
 
-        # select all and remove doubles
-        bpy.ops.mesh.select_all(action='SELECT')
-        bpy.ops.mesh.remove_doubles()
+        # apply changes
+        bpy.ops.object.editmode_toggle()
 
-        # dissolve geometry to remove weird normals
-        bpy.ops.mesh.dissolve_degenerate(threshold=0.0001)  # make sure to use the same distance as remove_doubles
+        # activate part2 and remove vertices of part1
+        general.select_vertices_from_vertex_groups(context, ufit_part2, ['part2'])
+        bpy.ops.mesh.select_all(action='INVERT')
+        bpy.ops.mesh.delete(type='VERT')
+
+        # if context.scene.ufit_device_type in ('transtibial', 'transfemoral'):
+        #     # Calculate the average z-index
+        #     avg_z_part1 = get_avg_z(ufit_obj)
+        #     bpy.ops.mesh.select_all(action='INVERT')
+        #     avg_z_part2 = get_avg_z(ufit_obj)
+        #
+        #     # keep the part with lowest avg z
+        #     if avg_z_part1 > avg_z_part2:
+        #         bpy.ops.mesh.select_all(action='INVERT')
+        # else:
+        #     num_verts_part1 = len(general.get_selected_vertices(context))
+        #     bpy.ops.mesh.select_all(action='INVERT')
+        #     num_verts_part2 = len(general.get_selected_vertices(context))
+        #
+        #     if num_verts_part1 > num_verts_part2:
+        #         bpy.ops.mesh.select_all(action='INVERT')
+
+        # activate part 1
+        # ufit_part_1 = bpy.data.objects['uFit_part1']
+        # general.activate_object(context, ufit_part_1)
 
     else:
         raise Exception('No cutout line found')
@@ -521,6 +547,38 @@ def cutout_straight(context):
     perform_cutout(context)
 
 
+#################################
+# Cutout Selection (Part Selection)
+#################################
+def prep_cutout_selection(context):
+    context.scene.cutout_selection = 'ufit_part1'
+
+
+def cutout_part_selection(context):
+    if context.scene.cutout_selection == 'ufit_part1':
+        ufit_obj = bpy.data.objects['uFit_part1']
+        general.delete_obj_by_name_contains('uFit_part2')
+    else:
+        ufit_obj = bpy.data.objects['uFit_part2']
+        general.delete_obj_by_name_contains('uFit_part1')
+
+    ufit_obj.name = 'uFit'
+
+    # make sure it is in edit mode
+    general.activate_object(context, ufit_obj, mode='EDIT')
+
+    # select all and remove doubles
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.mesh.remove_doubles()
+
+    # remove vertex groups part1 and part2
+    ufit_obj.vertex_groups.remove(ufit_obj.vertex_groups['part1'])
+    ufit_obj.vertex_groups.remove(ufit_obj.vertex_groups['part2'])
+
+    # dissolve geometry to remove weird normals
+    bpy.ops.mesh.dissolve_degenerate(threshold=0.0001)  # make sure to use the same distance as remove_doubles
+
+
 ###############################
 # Scaling
 ###############################
@@ -530,12 +588,16 @@ def prep_scaling(context):
 
 
 def perc_scaling(obj, liner_perc):
+    # Remark: DON'T MOVE THE CENTER OF MASS AS THE MEASUREMENT OBJECT AND THE SOCKET WILL SCALE DIFFERENTLY
     # move the object origin of to the center of mass
-    bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='MEDIAN')
+    # bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='MEDIAN')
 
     obj.scale.x = 1 + liner_perc
     obj.scale.y = 1 + liner_perc
-    obj.scale.z = 1 + liner_perc
+    # obj.scale.z = 1 + liner_perc  # do not scale in the z-direction
+
+    # workaround to not use center of mass scaling (not ideal!)
+    general.move_object(obj, Vector((0, -liner_perc/20, 0)))
 
     # resets the object origin to the worlds origin
     general.apply_transform(obj, use_location=True, use_rotation=True, use_scale=True)

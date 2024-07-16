@@ -5,7 +5,7 @@ from .....base.src.operators.base.OT_milling import OTMillingModel
 class OTMillingModelTT(OTBaseTT, OTMillingModel):
     """Tooltip"""
     bl_idname = "tt_operators.milling_model"
-    bl_label = "Milling Model"
+    bl_label = "CNC Milling Model"
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context):

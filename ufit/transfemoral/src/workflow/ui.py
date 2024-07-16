@@ -10,6 +10,7 @@ from .ST_70_push_pull_smooth.UI_push_pull_smooth import UIPushPullRegionsTF
 from .ST_80_pull_bottom.UI_pull_bottom import UIPullBottomTF
 from .ST_90_cutout_prep.UI_cutout_prep import UICutoutPrepTF
 from .ST_100_cutout.UI_cutout import UICutoutTF
+from .ST_105_cutout_selection.UI_cutout_selection import UICutoutSelectionTF
 from .ST_110_scale.UI_liner_scaling import UIScaleScanTF
 from .ST_120_verify_scaling.UI_verify_scaling import UIVerifyScalingTF
 from .ST_125_socket_milling.UI_socket_milling import UISocketMillingTF
@@ -38,6 +39,7 @@ def register():
     bpy.utils.register_class(UIPullBottomTF)
     bpy.utils.register_class(UICutoutPrepTF)
     bpy.utils.register_class(UICutoutTF)
+    bpy.utils.register_class(UICutoutSelectionTF)
     bpy.utils.register_class(UIScaleScanTF)
     bpy.utils.register_class(UIVerifyScalingTF)
     bpy.utils.register_class(UISocketMillingTF)
@@ -66,6 +68,7 @@ def unregister():
     bpy.utils.unregister_class(UIPullBottomTF)
     bpy.utils.unregister_class(UICutoutPrepTF)
     bpy.utils.unregister_class(UICutoutTF)
+    bpy.utils.unregister_class(UICutoutSelectionTF)
     bpy.utils.unregister_class(UIScaleScanTF)
     bpy.utils.unregister_class(UIVerifyScalingTF)
     bpy.utils.unregister_class(UISocketMillingTF)

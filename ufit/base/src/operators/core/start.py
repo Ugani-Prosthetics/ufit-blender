@@ -41,8 +41,8 @@ def start_from_existing(context, file_path_obj, path_consts, ui_consts, debug_st
         raise Exception(f"The uFit_settings.txt file does not exist")
 
     if add_on_version.split('.')[0].strip() != ufit_version.split('.')[0].strip():
-        raise Exception(f"The 3D model was created with uFit version {add_on_version} "
-                        f"and that is not compatible with uFit version {ufit_version}."
+        raise Exception(f"The 3D model was created with uFit version {ufit_version} "
+                        f"and that is not compatible with uFit version {add_on_version}."
                         f"Go to our website for more information")
 
     if os.path.isdir(checkpoints_dir):

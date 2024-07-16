@@ -15,7 +15,7 @@ bl_info = {
     "author": "Ugani Prosthetics",
     "blender": (3, 5, 0),
     "category": "O&P",
-    "version": (2, 1, 0)
+    "version": (2, 2, 0)
 }
 
 modulesNames = [
@@ -30,6 +30,7 @@ enable_addons = [
     'io_scene_fbx',
     'io_curve_svg',
     'io_mesh_ply',
+    'io_mesh_stl',
     'io_mesh_uv_layout',
     'io_scene_obj',
     'io_scene_x3d',
@@ -115,7 +116,7 @@ def init_ufit():
             delta = now - last_authenticated
             days_diff = delta.days
 
-        if is_authenticated() or \
+        if is_authenticated() and \
                 (days_diff <= 10 and bpy.context.scene.ufit_user and bpy.context.scene.ufit_password):  # make sure authentication happens every 10 days
             bpy.context.scene.ufit_active_step = 'device_type'
             load_ufit_config()

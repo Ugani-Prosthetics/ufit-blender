@@ -12,7 +12,7 @@ class UISocketMilling(UFitPanel, bpy.types.Panel):
         box0 = layout.box()
         box0_row0 = box0.row()
         box0_row1 = box0.row()
-        box0_row0.label(text="Full socket or milling model?")
+        box0_row0.label(text="3D Printing or CNC Milling?")
         box0_row1.prop(scene, 'ufit_socket_or_milling', expand=True)
 
         # separator

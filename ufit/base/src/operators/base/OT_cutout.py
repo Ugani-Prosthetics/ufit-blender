@@ -1,6 +1,6 @@
 import bpy
 from .....base.src.operators.core.OT_base import OTBase
-from .....base.src.operators.core.sculpt import create_cutout_plane, cutout, cutout_straight
+from .....base.src.operators.core.sculpt import create_cutout_plane, cutout, cutout_straight, cutout_part_selection
 
 
 class OTCutoutPlane(OTBase):
@@ -30,6 +30,15 @@ class OTCutout(OTBase):
 
     def main_func(self, context):
         cutout(context)
+
+
+class OTCutoutSelection(OTBase):
+    @classmethod
+    def poll(cls, context):
+        return True
+
+    def main_func(self, context):
+        cutout_part_selection(context)
 
 
 class OTNewCutout(OTBase):

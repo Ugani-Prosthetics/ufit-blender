@@ -25,6 +25,7 @@ from .ST_70_push_pull_smooth.OT_push_pull_smooth import (
 from .ST_80_pull_bottom.OT_pull_bottom import OTPullBottomTT, OTPullBottomDoneTT
 from .ST_90_cutout_prep.OT_cutout_prep import OTCutoutPlaneTT
 from .ST_100_cutout.OT_cutout import OTCutoutTT
+from .ST_105_cutout_selection.OT_cutout_selection import OTCutoutSelectionTT
 from .ST_110_scale.OT_liner_scaling import OTLinerScaleTT
 from .ST_120_verify_scaling.OT_verify_scaling import OTApproveScalingTT
 from .ST_125_socket_milling.OT_socket_milling import OTSocketMillingTT
@@ -63,6 +64,7 @@ def register():
     bpy.utils.register_class(OTPullBottomDoneTT)
     bpy.utils.register_class(OTCutoutPlaneTT)
     bpy.utils.register_class(OTCutoutTT)
+    bpy.utils.register_class(OTCutoutSelectionTT)
     bpy.utils.register_class(OTLinerScaleTT)
     bpy.utils.register_class(OTApproveScalingTT)
     bpy.utils.register_class(OTSocketMillingTT)
@@ -103,6 +105,7 @@ def unregister():
     bpy.utils.unregister_class(OTPullBottomDoneTT)
     bpy.utils.unregister_class(OTCutoutPlaneTT)
     bpy.utils.unregister_class(OTCutoutTT)
+    bpy.utils.unregister_class(OTCutoutSelectionTT)
     bpy.utils.unregister_class(OTLinerScaleTT)
     bpy.utils.unregister_class(OTApproveScalingTT)
     bpy.utils.unregister_class(OTSocketMillingTT)

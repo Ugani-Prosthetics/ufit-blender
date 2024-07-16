@@ -1,7 +1,7 @@
 from ...base.src.operators.core.prepare import (
     prep_move_scan, prep_clean_up, prep_verify_clean_up, prep_rotate, prep_circumferences)
 from ...base.src.operators.core.sculpt import (
-    prep_push_pull_smooth, prep_cutout, prep_cutout_prep, prep_scaling, prep_pull_bottom,
+    prep_push_pull_smooth, prep_cutout, prep_cutout_prep, prep_cutout_selection, prep_scaling, prep_pull_bottom,
     prep_verify_scaling, minimal_prep_pull_bottom, minimal_prep_push_pull_smooth, minimal_prep_free_sculpt,
     prep_custom_thickness, prep_flare, minimal_prep_custom_thickness)
 from ...base.src.operators.core.alignment import (
@@ -73,6 +73,10 @@ tf_ui_consts = {
             'technical_name': 'cutout',
             'help_text': 'Make corrections to the trim line curve by selecting a point using Left-Click, '
                          'press G, move mouse to the destination and Left-Click again.'},
+        'cutout_selection': {
+            'ui_name': 'Part Selection',
+            'technical_name': 'cutout_selection',
+            'help_text': 'Select the part you would like to keep.'},
         'scale': {
             'ui_name': 'Scaling',
             'help_text': 'Scale the scan in mm or % to increase or decrease its size.'},
@@ -80,12 +84,12 @@ tf_ui_consts = {
             'ui_name': 'Verify Scaling',
             'help_text': 'Verify the scaling is what you expected.'},
         'socket_milling': {
-            'ui_name': 'Full Socket or Carving Model?',
-            'help_text': 'Choose "Socket" if you would you like to create a full 3D socket. '
-                         'Choose "Milling" if you would like to create a positive model for CNC carving?'},
+            'ui_name': '3D Printing or CNC Milling?',
+            'help_text': 'Choose "3D Printing" if you would you like to create a full 3D socket. '
+                         'Choose "CNC Milling" if you would like to create a positive model for CNC carving?'},
         'milling_model': {
-            'ui_name': 'Milling Model',
-            'help_text': 'Create your milling model by choosing your parameters in the menu and clicking next.'},
+            'ui_name': 'CNC Milling Model',
+            'help_text': 'Create your CNC Milling model by choosing your parameters in the menu and clicking next.'},
         'thickness': {
             'ui_name': 'Base Thickness',
             'help_text': 'Choose the base 3D printing thickness in mm.'},
@@ -390,14 +394,15 @@ tf_operator_consts = {
                 },
                 {
                     'condition_func': conditions.cutout_style_straight_condition,
-                    'name': 'scale',
+                    'name': 'cutout_selection',
                     'default_state': {
-                        'object_name': 'uFit',
+                        'object_name': 'uFit_part1',
                         'light': 'STUDIO',
-                        'color_type': 'VERTEX'
+                        'color_type': 'VERTEX',
+                        'focus': False
                     },
-                    'reset_substep': True,
-                    'prep_func': prep_scaling,
+                    'reset_substep': False,
+                    'prep_func': prep_cutout_selection,
                     'exec_save': True
                 }
             ]
@@ -406,6 +411,24 @@ tf_operator_consts = {
     'cutout': {
         'checkpoint': {
             'name': 'cutout',
+            'sub_steps': False
+        },
+        'next_step': {
+            'name': 'cutout_selection',
+            'default_state': {
+                'object_name': 'uFit_part1',
+                'light': 'STUDIO',
+                'color_type': 'VERTEX',
+                'focus': False
+            },
+            'reset_substep': True,
+            'prep_func': prep_cutout_selection,
+            'exec_save': True
+        },
+    },
+    'cutout_selection': {
+        'checkpoint': {
+            'name': 'cutout_selection',
             'sub_steps': False
         },
         'next_step': {
@@ -433,7 +456,7 @@ tf_operator_consts = {
             'sub_steps': False
         },
         'next_step': {
-            'name': 'socket_milling',
+            'name': 'thickness',
             'default_state': {
                 'object_name': 'uFit',
                 'light': 'STUDIO',
@@ -444,59 +467,59 @@ tf_operator_consts = {
             'exec_save': True
         }
     },
-    'socket_milling': {
-        'checkpoint': {
-            'name': 'socket_milling',
-            'sub_steps': False
-        },
-        'next_step': {
-            'conditions': [
-                {
-                    'condition_func': conditions.socket_condition,
-                    'name': 'thickness',
-                    'default_state': {
-                        'object_name': 'uFit',
-                        'light': 'STUDIO',
-                        'color_type': 'MATERIAL'
-                    },
-                    'reset_substep': True,
-                    'prep_func': None,
-                    'exec_save': True
-                },
-                {
-                    'condition_func': conditions.milling_condition,
-                    'name': 'milling_model',
-                    'default_state': {
-                        'object_name': 'uFit',
-                        'light': 'STUDIO',
-                        'color_type': 'MATERIAL',
-                        'proportional_edit': True,
-                        'proportional_size': 0.01,
-                    },
-                    'reset_substep': True,
-                    'prep_func': None,
-                    'exec_save': True
-                }
-            ]
-        },
-    },
-    'milling_model': {
-        'checkpoint': {
-            'name': 'milling_model',
-            'sub_steps': False
-        },
-        'next_step': {
-            'name': 'export',
-            'default_state': {
-                'object_name': 'uFit',
-                'light': 'STUDIO',
-                'color_type': 'RANDOM'
-            },
-            'reset_substep': True,
-            'prep_func': prep_export,
-            'exec_save': True
-        },
-    },
+    # 'socket_milling': {
+    #     'checkpoint': {
+    #         'name': 'socket_milling',
+    #         'sub_steps': False
+    #     },
+    #     'next_step': {
+    #         'conditions': [
+    #             {
+    #                 'condition_func': conditions.socket_condition,
+    #                 'name': 'thickness',
+    #                 'default_state': {
+    #                     'object_name': 'uFit',
+    #                     'light': 'STUDIO',
+    #                     'color_type': 'MATERIAL'
+    #                 },
+    #                 'reset_substep': True,
+    #                 'prep_func': None,
+    #                 'exec_save': True
+    #             },
+    #             {
+    #                 'condition_func': conditions.milling_condition,
+    #                 'name': 'milling_model',
+    #                 'default_state': {
+    #                     'object_name': 'uFit',
+    #                     'light': 'STUDIO',
+    #                     'color_type': 'MATERIAL',
+    #                     'proportional_edit': True,
+    #                     'proportional_size': 0.01,
+    #                 },
+    #                 'reset_substep': True,
+    #                 'prep_func': None,
+    #                 'exec_save': True
+    #             }
+    #         ]
+    #     },
+    # },
+    # 'milling_model': {
+    #     'checkpoint': {
+    #         'name': 'milling_model',
+    #         'sub_steps': False
+    #     },
+    #     'next_step': {
+    #         'name': 'export',
+    #         'default_state': {
+    #             'object_name': 'uFit',
+    #             'light': 'STUDIO',
+    #             'color_type': 'RANDOM'
+    #         },
+    #         'reset_substep': True,
+    #         'prep_func': prep_export,
+    #         'exec_save': True
+    #     },
+    # },
     'thickness': {
         'checkpoint': {
             'name': 'thickness',

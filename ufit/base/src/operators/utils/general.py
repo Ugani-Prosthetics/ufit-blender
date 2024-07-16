@@ -97,6 +97,19 @@ def deselect_edges_by_idx(context, indexes):
         if edge.index in indexes:
             edge.select = False
 
+    bm.select_flush_mode()
+
+
+def select_edges_by_idx(context, indexes):
+    obj = context.edit_object.data
+    bm = bmesh.from_edit_mesh(obj)
+
+    for edge in bm.edges:
+        if edge.index in indexes:
+            edge.select = True
+
+    bm.select_flush_mode()
+
 
 def get_selected_vertices(context):
     obj = context.edit_object.data
@@ -946,7 +959,7 @@ def return_to_default_object_mode(context, obj):
 def return_to_default_state(context, object_name, light, color_type, overlay_axes=(0, 0, 0), show_overlays=True,
                             overlay_text=False, proportional_edit=False, proportional_size=10, use_snap=False,
                             snap_elements={'FACE_NEAREST'}, quad_view=False, ortho_view=False,
-                            orientation_type='GLOBAL', pivot_point='INDIVIDUAL_ORIGINS'):
+                            orientation_type='GLOBAL', pivot_point='INDIVIDUAL_ORIGINS', focus=True):
     # activate object in object mode
     obj = bpy.data.objects[object_name]
 
@@ -963,7 +976,8 @@ def return_to_default_state(context, object_name, light, color_type, overlay_axe
     user_interface.change_orthographic('FRONT')
 
     # focus on the object
-    user_interface.focus_on_selected()
+    if focus:
+        user_interface.focus_on_selected()
 
     # never show
     bpy.context.space_data.overlay.show_floor = False  # never show the floor

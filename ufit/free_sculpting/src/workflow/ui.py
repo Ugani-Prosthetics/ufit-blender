@@ -11,6 +11,7 @@ from .ST_90_verify_scaling.UI_verify_scaling import UIVerifyScalingFS
 from .ST_95_border_choice.UI_border_choice import UIBorderChoiceFS
 from .ST_100_cutout_prep.UI_cutout_prep import UICutoutPrepFS
 from .ST_110_cutout.UI_cutout import UICutoutFS
+from .ST_115_cutout_selection.UI_cutout_selection import UICutoutSelectionFS
 from .ST_120_new_cutout.UI_new_cutout import UINewCutoutFS
 from .ST_125_draw.UI_draw import UIDrawFS
 from .ST_180_export.UI_export_socket import UIExportSocketFS
@@ -30,6 +31,7 @@ def register():
     bpy.utils.register_class(UIBorderChoiceFS)
     bpy.utils.register_class(UICutoutPrepFS)
     bpy.utils.register_class(UICutoutFS)
+    bpy.utils.register_class(UICutoutSelectionFS)
     bpy.utils.register_class(UINewCutoutFS)
     bpy.utils.register_class(UIDrawFS)
     bpy.utils.register_class(UIExportSocketFS)
@@ -49,6 +51,7 @@ def unregister():
     bpy.utils.unregister_class(UIBorderChoiceFS)
     bpy.utils.unregister_class(UICutoutPrepFS)
     bpy.utils.unregister_class(UICutoutFS)
+    bpy.utils.unregister_class(UICutoutSelectionFS)
     bpy.utils.unregister_class(UINewCutoutFS)
     bpy.utils.unregister_class(UIDrawFS)
     bpy.utils.unregister_class(UIExportSocketFS)

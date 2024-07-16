@@ -21,6 +21,7 @@ from .ST_90_verify_scaling.OT_verify_scaling import OTApproveScalingFS
 from .ST_95_border_choice.OT_border_choice import OTBorderChoiceFS
 from .ST_100_cutout_prep.OT_cutout_prep import OTCutoutPlaneFS
 from .ST_110_cutout.OT_cutout import OTCutoutFS
+from .ST_115_cutout_selection.OT_cutout_selection import OTCutoutSelectionFS
 from .ST_120_new_cutout.OT_new_cutout import OTNewCutoutFS, OTCutoutDoneFS
 from .ST_125_draw.OT_draw import OTApplyDrawFS
 from .ST_180_export.OT_export_socket import OTExportSocketFS
@@ -48,6 +49,7 @@ def register():
     bpy.utils.register_class(OTPushPullSmoothDoneFS)
     bpy.utils.register_class(OTCutoutPlaneFS)
     bpy.utils.register_class(OTCutoutFS)
+    bpy.utils.register_class(OTCutoutSelectionFS)
     bpy.utils.register_class(OTNewCutoutFS)
     bpy.utils.register_class(OTCutoutDoneFS)
     bpy.utils.register_class(OTApplyDrawFS)
@@ -76,6 +78,7 @@ def unregister():
     bpy.utils.unregister_class(OTPushPullSmoothDoneFS)
     bpy.utils.unregister_class(OTCutoutPlaneFS)
     bpy.utils.unregister_class(OTCutoutFS)
+    bpy.utils.unregister_class(OTCutoutSelectionFS)
     bpy.utils.unregister_class(OTNewCutoutFS)
     bpy.utils.unregister_class(OTCutoutDoneFS)
     bpy.utils.unregister_class(OTApplyDrawFS)

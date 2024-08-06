@@ -18,7 +18,8 @@ def register():
                                                                    ("universal_no_hole_circ.blend", "Universal No-hole Circ", "", 1),
                                                                    ("universal_4_hole_circ.blend", "Universal 4-hole Circ", "", 2),
                                                                    ("universal_4_hole_circ_small.blend", "Universal 4-hole Circ (Small)", "", 3),
-                                                                   ("universal_4_hole_quad.blend", "Universal 4-hole Quad", "", 4),
+                                                                   ("universal_4_hole_circ_child.blend", "Universal 4-hole Circ (Child)", "", 4),
+                                                                   ("universal_4_hole_quad.blend", "Universal 4-hole Quad", "", 5),
                                                                ])
 
     bpy.types.Scene.tf_foot_type = bpy.props.EnumProperty(name="Foot Type", default=1,
